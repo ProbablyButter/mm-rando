@@ -83,8 +83,6 @@
             this.mMenu = new System.Windows.Forms.MenuStrip();
             this.mFile = new System.Windows.Forms.ToolStripMenuItem();
             this.mExit = new System.Windows.Forms.ToolStripMenuItem();
-            this.mTools = new System.Windows.Forms.ToolStripMenuItem();
-            this.mByteswap = new System.Windows.Forms.ToolStripMenuItem();
             this.mCustomise = new System.Windows.Forms.ToolStripMenuItem();
             this.mLogicEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.mItemIncl = new System.Windows.Forms.ToolStripMenuItem();
@@ -114,7 +112,7 @@
             // 
             // openROM
             // 
-            this.openROM.Filter = "ROM files|*.z64";
+            this.openROM.Filter = "ROM files(*.z64;*.n64;*.v64;*.rom)|*.z64;*.n64;*.v64;*.rom|All files (*.*)|*.*";
             // 
             // tROMName
             // 
@@ -768,7 +766,6 @@
             this.mMenu.BackColor = System.Drawing.SystemColors.Control;
             this.mMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mFile,
-            this.mTools,
             this.mCustomise,
             this.mHelp});
             this.mMenu.Location = new System.Drawing.Point(0, 0);
@@ -789,24 +786,9 @@
             // 
             this.mExit.Name = "mExit";
             this.mExit.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.mExit.Size = new System.Drawing.Size(152, 22);
+            this.mExit.Size = new System.Drawing.Size(134, 22);
             this.mExit.Text = "Exit";
             this.mExit.Click += new System.EventHandler(this.mExit_Click);
-            // 
-            // mTools
-            // 
-            this.mTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mByteswap});
-            this.mTools.Name = "mTools";
-            this.mTools.Size = new System.Drawing.Size(48, 20);
-            this.mTools.Text = "Tools";
-            // 
-            // mByteswap
-            // 
-            this.mByteswap.Name = "mByteswap";
-            this.mByteswap.Size = new System.Drawing.Size(223, 22);
-            this.mByteswap.Text = "Byteswap (.n64, .v64 -> .z64)";
-            this.mByteswap.Click += new System.EventHandler(this.mByteswap_Click);
             // 
             // mCustomise
             // 
@@ -820,14 +802,14 @@
             // mLogicEdit
             // 
             this.mLogicEdit.Name = "mLogicEdit";
-            this.mLogicEdit.Size = new System.Drawing.Size(152, 22);
+            this.mLogicEdit.Size = new System.Drawing.Size(180, 22);
             this.mLogicEdit.Text = "Logic editor";
             this.mLogicEdit.Click += new System.EventHandler(this.mLogicEdit_Click);
             // 
             // mItemIncl
             // 
             this.mItemIncl.Name = "mItemIncl";
-            this.mItemIncl.Size = new System.Drawing.Size(152, 22);
+            this.mItemIncl.Size = new System.Drawing.Size(180, 22);
             this.mItemIncl.Text = "Item list editor";
             this.mItemIncl.Click += new System.EventHandler(this.mItemIncl_Click);
             // 
@@ -845,19 +827,19 @@
             // 
             this.mManual.Name = "mManual";
             this.mManual.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.mManual.Size = new System.Drawing.Size(152, 22);
+            this.mManual.Size = new System.Drawing.Size(133, 22);
             this.mManual.Text = "Manual";
             this.mManual.Click += new System.EventHandler(this.mManual_Click);
             // 
             // mSep1
             // 
             this.mSep1.Name = "mSep1";
-            this.mSep1.Size = new System.Drawing.Size(149, 6);
+            this.mSep1.Size = new System.Drawing.Size(130, 6);
             // 
             // mAbout
             // 
             this.mAbout.Name = "mAbout";
-            this.mAbout.Size = new System.Drawing.Size(152, 22);
+            this.mAbout.Size = new System.Drawing.Size(133, 22);
             this.mAbout.Text = "About";
             this.mAbout.Click += new System.EventHandler(this.mAbout_Click);
             // 
@@ -956,8 +938,6 @@
         private System.Windows.Forms.MenuStrip mMenu;
         private System.Windows.Forms.ToolStripMenuItem mFile;
         private System.Windows.Forms.ToolStripMenuItem mExit;
-        private System.Windows.Forms.ToolStripMenuItem mTools;
-        private System.Windows.Forms.ToolStripMenuItem mByteswap;
         private System.Windows.Forms.ToolStripMenuItem mHelp;
         private System.Windows.Forms.ToolStripMenuItem mManual;
         private System.Windows.Forms.ToolStripMenuItem mAbout;

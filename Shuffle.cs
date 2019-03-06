@@ -102,7 +102,7 @@ namespace MMRando
         {
             GossipList = new List<Gossip>();
             GossipQuotes = new List<string>();
-            string[] lines = Properties.Resources.GOSSIP.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            string[] lines = Properties.Resources.GOSSIP.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             int i = 0;
             while (i < lines.Length)
             {
@@ -207,7 +207,7 @@ namespace MMRando
         {
             SeqList = new List<SeqInfo>();
             TargetSeqs = new List<SeqInfo>();
-            string[] lines = Properties.Resources.SEQS.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            string[] lines = Properties.Resources.SEQS.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             int i = 0;
             while (i < lines.Length)
             {
@@ -370,16 +370,16 @@ namespace MMRando
             string[] lines;
             if (cMode.SelectedIndex == 0)
             {
-                lines = Properties.Resources.REQ_CASUAL.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                lines = Properties.Resources.REQ_CASUAL.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             }
             else if (cMode.SelectedIndex == 1)
             {
-                lines = Properties.Resources.REQ_GLITCH.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                lines = Properties.Resources.REQ_GLITCH.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             }
             else if (cMode.SelectedIndex == 3)
             {
                 StreamReader Req = new StreamReader(File.Open(openLogic.FileName, FileMode.Open));
-                lines = Req.ReadToEnd().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                lines = Req.ReadToEnd().Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
                 Req.Close();
             }
             else

@@ -236,11 +236,18 @@ namespace MMRando
             SortBGM();
             if ((tROMName.Text != "") && (File.Exists(tROMName.Text)))
             {
-                if (saveROM.ShowDialog() == DialogResult.OK)
+                // try to open ROM, byte swapping if necessary
+                BinaryReader rom = readROM(tROMName.Text);
+                if (rom is null)
                 {
-                    if (saveROM.FileName != "")
+                    MessageBox.Show("Invalid ROM file");
+                    return;
+                }
+                if (ValidateROM(rom))
+                {
+                    if (saveROM.ShowDialog() == DialogResult.OK)
                     {
-                        if (ValidateROM(tROMName.Text))
+                        if (saveROM.FileName != "")
                         {
                             if (Output_VC)
                             {
@@ -248,30 +255,28 @@ namespace MMRando
                                 {
                                     MessageBox.Show("Output file not selected.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     return;
-                                };
-                            };
-                            MakeROM(tROMName.Text, saveROM.FileName);
+                                }
+                            }
+                            MakeROM(rom, saveROM.FileName);
                             MessageBox.Show("Successfully built output ROM!", "Success", MessageBoxButtons.OK, MessageBoxIcon.None);
+
                         }
                         else
                         {
-                            MessageBox.Show("Cannot verify input ROM is Majora's Mask (U).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        };
+                            MessageBox.Show("No output selected; ROM will not be saved.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+                        
                     }
                     else
                     {
                         MessageBox.Show("Output file not selected.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    };
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("No output selected; ROM will not be saved.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                };
+                    MessageBox.Show("Cannot verify input ROM is Majora's Mask (U).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-            else
-            {
-                MessageBox.Show("Input ROM not selected or doesn't exist, cannot generate output.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            };
         }
 
         private void tSString_Enter(object sender, EventArgs e)
@@ -389,26 +394,6 @@ namespace MMRando
         private void mManual_Click(object sender, EventArgs e)
         {
             Manual.Show();
-        }
-
-        private void mByteswap_Click(object sender, EventArgs e)
-        {
-            if (openBROM.ShowDialog() == DialogResult.OK)
-            {
-                int r = ROMFuncs.ByteswapROM(openBROM.FileName);
-                switch (r)
-                {
-                    case 0:
-                        MessageBox.Show("Successfully byteswapped ROM.", "Success", MessageBoxButtons.OK, MessageBoxIcon.None);
-                        break;
-                    case 1:
-                        MessageBox.Show("ROM appears to be big endian.", "Success", MessageBoxButtons.OK, MessageBoxIcon.None);
-                        break;
-                    default:
-                        MessageBox.Show("Could not byteswap ROM.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        break;
-                };
-            };
         }
 
         private void mLogicEdit_Click(object sender, EventArgs e)

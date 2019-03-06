@@ -72,47 +72,6 @@ namespace MMRando
             };
         }
 
-        public static int ByteswapROM(string filename)
-        {
-            BinaryReader ROM = new BinaryReader(File.Open(filename, FileMode.Open));
-            if (ROM.BaseStream.Length % 4 != 0)
-            {
-                ROM.Close();
-                return -1;
-            };
-            byte[] buffer = new byte[4];
-            ROM.Read(buffer, 0, 4);
-            // very hacky
-            int r = -1;
-            ROM.BaseStream.Seek(0, 0);
-            if (buffer[0] == 0x80)
-            {
-                r = 1;
-            }
-            else if (buffer[1] == 0x80)
-            {
-                r = 0;
-                BinaryWriter newROM = new BinaryWriter(File.Open(filename + ".z64", FileMode.Create));
-                while (ROM.BaseStream.Position < ROM.BaseStream.Length)
-                {
-                    newROM.Write(Byteswap16(ReadU16(ROM)));
-                };
-                newROM.Close();
-            }
-            else if (buffer[3] == 0x80)
-            {
-                r = 0;
-                BinaryWriter newROM = new BinaryWriter(File.Open(filename + ".z64", FileMode.Create));
-                while (ROM.BaseStream.Position < ROM.BaseStream.Length)
-                {
-                    newROM.Write(Byteswap32(ReadU32(ROM)));
-                };
-                newROM.Close();
-            };
-            ROM.Close();
-            return r;
-        }
-
         private static void UpdateFileTable(byte[] ROM)
         {
             for (int i = 0; i < MMFileList.Count; i++)
@@ -173,7 +132,7 @@ namespace MMRando
             };
         }
 
-        private static void FixCRC(byte[] ROM)
+        public static void FixCRC(byte[] ROM)
         {
             // reference: http://n64dev.org/n64crc.html
             uint[] CRC = new uint[2];

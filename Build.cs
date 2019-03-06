@@ -355,21 +355,81 @@ namespace MMRando
             ROMFuncs.SetStrings(ModsDir + "logo-text", ver, setting);
         }
 
-        private bool ValidateROM(string FileName)
+        private BinaryReader readROM(string FileName)
+        {
+            BinaryReader ROM = new BinaryReader(File.Open(FileName, FileMode.Open));
+            // check if this is a .z64 (32-bit big endian), .v64 (16-bit little endian), or .n64 (32-bit big endian) file
+            // v64: 0x37, 0x80, 0x40, 0x12
+            // z64: 0x80, 0x37, 0x12, 0x40
+            // n64: 0x40, 0x12, 0x37, 0x80
+            // assume little endian machine
+            uint header = ROM.ReadUInt32();
+            ROM.BaseStream.Seek(0, 0);
+            if (header == 0x40123780u)
+            {
+                // z64 format
+                // do nothing
+                return ROM;
+            }
+            else if (header == 0x80371240)
+            {
+                // n64 format
+                byte[] data = new byte[ROM.BaseStream.Length];
+                ROM.Read(data, 0, data.Length);
+                ROM.Close();
+                // 32-bit little endian
+                for (int i = 0; i < data.Length; i += 4)
+                {
+                    byte tmp = data[i];
+                    data[i] = data[i + 3];
+                    data[i + 3] = tmp;
+                    tmp = data[i + 1];
+                    data[i + 1] = data[i + 2];
+                    data[i + 2] = tmp;
+                }
+                // technically not necessary to recalculate CRC unless you just want a sanity check
+                //ROMFuncs.FixCRC(data);
+                BinaryReader fixedRom = new BinaryReader(new MemoryStream(data));
+                return fixedRom;
+            }
+            else if (header == 0x12408037)
+            {
+                // v64 format
+                byte[] data = new byte[ROM.BaseStream.Length];
+                ROM.Read(data, 0, data.Length);
+                ROM.Close();
+                // 16-bit little endian
+                for (int i = 0; i < data.Length; i += 2)
+                {
+                    byte tmp = data[i];
+                    data[i] = data[i + 1];
+                    data[i + 1] = tmp;
+                }
+                // technically not necessary to recalculate CRC unless you just want a sanity check
+                //ROMFuncs.FixCRC(data);
+                BinaryReader fixedRom = new BinaryReader(new MemoryStream(data));
+                return fixedRom;
+            }
+            else
+            {
+                // is this even a valid ROM?
+                return null;
+            }
+        }
+
+        private bool ValidateROM(BinaryReader ROM)
         {
             bool res = false;
-            BinaryReader ROM = new BinaryReader(File.Open(FileName, FileMode.Open));
             if (ROM.BaseStream.Length == 0x2000000)
             {
                 res = ROMFuncs.CheckOldCRC(ROM);
             };
-            ROM.Close();
             return res;
         }
 
-        private void MakeROM(string InFile, string FileName)
+        private void MakeROM(BinaryReader OldROM, string FileName)
         {
-            BinaryReader OldROM = new BinaryReader(File.Open(InFile, FileMode.Open));
+            OldROM.BaseStream.Seek(0, 0);
             ROMFuncs.ReadFileTable(OldROM);
             OldROM.Close();
             WriteAudioSeq();
