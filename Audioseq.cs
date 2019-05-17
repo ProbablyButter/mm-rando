@@ -8,13 +8,11 @@ namespace MMRando
 
     public partial class ROMFuncs
     {
-
         //todo - rewrite this
-        public static void RebuildAudioSeq(List<mmrMain.SeqInfo> SeqList)
+        public static void RebuildAudioSeq(List<MainRandomizerForm.SequenceInfo> SeqList)
         {
             List<MMSeq> OldSeq = new List<MMSeq>();
-            int f = AddrToFile((uint)SeqTable);
-            CheckCompressed(f);
+            int f = GetFileIndexForWriting(SeqTable);
             int basea = MMFileList[f].Addr;
             for (int i = 0; i < 128; i++)
             {
@@ -112,7 +110,7 @@ namespace MMRando
                 newa.IsCompressed = false;
                 newa.Data = NewAudioSeq;
                 MMFileList.Add(newa);
-                ApplyHack(mmrMain.ModsDir + "reloc-audio");
+                ApplyHack(MainRandomizerForm.ModsDirectory + "reloc-audio");
                 MMFileList[4].Data = new byte[0];
                 MMFileList[4].Cmp_Addr = -1;
                 MMFileList[4].Cmp_End = -1;
@@ -122,15 +120,14 @@ namespace MMRando
                 MMFileList[4].Data = NewAudioSeq;
             };
             //update pointer table
-            f = AddrToFile((uint)SeqTable);
+            f = GetFileIndexForWriting(SeqTable);
             for (int i = 0; i < 128; i++)
             {
                 Arr_WriteU32(MMFileList[f].Data, (SeqTable + (i * 16)) - basea, (uint)NewSeq[i].Addr);
                 Arr_WriteU32(MMFileList[f].Data, 4 + (SeqTable + (i * 16)) - basea, (uint)NewSeq[i].Size);
             };
             //update inst sets
-            f = AddrToFile((uint)InstSetMap);
-            CheckCompressed(f);
+            f = GetFileIndexForWriting(InstSetMap);
             basea = MMFileList[f].Addr;
             for (int i = 0; i < 128; i++)
             {
@@ -146,7 +143,7 @@ namespace MMRando
                 };
                 if (j != -1)
                 {
-                    MMFileList[f].Data[paddr] = (byte)SeqList[j].Inst;
+                    MMFileList[f].Data[paddr] = (byte)SeqList[j].Instrument;
                 };
             };
         }

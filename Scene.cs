@@ -7,6 +7,30 @@ namespace MMRando
     public partial class ROMFuncs
     {
 
+        private static vec16 ReadVertex(int n)
+        {
+            vec16 v = new vec16();
+            return v;
+        }
+
+        private static void GetTriangleData(short[] verts)
+        {
+            CollisionTri T = new CollisionTri();
+
+            T.v1 = ReadVertex(verts[0]);
+            T.v2 = ReadVertex(verts[1]);
+            T.v3 = ReadVertex(verts[2]);
+            vecf32 AB = Subtract(T.v2, T.v1);
+            vecf32 BC = Subtract(T.v3, T.v2);
+            T.u_n = Normalise(CrossProduct(AB, BC));
+            T.d = PlaneDist(T.u_n, T.v1);
+        }
+
+        private static void ReadCollisionTriangles()
+        {
+
+        }
+
         private static void ResetSceneFlagMask()
         {
             WriteToROM(SceneFlagMasks, (uint)0);
@@ -26,8 +50,7 @@ namespace MMRando
                 offset -= 4;
             };
             int bit = 1 << (num & 7);
-            int f = AddrToFile((uint)SceneFlagMasks);
-            CheckCompressed(f);
+            int f = GetFileIndexForWriting(SceneFlagMasks);
             int addr = SceneFlagMasks - MMFileList[f].Addr + offset;
             MMFileList[f].Data[addr] |= (byte)bit;
         }
@@ -35,8 +58,7 @@ namespace MMRando
         private static void ReadSceneTable()
         {
             SceneList = new List<Scene>();
-            int f = AddrToFile((uint)SceneTable);
-            CheckCompressed(f);
+            int f = GetFileIndexForWriting(SceneTable);
             int _SceneTable = SceneTable - MMFileList[f].Addr;
             int i = 0;
             while (true)
@@ -49,7 +71,7 @@ namespace MMRando
                 };
                 if (saddr != 0)
                 {
-                    s.File = AddrToFile(saddr);
+                    s.File = AddrToFile((int)saddr);
                     s.Number = i >> 4;
                     SceneList.Add(s);
                 };
@@ -74,7 +96,7 @@ namespace MMRando
                         for (int k = 0; k < mapcount; k++)
                         {
                             Map m = new Map();
-                            m.File = AddrToFile(Arr_ReadU32(MMFileList[f].Data, mapsaddr));
+                            m.File = AddrToFile((int)Arr_ReadU32(MMFileList[f].Data, mapsaddr));
                             SceneList[i].Maps.Add(m);
                             mapsaddr += 8;
                         };

@@ -29,7 +29,7 @@ namespace MMRando
         {
             GetItemIndices = new List<int>();
             BottleIndices = new List<int[]>();
-            string[] lines = Properties.Resources.ITEM_INDICES.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            string[] lines = Properties.Resources.ITEM_INDICES.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
             int i = 0;
             bool bottle = false;
             while (i < lines.Length)
@@ -76,8 +76,7 @@ namespace MMRando
         private static void InitGetBottleList()
         {
             BottleList = new List<BottleCatchEntry[]>();
-            int f = AddrToFile((uint)BottleCatchTable);
-            CheckCompressed(f);
+            int f = GetFileIndexForWriting(BottleCatchTable);
             int baseaddr = BottleCatchTable - MMFileList[f].Addr;
             for (int i = 0; i < BottleIndices.Count; i++)
             {
@@ -105,8 +104,7 @@ namespace MMRando
         private static void InitGetItemList()
         {
             GetItemList = new List<GetItemEntry>();
-            int f = AddrToFile((uint)GetItemTable);
-            CheckCompressed(f);
+            int f = GetFileIndexForWriting(GetItemTable);
             int baseaddr = GetItemTable - MMFileList[f].Addr;
             for (int i = 0; i < GetItemIndices.Count; i++)
             {
@@ -138,8 +136,7 @@ namespace MMRando
 
         public static void WriteNewBottle(int ItemSlot, int NewItem)
         {
-            int f = AddrToFile((uint)BottleCatchTable);
-            CheckCompressed(f);
+            int f = GetFileIndexForWriting(BottleCatchTable);
             int baseaddr = BottleCatchTable - MMFileList[f].Addr;
             for (int i = 0; i < BottleIndices[ItemSlot].Length; i++)
             {
@@ -152,10 +149,14 @@ namespace MMRando
 
         public static void WriteNewItem(int ItemSlot, int NewItem, bool IsRepeatable, bool RepeatCycle)
         {
-            int f = AddrToFile((uint)GetItemTable);
-            CheckCompressed(f);
+            int f = GetFileIndexForWriting(GetItemTable);
             int baseaddr = GetItemTable - MMFileList[f].Addr;
-            int offset = (GetItemIndices[ItemSlot] - 1) * 8;
+            var itemIndex = GetItemIndices[ItemSlot];
+            if (ItemSlot == Items.ItemGoldDust)
+            {
+                itemIndex = 0x6A; // Place items intended for Gold Dust at the Goron Race Bottle location.
+            }
+            int offset = (itemIndex - 1) * 8;
             MMFileList[f].Data[baseaddr + offset] = GetItemList[NewItem].ItemGained;
             MMFileList[f].Data[baseaddr + offset + 1] = GetItemList[NewItem].Flag;
             MMFileList[f].Data[baseaddr + offset + 2] = GetItemList[NewItem].Index;
@@ -166,33 +167,34 @@ namespace MMRando
             MMFileList[f].Data[baseaddr + offset + 7] = (byte)(GetItemList[NewItem].Object & 0xFF);
             if (RepeatCycle)
             {
-                WriteToROM(cycle_repeat, (ushort)GetItemIndices[ItemSlot]);
+                WriteToROM(cycle_repeat, (ushort)itemIndex);
                 cycle_repeat += 2;
             };
             if (!IsRepeatable)
             {
-                UpdateSceneFlagMask(GetItemIndices[ItemSlot]);
+                UpdateSceneFlagMask(itemIndex);
             };
-            if (NewItem == 12)
+            if (NewItem == Items.ItemBottleWitch)
             {
-                WriteToROM(0xB49982, (ushort)GetItemIndices[ItemSlot]);
-                WriteToROM(0xC72B42, (ushort)GetItemIndices[ItemSlot]);
+                WriteToROM(0xB49982, (ushort)itemIndex);
+                WriteToROM(0xC72B42, (ushort)itemIndex);
             };
-            if (NewItem == 17)
+            if (NewItem == Items.ItemBottleMadameAroma)
             {
-                WriteToROM(0xB4999A, (ushort)GetItemIndices[ItemSlot]);
-                WriteToROM(0xC72B4E, (ushort)GetItemIndices[ItemSlot]);
+                WriteToROM(0xB4999A, (ushort)itemIndex);
+                WriteToROM(0xC72B4E, (ushort)itemIndex);
             };
-            if (NewItem == 13)
+            if (NewItem == Items.ItemBottleAliens)
             {
-                WriteToROM(0xB499A6, (ushort)GetItemIndices[ItemSlot]);
-                WriteToROM(0xC72B5A, (ushort)GetItemIndices[ItemSlot]);
+                WriteToROM(0xB499A6, (ushort)itemIndex);
+                WriteToROM(0xC72B5A, (ushort)itemIndex);
             };
-            if (NewItem == 14)
-            {
-                WriteToROM(0xB499B2, (ushort)GetItemIndices[ItemSlot]);
-                WriteToROM(0xC72B66, (ushort)GetItemIndices[ItemSlot]);
-            };
+            // Goron Race Bottle now rewards a plain Gold Dust, so this is unnecessary until a proper fix for Goron Dust is found.
+            //if (NewItem == Items.ItemBottleGoronRace)
+            //{
+            //    WriteToROM(0xB499B2, (ushort)itemIndex);
+            //    WriteToROM(0xC72B66, (ushort)itemIndex);
+            //};
         }
 
     }

@@ -14,7 +14,8 @@
 3b
 59
 60
-6a
+-6a replace Gold Dust Bottle with regular Gold Dust
+93
 5a
 64
 6f
