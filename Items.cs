@@ -292,8 +292,19 @@ namespace MMRando
         //oops I forgot one
         public const int ChestToGoronRaceGrotto = 254; //contents?
 
+      public const int OdolwaTrialHP = 255;
+      public const int GohtTrialHP = 256;
+      public const int GyorgTrialHP = 257;
+      public const int TwinmoldTrialHP = 258;
+      public const int TwinmoldTrial30Arrows = 259;
+      public const int TwinmoldTrial10Chus = 260;
+      public const int MaskFierceDiety = 261;
+      public const int PreClockTowerDekuNuts = 262;
+
+
         public static readonly ReadOnlyCollection<int> REPEATABLE
             = new ReadOnlyCollection<int>(new int[] {
+                ItemIceArrow,
                 ItemGoldDust,
                 TradeItemMoonTear,
                 TradeItemLandDeed,
@@ -430,6 +441,7 @@ namespace MMRando
 
             });
 
+      // TODO: moon items and pre-clocktown?
         public static readonly ReadOnlyCollection<int> ITEM_ADDRS
             = new ReadOnlyCollection<int>(new int[] {
                 0xC5CE41,
@@ -532,6 +544,7 @@ namespace MMRando
                 0xC5CE72
         });
 
+      // TODO: moon items and pre-clocktown?
         public static readonly ReadOnlyCollection<byte> ITEM_VALUES
             = new ReadOnlyCollection<byte>(new byte[] {
                 0x32,
@@ -890,10 +903,16 @@ namespace MMRando
                 "Map: Romani Ranch",
                 "Map: Great Bay",
                 "Map: Stone Tower",
-                "Goron Racetrack Grotto"
+                "Goron Racetrack Grotto",
+                "Odolwa Trial HP",
+                "Goht Trial HP",
+                "Gyorg Trial HP",
+                "Twinmold Trial 30 Arrows",
+                "Twinmold Trial 10 Bombchus",
+                "Fierce Diety Mask",
+                "Pre-Clocktower Deku Nuts"
         });
 
-        internal static readonly int TotalNumberOfItems = 255;
+        internal static readonly int TotalNumberOfItems = 263;
     }
-
 }
