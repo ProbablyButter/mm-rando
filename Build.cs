@@ -429,7 +429,7 @@ namespace MMRando
             ROMFuncs.SetStrings(ModsDirectory + "logo-text", $"v{v}", tSString.Text);
         }
 
-        private BinaryReader readROM(string FileName)
+        private bool ValidateROM(string FileName)
         {
             bool res = false;
             using (BinaryReader ROM = new BinaryReader(File.Open(FileName, FileMode.Open, FileAccess.Read)))

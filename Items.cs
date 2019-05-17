@@ -409,6 +409,10 @@ namespace MMRando
                 ChestSouthClockTownRedRupee,
                 ChestSouthClockTownPurpleRupee,
                 ChestToGoronRaceGrotto,
+                TwinmoldTrial30Arrows,
+                TwinmoldTrial10Chus,
+                MaskFierceDiety,
+                PreClockTowerDekuNuts
         });
 
         public static readonly ReadOnlyCollection<int> CYCLE_REPEATABLE

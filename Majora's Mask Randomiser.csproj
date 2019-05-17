@@ -49,7 +49,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>200px_majoramask_rtw_icon.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -151,6 +152,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="fAbout.resx">
       <DependentUpon>fAbout.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="fItemEdit.resx">
       <DependentUpon>fItemEdit.cs</DependentUpon>
@@ -756,7 +758,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="200px_majoramask_rtw_icon.ico" />
     <Content Include="Templates\HtmlSpoiler.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>HtmlSpoiler.cs</LastGenOutput>

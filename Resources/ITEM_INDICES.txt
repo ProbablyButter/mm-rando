@@ -253,3 +253,11 @@ b8
 b9
 -missed
 d6
+-fun stuff (pre-clocktower and moon items)
+11e
+11f
+120
+121
+1a
+1f
+7b
