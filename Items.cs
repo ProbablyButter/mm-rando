@@ -398,6 +398,9 @@ namespace MMRando
                 ChestSouthClockTownRedRupee,
                 ChestSouthClockTownPurpleRupee,
                 ChestToGoronRaceGrotto,
+                ItemIceArrow,
+                MaskKamaro,
+                MaskZora
         });
 
         public static readonly ReadOnlyCollection<int> CYCLE_REPEATABLE
