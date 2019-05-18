@@ -1297,7 +1297,7 @@ ItemList[Items.HeartPieceNotebookGran2].ReplacesItemId = Items.ChestIkanaGrottoR
 ItemList[Items.ChestPiratesFortressEntranceRedRupee1].ReplacesItemId = Items.HeartPieceIkana;
 ItemList[Items.ShopItemWitchBluePotion].ReplacesItemId = Items.ChestInnGuestRoom;
 ItemList[Items.HeartPieceNotebookGran1].ReplacesItemId = Items.ChestInnStaffRoom;
-ItemList[Items.HeartPieceKnuckle].ReplacesItemId = Items.MaskKafei;
+ItemList[Items.MaskZora].ReplacesItemId = Items.MaskKafei;
 ItemList[Items.ItemTingleMapRanch].ReplacesItemId = Items.MaskKamaro;
 ItemList[Items.HeartPieceNorthClockTown].ReplacesItemId = Items.MaskKeaton;
 ItemList[Items.ChestGreatBayCapeLedge1].ReplacesItemId = Items.HeartPieceKeatonQuiz;
@@ -1305,7 +1305,7 @@ ItemList[Items.ChestMountainVillageGrottoBottle].ReplacesItemId = Items.HeartPie
 ItemList[Items.MaskKeaton].ReplacesItemId = Items.TradeItemLandDeed;
 ItemList[Items.HeartPieceGreatBayCoast].ReplacesItemId = Items.ChestLensCaveRedRupee;
 ItemList[Items.ItemGreatBayCompass].ReplacesItemId = Items.ChestLensCavePurpleRupee;
-ItemList[Items.MaskZora].ReplacesItemId = Items.ItemLens;
+ItemList[Items.HeartPieceKnuckle].ReplacesItemId = Items.ItemLens;
 ItemList[Items.ChestPiratesFortressEntranceRedRupee2].ReplacesItemId = Items.TradeItemKafeiLetter;
 ItemList[Items.HeartPiecePiratesFortress].ReplacesItemId = Items.TradeItemMamaLetter;
 ItemList[Items.ItemFairySword].ReplacesItemId = Items.ItemLightArrow;
@@ -1441,7 +1441,6 @@ ItemList[Items.ItemWoodfallMap].ReplacesItemId = Items.MaskZora;
 ItemList[Items.ItemWoodfallKey1].ReplacesItemId = Items.ShopItemZoraArrow10;
 ItemList[Items.HeartPieceZoraHallScrub].ReplacesItemId = Items.ShopItemZoraRedPotion;
 ItemList[Items.ShopItemZoraArrow10].ReplacesItemId = Items.ShopItemZoraShield;
-
         }
 
         /// <summary>
