@@ -429,18 +429,18 @@ namespace MMRando
             ROMFuncs.SetStrings(ModsDirectory + "logo-text", $"v{v}", tSString.Text);
         }
 
-        private BinaryReader readROM(string FileName)
+      private bool ValidateROM(string FileName)
+      {
+        bool res = false;
+        using (BinaryReader ROM = new BinaryReader(File.Open(FileName, FileMode.Open, FileAccess.Read)))
         {
-            bool res = false;
-            using (BinaryReader ROM = new BinaryReader(File.Open(FileName, FileMode.Open, FileAccess.Read)))
-            {
-                if (ROM.BaseStream.Length == 0x2000000)
-                {
-                    res = ROMFuncs.CheckOldCRC(ROM);
-                }
-            }
-            return res;
+          if (ROM.BaseStream.Length == 0x2000000)
+          {
+            res = ROMFuncs.CheckOldCRC(ROM);
+          }
         }
+        return res;
+      }
 
         private void MakeROM(string InFile, string FileName, BackgroundWorker worker)
         {
