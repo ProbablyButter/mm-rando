@@ -316,6 +316,9 @@
     <None Include="mods\movement-4">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="mods\no-starting-shield">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="mods\postman-testing">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
