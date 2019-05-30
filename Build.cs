@@ -464,8 +464,9 @@ namespace MMRando
                 WriteFileSelect();
             }
             ROMFuncs.ApplyHack(ModsDirectory + "init-file");
-            ROMFuncs.ApplyHack(ModsDirectory + "no-starting-shield");
-            ROMFuncs.ApplyHack(ModsDirectory + "fix-hookshot");
+            //ROMFuncs.ApplyHack(ModsDirectory + "no-starting-shield");
+            //ROMFuncs.ApplyHack(ModsDirectory + "fix-hookshot");
+            ROMFuncs.ApplyHack(ModsDirectory + "fix-action-swap");
 
             worker.ReportProgress(30, "Writing quick text...");
             WriteQuickText();
