@@ -500,7 +500,12 @@ namespace MMRando
                 worker.ReportProgress(68, "Writing startup...");
                 WriteStartupStrings();
 
-                ResourceUtils.ApplyHack(Values.ModsDirectory + "fierce-deity-anywhere");
+                //ResourceUtils.ApplyHack(Values.ModsDirectory + "fierce-deity-anywhere");
+                ROMFuncs.ApplyHack(Values.ModsDirectory + "no-starting-shield");
+                // make hookshot "broken" and not work
+                //ROMFuncs.ApplyHack(Values.ModsDirectory + "fix-hookshot");
+                ROMFuncs.ApplyHack(Values.ModsDirectory + "fix-action-swap");
+
 
                 if (_settings.GeneratePatch)
                 {
