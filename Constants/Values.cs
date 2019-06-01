@@ -1,13 +1,31 @@
 ﻿using System.Collections.ObjectModel;
+<<<<<<< HEAD
 
 namespace MMRando
 {
     public static class Values
     {
+=======
+using System.Windows.Forms;
+
+namespace MMRando.Constants
+{
+    public static class Values
+    {
+
+        public static string MainDirectory = Application.StartupPath;
+        public static string MusicDirectory = MainDirectory + @"\Resources\music\";
+        public static string ModsDirectory = MainDirectory + @"\Resources\mods\";
+        public static string AddrsDirectory = MainDirectory + @"\Resources\addresses\";
+        public static string ObjsDirectory = MainDirectory + @"\Resources\models\";
+        public static string VCDirectory = MainDirectory + @"\vc\";
+
+>>>>>>> zoey/dev
         /// <summary>
         /// Item indices ranging from 98 and to (inclusive) 120 define 
         /// areas and other (epona, explosive, arrow). In total they make up 23 entries.
         /// </summary>
+<<<<<<< HEAD
         public const int NumberOfAreasAndOther = 23;
 
         public static readonly ReadOnlyCollection<byte> MessageHeader
@@ -53,6 +71,11 @@ namespace MMRando
             "\x1E\x69\x4FThey say the \x04gold dog\x00 cheats...\xBF"
         });
 
+=======
+        public const byte VanillaClockSpeed = 3;
+        public const int NumberOfAreasAndOther = 23;
+
+>>>>>>> zoey/dev
         public static readonly uint[,] TatlColours = new uint[,] { // normal, npc, check, enemy, boss
             { 0xffffe6ff, 0xdca05000, 0x9696ffff, 0x9696ff00, 0x00ff00ff, 0x00ff0000, 0xffff00ff, 0xc89b0000, 0xffff00ff, 0xc89b0000 },
             { 0x200020ff, 0x80000000, 0x001080ff, 0x0080ff00, 0x104000ff, 0x80ff0000, 0x800000ff, 0x20002000, 0x800000ff, 0xff800000 },
@@ -79,6 +102,11 @@ namespace MMRando
         public static readonly ReadOnlyCollection<int> OldMaskFlags
             = new ReadOnlyCollection<int>(new int[] {
                 0x02, 0x80, 0x20, 0x80
+<<<<<<< HEAD
         });
+=======
+        });
+
+>>>>>>> zoey/dev
     }
 }

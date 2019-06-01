@@ -289,15 +289,9 @@ namespace MMRando
                 bool isCycleRepeatable = Items.CYCLE_REPEATABLE.Contains(itemId);
                 int replacesItemId = ItemList[i].ReplacesItemId;
 
-                if (ItemUtils.IsItemDefinedPastAreas(itemId)) {
-                    // Subtract amount of entries describing areas and other
-                    itemId -= Values.NumberOfAreasAndOther;
-                }
+                itemId -= ItemUtils.GetItemOffset(itemId);
 
-                if (ItemUtils.IsItemDefinedPastAreas(replacesItemId)) {
-                    // Subtract amount of entries describing areas and other
-                    replacesItemId -= Values.NumberOfAreasAndOther;
-                }
+                replacesItemId -= ItemUtils.GetItemOffset(replacesItemId);
 
                 if (ItemUtils.IsBottleCatchContent(i))
                 {
@@ -434,10 +428,15 @@ namespace MMRando
         bool res = false;
         using (BinaryReader ROM = new BinaryReader(File.Open(FileName, FileMode.Open, FileAccess.Read)))
         {
-          if (ROM.BaseStream.Length == 0x2000000)
-          {
-            res = ROMFuncs.CheckOldCRC(ROM);
-          }
+            bool res = false;
+            using (BinaryReader ROM = new BinaryReader(File.Open(FileName, FileMode.Open, FileAccess.Read)))
+            {
+                if (ROM.BaseStream.Length == 0x2000000)
+                {
+                    res = ROMFuncs.CheckOldCRC(ROM);
+                }
+            }
+            return res;
         }
         return res;
       }
