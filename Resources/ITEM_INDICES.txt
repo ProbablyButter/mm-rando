@@ -259,3 +259,8 @@ d6
 121
 122
 7b
+-pre-clocktower
+124
+-missing moon chests
+125
+126

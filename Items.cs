@@ -304,7 +304,7 @@ namespace MMRando
         public const int MaskFierceDeity = 264;
         public const int PreClocktownDekuNuts10 = 265;
         public const int TwinmoldTrialBombchu10 = 266;
-        public const int TwinmoldTrialArrows = 267;
+        public const int TwinmoldTrialArrows30 = 267;
 
         public static readonly ReadOnlyCollection<int> REPEATABLE
             = new ReadOnlyCollection<int>(new int[] {
@@ -414,7 +414,7 @@ namespace MMRando
                 ChestToGoronRaceGrotto,
                 PreClocktownDekuNuts10,
                 TwinmoldTrialBombchu10,
-                TwinmoldTrialArrows
+                TwinmoldTrialArrows30
         });
 
         public static readonly ReadOnlyCollection<int> CYCLE_REPEATABLE
@@ -920,7 +920,7 @@ namespace MMRando
                 "Fierce Deity's Mask",
                 "Pre Clocktown Deku Nuts 10",
                 "Twinmold Trial Bombchu 10",
-                "Twinmold Trial Arrows"
+                "Twinmold Trial Arrows 30"
         });
 
         internal static readonly int TotalNumberOfItems = 268;
