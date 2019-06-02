@@ -58,8 +58,6 @@ namespace MMRando
 
         string[] ITEM_NAMES = DEFAULT_ITEM_NAMES.ToArray();
 
-        string[] ITEM_NAMES = DEFAULT_ITEM_NAMES.ToArray();
-
         bool updating = false;
         int n;
         
