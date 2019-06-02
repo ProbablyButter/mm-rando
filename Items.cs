@@ -302,6 +302,9 @@ namespace MMRando
         public const int HeartPieceZoraTrial = 262;
         public const int HeartPieceLinkTrial = 263;
         public const int MaskFierceDeity = 264;
+        public const int PreClocktownDekuNuts10 = 265;
+        public const int TwinmoldTrialBombchu10 = 266;
+        public const int TwinmoldTrialArrows = 267;
 
         public static readonly ReadOnlyCollection<int> REPEATABLE
             = new ReadOnlyCollection<int>(new int[] {
@@ -409,6 +412,9 @@ namespace MMRando
                 ChestSouthClockTownRedRupee,
                 ChestSouthClockTownPurpleRupee,
                 ChestToGoronRaceGrotto,
+                PreClocktownDekuNuts10,
+                TwinmoldTrialBombchu10,
+                TwinmoldTrialArrows
         });
 
         public static readonly ReadOnlyCollection<int> CYCLE_REPEATABLE
@@ -912,9 +918,12 @@ namespace MMRando
                 "Zora Trial HP",
                 "Link Trial HP",
                 "Fierce Deity's Mask",
+                "Pre Clocktown Deku Nuts 10",
+                "Twinmold Trial Bombchu 10",
+                "Twinmold Trial Arrows"
         });
 
-        internal static readonly int TotalNumberOfItems = 265;
+        internal static readonly int TotalNumberOfItems = 268;
     }
 
 }
