@@ -279,6 +279,11 @@ namespace MMRando.Utils
                 {
                     RomData.MMFileList[i].Cmp_End = ROMAddr + file_len;
                 }
+                if(ROMAddr + file_len > ROM.Length)
+                {
+                    // need to resize ROM
+                    Array.Resize(ref ROM, ROMAddr+file_len);
+                }
                 ReadWriteUtils.Arr_Insert(RomData.MMFileList[i].Data, 0, file_len, ROM, ROMAddr);
                 ROMAddr += file_len;
             }

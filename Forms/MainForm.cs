@@ -634,19 +634,34 @@ namespace MMRando
             cDType.SelectedIndex = 0;
             cGravity.SelectedIndex = 0;
             cFloors.SelectedIndex = 0;
-            cMode.SelectedIndex = 0;
+            cMode.SelectedIndex = 4;
             cLink.SelectedIndex = 0;
             cTatl.SelectedIndex = 0;
             cSpoiler.Checked = true;
-            cSoS.Checked = true;
-            cGossip.Checked = true;
+            cSoS.Checked = false;
+            cGossip.Checked = false;
+            cHTMLLog.Checked = true;
+            cMoonItems.Checked = true;
+            cAdditional.Checked = true;
+            cMixSongs.Checked = true;
+            cDChests.Checked = true;
+            cShop.Checked = true;
+            cBottled.Checked = true;
 
             bTunic.BackColor = Color.FromArgb(0x1E, 0x69, 0x1B);
 
             _settings.GenerateROM = true;
             _settings.GenerateSpoilerLog = true;
-            _settings.ExcludeSongOfSoaring = true;
-            _settings.EnableGossipHints = true;
+            _settings.LogicMode = LogicMode.NoLogic;
+            _settings.ExcludeSongOfSoaring = false;
+            _settings.EnableGossipHints = false;
+            _settings.GenerateHTMLLog = true;
+            _settings.AddMoonItems = true;
+            _settings.AddOther = true;
+            _settings.AddSongs = true;
+            _settings.AddDungeonItems = true;
+            _settings.AddShopItems = true;
+            _settings.RandomizeBottleCatchContents = true;
             _settings.TunicColor = bTunic.BackColor;
             _settings.Seed = Math.Abs(Environment.TickCount);
 
@@ -677,10 +692,11 @@ namespace MMRando
             RandomizedResult randomized;
             if (string.IsNullOrWhiteSpace(_settings.InputPatchFilename))
             {
-                try
+                //try
                 {
                     randomized = _randomizer.Randomize(worker, e);
                 }
+                /*
                 catch (InvalidDataException ex)
                 {
                     MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -693,7 +709,7 @@ namespace MMRando
                     MessageBox.Show($"Error randomizing logic: {ex.Message}{nl}{nl}Please try a different seed", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                
+                */
                 if (_settings.GenerateSpoilerLog
                     && _settings.LogicMode != LogicMode.Vanilla)
                 {
@@ -708,26 +724,24 @@ namespace MMRando
             if (_settings.GenerateROM || _settings.GeneratePatch)
             {
                 if (!ValidateInputFile()) return;
-
                 if (!RomUtils.ValidateROM(_settings.InputROMFilename))
                 {
                     MessageBox.Show("Cannot verify input ROM is Majora's Mask (U).",
                         "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-
                 _builder = new Builder(randomized);
 
-                try
+                //try
                 {
                     _builder.MakeROM(_settings.InputROMFilename, _settings.OutputROMFilename, worker);
                 }
-                catch (Exception ex)
+                /*catch (Exception ex)
                 {
                     string nl = Environment.NewLine;
                     MessageBox.Show($"Error building ROM: {ex.Message}{nl}{nl}Please contact the development team and provide them more information", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
-                }
+                }*/
             }
 
             _settings.InputPatchFilename = null;

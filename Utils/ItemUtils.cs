@@ -12,7 +12,7 @@ namespace MMRando.Utils
 
         public static bool IsOutOfRange(int itemId)
         {
-            return itemId > Items.MaskFierceDeity;
+            return itemId > Items.TwinmoldTrialArrows30;
         }
 
         public static bool IsShopItem(int itemIndex)
@@ -87,7 +87,7 @@ namespace MMRando.Utils
 
         public static bool IsMoonItem(int itemIndex)
         {
-            return itemIndex >= Items.HeartPieceDekuTrial && itemIndex <= Items.MaskFierceDeity;
+            return itemIndex >= Items.HeartPieceDekuTrial && itemIndex <= Items.TwinmoldTrialArrows30;
         }
 
         public static bool IsOtherItem(int itemIndex)
