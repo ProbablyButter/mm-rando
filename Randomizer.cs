@@ -1104,6 +1104,7 @@ namespace MMRando
 
             AddAllItems(itemPool);
 
+            // Generate the random mapping
             PlaceQuestItems(itemPool);
             PlaceTradeItems(itemPool);
             PlaceDungeonItems(itemPool);
