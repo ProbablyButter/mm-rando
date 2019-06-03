@@ -117,40 +117,54 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="openROM.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  <metadata name="openROM.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>16, 17</value>
-  </data>
-  <data name="saveROM.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  </metadata>
+  <metadata name="saveROM.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>124, 17</value>
-  </data>
-  <data name="cTunic.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  </metadata>
+  <metadata name="cTunic.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>227, 17</value>
-  </data>
-  <data name="saveWad.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  </metadata>
+  <metadata name="saveWad.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>313, 17</value>
-  </data>
-  <data name="mMenu.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  </metadata>
+  <metadata name="mMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>414, 17</value>
-  </data>
-  <data name="openBROM.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  </metadata>
+  <metadata name="openBROM.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>508, 17</value>
-  </data>
-  <data name="openLogic.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  </metadata>
+  <metadata name="openLogic.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>622, 17</value>
-  </data>
-  <data name="bgWorker.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  </metadata>
+  <metadata name="bgWorker.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>750, 17</value>
-  </data>
-  <data name="openPatch.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  </metadata>
+  <metadata name="openPatch.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>856, 17</value>
-  </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="$this.TrayHeight" type="System.Int32, mscorlib">
+  </metadata>
+  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>52</value>
-  </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="$this.Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\200px_majoramask_rtw_icon.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAEAEBAAAAEAGABoAwAAFgAAACgAAAAQAAAAIAAAAAEAGAAAAAAAAAAAAGAAAABgAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAALCgc8NSYFBAMAAAAAAAAAAAAvKh4WFA4AAAAAAAAAAAAAAAAAAAAAAAADAwIG
+        CAUCAQFqXENTRzENCRYMBxs6MCJ7ak0NCwgCBAIDBAIAAAAAAAAAAAAAAAAGCAU5VTAZKRRFOymZfl4t
+        IVEgF1KIblpjVDsQGQw3Uy4NEgsAAAAAAAAAAAAXFBcUERgiNxxVg0A7OBxLMkApH2YmHGpHMUs/Mh5O
+        dTgyTygMCg4XFBcAAAAAAAAZFhtqZZJAQV5jhF1VdU88MSQ/LWE3Km1BLipIYkBpjF85P05mYpAoJCwA
+        AAANExIECQgtK0JlY5BlbmdWXE5NQD1FM3I/MH9QPkJRVkdncWVlZYw9OloDBQUKDw8qQEBFh44rT1hO
+        PVExJVwoLm4hHU4nGmsqHHEgG04oLGkuJl9NOVIsRk4/gIcxTU0BAQEXMDMuVWAsJVkfSZMlepkbRX81
+        HUg9IUIbNHEkd5kgV5kqIl4vUmAcPEECBAQAAAAAAAAjFBklFkceTYhCiZsjTJFAJUlKKEAhO4RAh5wm
+        XpMgF0woFyAAAAAAAAAAAAAAAAAvGR4oGEYaG040O4EsJnFZOU1fOkgxJ2szOoMeIVgiFkUzGyQCAQEA
+        AAAAAAAAAAAxICROTGNFVnJFS2xUTWZ0U113U1xaTmNGS2xFU3BMT2c3JSsBAAAAAAAAAAAAAAAEBwkm
+        WXZJfJROaIEwVn0/N0RBMzwwUnlKZYFMepAsYoAGCw8AAAAAAAAAAAAAAAAAAAADCxI9boA4eI8HEiAA
+        AQIAAAEFDRgtZX1Ee48GDxcAAAAAAAAAAAAAAAAAAAAAAAAAAAA8Zmg5cHcAAAAAAAAAAAAAAAAsWF5E
+        eHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAtTU4lRkkAAAAAAAAAAAAAAAAbNDYzWVwAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAVICANFBQAAAAAAAAAAAAAAAAIDg4WIyMAAAAAAAAAAAAAAADxzwAAwAMAAMAD
+        AACAAQAAgAEAAAAAAAAAAAAAAAAAAMADAADAAQAAwAEAAMADAADgBwAA888AAPPPAADzzwAA
+</value>
   </data>
 </root>

@@ -397,16 +397,14 @@ namespace MMRando.Utils
             return (CRC1 == 0x5354631C) && (CRC2 == 0x03A2DEF0);
         }
 
-        public static bool ValidateROM(string FileName)
+        public static bool ValidateROM(BinaryReader ROM)
         {
             bool res = false;
-            using (BinaryReader ROM = new BinaryReader(File.Open(FileName, FileMode.Open, FileAccess.Read)))
+            if (ROM.BaseStream.Length == 0x2000000)
             {
-                if (ROM.BaseStream.Length == 0x2000000)
-                {
-                    res = CheckOldCRC(ROM);
-                }
+                res = CheckOldCRC(ROM);
             }
+            ROM.BaseStream.Seek(0, 0);
             return res;
         }
     }

@@ -677,6 +677,63 @@ namespace MMRando
 
         #region Randomization
 
+
+        private BinaryReader GetBigEndianROM(string InFile)
+        {
+
+            BinaryReader OldROM = new BinaryReader(File.Open(InFile, FileMode.Open, FileAccess.Read));
+            // determine ROM endian-ness
+            uint header = ReadWriteUtils.ReadU32(OldROM);
+            OldROM.BaseStream.Seek(0, 0);
+            if (header == 0x80371240u)
+            {
+                // z64 format
+                return OldROM;
+            }
+            else if (header == 0x40123780u)
+            {
+                // n64 format
+                byte[] data = new byte[OldROM.BaseStream.Length];
+                OldROM.Read(data, 0, data.Length);
+                OldROM.Close();
+                for (int i = 0; i < data.Length; i += 4)
+                {
+                    byte tmp = data[i];
+                    data[i] = data[i + 3];
+                    data[i + 3] = tmp;
+                    tmp = data[i + 1];
+                    data[i + 1] = data[i + 2];
+                    data[i + 2] = tmp;
+                }
+                // technically not necessary to recalculate CRC unless you just want a sanity check
+                // RomUtils.FixCRC(data);
+                BinaryReader fixedRom = new BinaryReader(new MemoryStream(data));
+                return fixedRom;
+            }
+            else if (header == 0x37804012u)
+            {
+                // v64 format
+                byte[] data = new byte[OldROM.BaseStream.Length];
+                OldROM.Read(data, 0, data.Length);
+                OldROM.Close();
+                for (int i = 0; i < data.Length; i += 2)
+                {
+                    byte tmp = data[i];
+                    data[i] = data[i + 1];
+                    data[i + 1] = tmp;
+                }
+                // technically not necessary to recalculate CRC unless you just want a sanity check
+                //RomUtils.FixCRC(data);
+                BinaryReader fixedRom = new BinaryReader(new MemoryStream(data));
+                return fixedRom;
+            }
+            else
+            {
+                // is this even a valid ROM? Guess I'll just return OldROM...
+                return OldROM;
+            }
+        }
+
         /// <summary>
         /// Try to perform randomization and make rom
         /// </summary>
@@ -724,24 +781,28 @@ namespace MMRando
             if (_settings.GenerateROM || _settings.GeneratePatch)
             {
                 if (!ValidateInputFile()) return;
-                if (!RomUtils.ValidateROM(_settings.InputROMFilename))
-                {
-                    MessageBox.Show("Cannot verify input ROM is Majora's Mask (U).",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                _builder = new Builder(randomized);
 
-                //try
+                using (BinaryReader OldROM = GetBigEndianROM(_settings.InputROMFilename))
                 {
-                    _builder.MakeROM(_settings.InputROMFilename, _settings.OutputROMFilename, worker);
+                    if (!RomUtils.ValidateROM(OldROM))
+                    {
+                        MessageBox.Show("Cannot verify input ROM is Majora's Mask (U).",
+                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    _builder = new Builder(randomized);
+
+                    //try
+                    {
+                        _builder.MakeROM(OldROM, _settings.OutputROMFilename, worker);
+                    }
+                    /*catch (Exception ex)
+                    {
+                        string nl = Environment.NewLine;
+                        MessageBox.Show($"Error building ROM: {ex.Message}{nl}{nl}Please contact the development team and provide them more information", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }*/
                 }
-                /*catch (Exception ex)
-                {
-                    string nl = Environment.NewLine;
-                    MessageBox.Show($"Error building ROM: {ex.Message}{nl}{nl}Please contact the development team and provide them more information", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }*/
             }
 
             _settings.InputPatchFilename = null;

@@ -439,68 +439,10 @@ namespace MMRando
             RomUtils.SetStrings(Values.ModsDirectory + "logo-text", $"v{v}", _settings.ToString());
         }
 
-        private BinaryReader GetBigEndianROM(string InFile)
-        {
-            
-          BinaryReader OldROM = new BinaryReader(File.Open(InFile, FileMode.Open, FileAccess.Read));
-          // determine ROM endian-ness
-          uint header = ReadWriteUtils.ReadU32(OldROM);
-          ROM.BaseStream.Seek(0, 0);
-          if (header == 0x40123780u)
-          {
-              // z64 format
-              return OldROM;
-          }
-          else if (header == 0x30371240u)
-          {
-              // n64 format
-              byte[] data = new byte[OldROM.BaseStream.Length];
-              OldROM.Read(data, 0, data.Length);
-              OldROM.Close();
-              for (int i = 0; i < data.Length; i += 4)
-              {
-                  byte tmp = data[i];
-                  data[i] = data[i + 3];
-                  data[i + 3] = tmp;
-                  tmp = data[i + 1];
-                  data[i + 1] = data[i + 2];
-                  data[i + 2] = tmp;
-              }
-              // technically not necessary to recalculate CRC unless you just want a sanity check
-              // RomUtils.FixCRC(data);
-              BinaryReader fixedRom = new BinaryReader(new MemoryStream(data));
-              return fixedRom;
-          }
-          else if (header == 0x12408037u)
-          {
-              // v64 format
-              byte[] data = new byte[ROM.BaseStream.Length];
-              ROM.Read(data, 0, data.Length);
-              ROM.Close();
-              for (int i = 0; i < data.Length; i += 2)
-              {
-                  byte tmp = data[i];
-                  data[i] = data[i + 1];
-                  data[i + 1] = tmp;
-              }
-              // technically not necessary to recalculate CRC unless you just want a sanity check
-              //RomUtils.FixCRC(data);
-              BinaryReader fixedRom = new BinaryReader(new MemoryStream(data));
-              return fixedRom;
-          }
-          else
-          {
-              // is this even a valid ROM? Guess I'll just return OldROM...
-              return OldROM;
-          }
-        }
 
-        public void MakeROM(string InFile, string FileName, BackgroundWorker worker)
+        public void MakeROM(BinaryReader OldROM, string FileName, BackgroundWorker worker)
         {
-            using (BinaryReader OldROM = GetBigEndianROM(InFile))
-            {
-                RomUtils.ReadFileTable(OldROM);
-            }
+            RomUtils.ReadFileTable(OldROM);
 
             List<MMFile> originalMMFileList = null;
             if (_settings.GeneratePatch)

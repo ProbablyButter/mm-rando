@@ -46,6 +46,7 @@ namespace MMRando
             this.cN64 = new System.Windows.Forms.CheckBox();
             this.lOutput = new System.Windows.Forms.Label();
             this.tabMain = new System.Windows.Forms.TabPage();
+            this.cMoonItems = new System.Windows.Forms.CheckBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.cAdditional = new System.Windows.Forms.CheckBox();
@@ -107,7 +108,6 @@ namespace MMRando
             this.cDummy = new System.Windows.Forms.CheckBox();
             this.lHrule = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.cMoonItems = new System.Windows.Forms.CheckBox();
             this.openPatch = new System.Windows.Forms.OpenFileDialog();
             this.ttOutput = new System.Windows.Forms.TabControl();
             this.tpOutputSettings = new System.Windows.Forms.TabPage();
@@ -225,11 +225,11 @@ namespace MMRando
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(52, 13);
+            this.label1.Location = new System.Drawing.Point(93, 12);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(250, 13);
+            this.label1.Size = new System.Drawing.Size(160, 13);
             this.label1.TabIndex = 12;
-            this.label1.Text = "ROM must be Majora\'s Mask (U) ending with \".z64\"";
+            this.label1.Text = "ROM must be Majora\'s Mask (U)";
             // 
             // cSpoiler
             // 
@@ -311,6 +311,21 @@ namespace MMRando
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main Settings";
             this.tabMain.UseVisualStyleBackColor = true;
+            // 
+            // cMoonItems
+            // 
+            this.cMoonItems.AutoSize = true;
+            this.cMoonItems.BackColor = System.Drawing.Color.Transparent;
+            this.cMoonItems.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.cMoonItems.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cMoonItems.ForeColor = System.Drawing.Color.Black;
+            this.cMoonItems.Location = new System.Drawing.Point(226, 147);
+            this.cMoonItems.Name = "cMoonItems";
+            this.cMoonItems.Size = new System.Drawing.Size(80, 17);
+            this.cMoonItems.TabIndex = 15;
+            this.cMoonItems.Text = "Moon items";
+            this.cMoonItems.UseVisualStyleBackColor = false;
+            this.cMoonItems.CheckedChanged += new System.EventHandler(this.cMoonItems_CheckedChanged);
             // 
             // label3
             // 
@@ -849,7 +864,7 @@ namespace MMRando
             // 
             this.mExit.Name = "mExit";
             this.mExit.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.mExit.Size = new System.Drawing.Size(135, 22);
+            this.mExit.Size = new System.Drawing.Size(134, 22);
             this.mExit.Text = "Exit";
             this.mExit.Click += new System.EventHandler(this.mExit_Click);
             // 
@@ -865,14 +880,14 @@ namespace MMRando
             // mLogicEdit
             // 
             this.mLogicEdit.Name = "mLogicEdit";
-            this.mLogicEdit.Size = new System.Drawing.Size(180, 22);
+            this.mLogicEdit.Size = new System.Drawing.Size(150, 22);
             this.mLogicEdit.Text = "Logic editor";
             this.mLogicEdit.Click += new System.EventHandler(this.mLogicEdit_Click);
             // 
             // mItemIncl
             // 
             this.mItemIncl.Name = "mItemIncl";
-            this.mItemIncl.Size = new System.Drawing.Size(180, 22);
+            this.mItemIncl.Size = new System.Drawing.Size(150, 22);
             this.mItemIncl.Text = "Item list editor";
             this.mItemIncl.Click += new System.EventHandler(this.mItemIncl_Click);
             // 
@@ -1011,21 +1026,6 @@ namespace MMRando
             this.label5.Size = new System.Drawing.Size(325, 13);
             this.label5.TabIndex = 14;
             this.label5.Text = "_____________________________________________________";
-            // 
-            // cMoonItems
-            // 
-            this.cMoonItems.AutoSize = true;
-            this.cMoonItems.BackColor = System.Drawing.Color.Transparent;
-            this.cMoonItems.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.cMoonItems.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cMoonItems.ForeColor = System.Drawing.Color.Black;
-            this.cMoonItems.Location = new System.Drawing.Point(226, 147);
-            this.cMoonItems.Name = "cMoonItems";
-            this.cMoonItems.Size = new System.Drawing.Size(80, 17);
-            this.cMoonItems.TabIndex = 15;
-            this.cMoonItems.Text = "Moon items";
-            this.cMoonItems.UseVisualStyleBackColor = false;
-            this.cMoonItems.CheckedChanged += new System.EventHandler(this.cMoonItems_CheckedChanged);
             // 
             // openPatch
             // 
