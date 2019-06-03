@@ -137,7 +137,7 @@ namespace MMRando
             // 
             // openROM
             // 
-            this.openROM.Filter = "ROM files|*.z64";
+            this.openROM.Filter = "ROM files(*.z64;*.n64;*.v64;*.rom)|*.z64;*.n64;*.v64;*.rom|All files (*.*)|*.*";
             // 
             // tROMName
             // 
