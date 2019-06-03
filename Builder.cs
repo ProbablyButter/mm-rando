@@ -451,7 +451,7 @@ namespace MMRando
               // z64 format
               return OldROM;
           }
-          else if (header == 0x30371240)
+          else if (header == 0x30371240u)
           {
               // n64 format
               byte[] data = new byte[OldROM.BaseStream.Length];
@@ -471,7 +471,7 @@ namespace MMRando
               BinaryReader fixedRom = new BinaryReader(new MemoryStream(data));
               return fixedRom;
           }
-          else if (header == 0x12408037)
+          else if (header == 0x12408037u)
           {
               // v64 format
               byte[] data = new byte[ROM.BaseStream.Length];
