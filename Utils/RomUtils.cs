@@ -288,7 +288,7 @@ namespace MMRando.Utils
                 ROMAddr += file_len;
             }
             UpdateFileTable(ROM);
-            SignROM(ROM);
+            //SignROM(ROM);
             FixCRC(ROM);
 
             using (BinaryWriter NewROM = new BinaryWriter(File.Open(FileName, FileMode.Create)))
