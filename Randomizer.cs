@@ -1103,7 +1103,7 @@ namespace MMRando
             var itemPool = new List<int>();
 
             AddAllItems(itemPool);
-            /*
+            
 ItemList[Items.ItemBottleAliens].ReplacesItemId = Items.HeartPieceFishermanGame;
 ItemList[Items.MaskAllNight].ReplacesItemId = Items.HeartPieceDekuTrial;
 ItemList[Items.ItemBottleBeavers].ReplacesItemId = Items.HeartPieceGoronVillageScrub;
@@ -1130,7 +1130,7 @@ ItemList[Items.MaskDeku].ReplacesItemId = Items.TradeItemKafeiLetter;
 ItemList[Items.MaskDonGero].ReplacesItemId = Items.HeartPieceDogRace;
 ItemList[Items.SongElegy].ReplacesItemId = Items.ItemGoldDust;
 ItemList[Items.SongEpona].ReplacesItemId = Items.ChestGreatBayCoastGrotto;
-ItemList[Items.MaskStone].ReplacesItemId = Items.HeartPieceSwampScrub;
+ItemList[Items.ItemSnowheadKey1].ReplacesItemId = Items.HeartPieceSwampScrub;
 ItemList[Items.ItemFireArrow].ReplacesItemId = Items.HeartPieceChoir;
 ItemList[Items.MaskGaro].ReplacesItemId = Items.HeartPiecePictobox;
 ItemList[Items.MaskGiant].ReplacesItemId = Items.HeartContainerStoneTower;
@@ -1138,13 +1138,13 @@ ItemList[Items.MaskGibdo].ReplacesItemId = Items.HeartPieceSeaHorse;
 ItemList[Items.UpgradeGildedSword].ReplacesItemId = Items.ItemHookshot;
 ItemList[Items.ItemGoldDust].ReplacesItemId = Items.MaskStone;
 ItemList[Items.SongLullaby].ReplacesItemId = Items.UpgradeMirrorShield;
-ItemList[Items.MaskGoron].ReplacesItemId = Items.ItemIceArrow;
+ItemList[Items.MaskFierceDeity].ReplacesItemId = Items.ItemIceArrow;
 ItemList[Items.ChestIkanaGrottoRecoveryHeart].ReplacesItemId = Items.HeartPieceSwampArchery;
 ItemList[Items.ShopItemGoronRedPotion].ReplacesItemId = Items.MaskGiant;
 ItemList[Items.ChestGraveyardGrotto].ReplacesItemId = Items.HeartPieceNotebookGran1;
 ItemList[Items.ItemGreatBayBossKey].ReplacesItemId = Items.ItemStoneTowerBossKey;
 ItemList[Items.ChestGreatBayCapeGrotto].ReplacesItemId = Items.HeartPieceNotebookGran2;
-ItemList[Items.ItemGreatBayKey1].ReplacesItemId = Items.ItemFireArrow;
+ItemList[Items.MaskGoron].ReplacesItemId = Items.ItemFireArrow;
 ItemList[Items.MaskGreatFairy].ReplacesItemId = Items.PreClocktownDekuNuts10;
 ItemList[Items.ItemFairySword].ReplacesItemId = Items.ChestInnGuestRoom;
 ItemList[Items.ItemBow].ReplacesItemId = Items.UpgradeBiggestQuiver;
@@ -1180,13 +1180,13 @@ ItemList[Items.UpgradeRazorSword].ReplacesItemId = Items.HeartPieceKeatonQuiz;
 ItemList[Items.MaskRomani].ReplacesItemId = Items.ChestInsidePiratesFortressHeartPieceRoomBlueRupee;
 ItemList[Items.TradeItemRoomKey].ReplacesItemId = Items.MaskBunnyHood;
 ItemList[Items.ItemSnowheadBossKey].ReplacesItemId = Items.ChestWellLeftPurpleRupee;
-ItemList[Items.ItemSnowheadKey1].ReplacesItemId = Items.HeartPieceToSnowhead;
+ItemList[Items.ItemGreatBayKey1].ReplacesItemId = Items.HeartPieceToSnowhead;
 ItemList[Items.ItemSnowheadKey2].ReplacesItemId = Items.ChestInvertedStoneTowerSilverRupee;
 ItemList[Items.ItemSnowheadKey3].ReplacesItemId = Items.ItemStoneTowerKey1;
 ItemList[Items.SongSonata].ReplacesItemId = Items.HeartPieceTwinIslandsChest;
 ItemList[Items.SongSoaring].ReplacesItemId = Items.HeartPieceDekuPlayground;
 ItemList[Items.SongStorms].ReplacesItemId = Items.ChestInvertedStoneTowerBombchu10;
-ItemList[Items.MaskFierceDeity].ReplacesItemId = Items.ItemBottleAliens;
+ItemList[Items.MaskStone].ReplacesItemId = Items.ItemBottleAliens;
 ItemList[Items.ChestInvertedStoneTowerBombchu10].ReplacesItemId = Items.MaskGoron;
 ItemList[Items.ItemStoneTowerBossKey].ReplacesItemId = Items.ItemWoodfallCompass;
 ItemList[Items.ItemStoneTowerKey1].ReplacesItemId = Items.ItemStoneTowerCompass;
@@ -1344,9 +1344,9 @@ ItemList[Items.HeartPieceCastle].ReplacesItemId = Items.MaskZora;
 ItemList[Items.HeartPieceHoneyAndDarling].ReplacesItemId = Items.ShopItemZoraArrow10;
 ItemList[Items.ItemTingleMapSnowhead].ReplacesItemId = Items.ShopItemZoraRedPotion;
 ItemList[Items.ChestToSwampGrotto].ReplacesItemId = Items.ShopItemZoraShield;
-*/
 
             // test mapping
+            /*
 ItemList[Items.HeartPieceNotebookHand].ReplacesItemId = Items.HeartPieceNotebookHand;
 ItemList[Items.ItemBottleAliens].ReplacesItemId = Items.ItemBottleAliens;
 ItemList[Items.MaskAllNight].ReplacesItemId = Items.MaskAllNight;
@@ -1587,7 +1587,7 @@ ItemList[Items.MaskFierceDeity].ReplacesItemId = Items.MaskFierceDeity;
 ItemList[Items.ShopItemZoraArrow10].ReplacesItemId = Items.PreClocktownDekuNuts10;
 ItemList[Items.ShopItemZoraRedPotion].ReplacesItemId = Items.TwinmoldTrialBombchu10;
 ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
-
+*/
 /*
             // Generate the random mapping
             PlaceQuestItems(itemPool);

@@ -26,12 +26,13 @@ def split_mod_file(data, prefix):
         pos += 4
         size = struct.unpack_from('>I', data, pos)[0]
         pos += 4
-        payload = [hex(v) for v in data[pos:pos+size]]
+        payload = data[pos:pos+size]
         pos += size
         with open('mods/%s-%d'%(prefix,i), 'wb') as f:
             f.write(struct.pack('>I', addr))
             f.write(struct.pack('>I', size))
             f.write(struct.pack('%dB'%(size+1), *payload, 0xff))
+        i += 1
 
 with open('mods/misc-changes', mode='rb') as f:
     data = f.read()
