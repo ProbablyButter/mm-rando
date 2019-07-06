@@ -799,37 +799,6 @@ namespace MMRando
                     ItemList[i].Conditionals.RemoveAll(u => u == null);
                 }
             }
-
-            /*
-            for (int i = 0; i < ConditionRemoves.Count; i++)
-            {
-                for (int j = 0; j < ItemList[ConditionRemoves[i][0]].Conditional[ConditionRemoves[i][1]].Count; j++)
-                {
-                    int d = ItemList[ConditionRemoves[i][0]].Conditional[ConditionRemoves[i][1]][j];
-                    if (ItemList[d].Cannot_Require == null)
-                    {
-                        ItemList[d].Cannot_Require = new List<int>();
-                    };
-                    ItemList[d].Cannot_Require.Add(CurrentItem);
-                    if (ItemList[ConditionRemoves[i][0]].Dependence == null)
-                    {
-                        ItemList[ConditionRemoves[i][0]].Dependence = new List<int>();
-                    };
-                    ItemList[ConditionRemoves[i][0]].Dependence.Add(d);
-                };
-                ItemList[ConditionRemoves[i][0]].Conditional[ConditionRemoves[i][1]] = null;
-            };
-            for (int i = 0; i < ItemList.Count; i++)
-            {
-                if (ItemList[i].Conditional != null)
-                {
-                    if (ItemList[i].Conditional.Contains(null))
-                    {
-                        ItemList[i].Conditional = null;
-                    };
-                };
-            };
-            */
         }
 
         private void UpdateConditionals(int CurrentItem, int Target)
@@ -839,24 +808,6 @@ namespace MMRando
                 return;
             }
 
-            //if ((Target == 114) || (Target == 115))
-            //{
-            //    return;
-            //};
-            /*
-            if (ItemList[Target].Cannot_Require != null)
-            {
-                for (int i = 0; i < ItemList[CurrentItem].Cannot_Require.Count; i++)
-                {
-                    ItemList[Target].Conditional.RemoveAll(u => u.Contains(ItemList[CurrentItem].Cannot_Require[i]));
-                };
-            };
-            ItemList[Target].Conditional.RemoveAll(u => u.Contains(CurrentItem));
-            if (ItemList[Target].Conditional.Count == 0)
-            {
-                return;
-            };
-            */
             if (ItemList[Target].Conditionals.Count == 1)
             {
                 for (int i = 0; i < ItemList[Target].Conditionals[0].Count; i++)
@@ -1103,7 +1054,9 @@ namespace MMRando
             var itemPool = new List<int>();
 
             AddAllItems(itemPool);
-            
+            bool puzzle_output = true;
+            if(puzzle_output)
+            {
 ItemList[Items.ItemBottleAliens].ReplacesItemId = Items.HeartPieceFishermanGame;
 ItemList[Items.MaskAllNight].ReplacesItemId = Items.HeartPieceDekuTrial;
 ItemList[Items.ItemBottleBeavers].ReplacesItemId = Items.HeartPieceGoronVillageScrub;
@@ -1137,7 +1090,7 @@ ItemList[Items.MaskGiant].ReplacesItemId = Items.HeartContainerStoneTower;
 ItemList[Items.MaskGibdo].ReplacesItemId = Items.HeartPieceSeaHorse;
 ItemList[Items.UpgradeGildedSword].ReplacesItemId = Items.ItemHookshot;
 ItemList[Items.ItemGoldDust].ReplacesItemId = Items.MaskStone;
-ItemList[Items.SongLullaby].ReplacesItemId = Items.UpgradeMirrorShield;
+ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.UpgradeMirrorShield;
 ItemList[Items.MaskFierceDeity].ReplacesItemId = Items.ItemIceArrow;
 ItemList[Items.ChestIkanaGrottoRecoveryHeart].ReplacesItemId = Items.HeartPieceSwampArchery;
 ItemList[Items.ShopItemGoronRedPotion].ReplacesItemId = Items.MaskGiant;
@@ -1181,7 +1134,7 @@ ItemList[Items.MaskRomani].ReplacesItemId = Items.ChestInsidePiratesFortressHear
 ItemList[Items.TradeItemRoomKey].ReplacesItemId = Items.MaskBunnyHood;
 ItemList[Items.ItemSnowheadBossKey].ReplacesItemId = Items.ChestWellLeftPurpleRupee;
 ItemList[Items.ItemGreatBayKey1].ReplacesItemId = Items.HeartPieceToSnowhead;
-ItemList[Items.ItemSnowheadKey2].ReplacesItemId = Items.ChestInvertedStoneTowerSilverRupee;
+ItemList[Items.SongLullaby].ReplacesItemId = Items.ChestInvertedStoneTowerSilverRupee;
 ItemList[Items.ItemSnowheadKey3].ReplacesItemId = Items.ItemStoneTowerKey1;
 ItemList[Items.SongSonata].ReplacesItemId = Items.HeartPieceTwinIslandsChest;
 ItemList[Items.SongSoaring].ReplacesItemId = Items.HeartPieceDekuPlayground;
@@ -1214,7 +1167,7 @@ ItemList[Items.ItemWoodfallBossKey].ReplacesItemId = Items.UpgradeGiantWallet;
 ItemList[Items.ItemWoodfallKey1].ReplacesItemId = Items.ItemWoodfallBossKey;
 ItemList[Items.HeartContainerSnowhead].ReplacesItemId = Items.HeartPieceEvan;
 ItemList[Items.ShopItemZoraRedPotion].ReplacesItemId = Items.MaskDonGero;
-ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.ChestSecretShrineDinoGrotto;
+ItemList[Items.ItemSnowheadKey2].ReplacesItemId = Items.ChestSecretShrineDinoGrotto;
 ItemList[Items.HeartPieceSeaHorse].ReplacesItemId = Items.HeartPieceNotebookHand;
 ItemList[Items.ChestInvertedStoneTowerSilverRupee].ReplacesItemId = Items.HeartPieceBank;
 ItemList[Items.ChestGreatBayCapeLedge1].ReplacesItemId = Items.ChestBeanGrottoRedRupee;
@@ -1344,9 +1297,10 @@ ItemList[Items.HeartPieceCastle].ReplacesItemId = Items.MaskZora;
 ItemList[Items.HeartPieceHoneyAndDarling].ReplacesItemId = Items.ShopItemZoraArrow10;
 ItemList[Items.ItemTingleMapSnowhead].ReplacesItemId = Items.ShopItemZoraRedPotion;
 ItemList[Items.ChestToSwampGrotto].ReplacesItemId = Items.ShopItemZoraShield;
-
+            }
             // test mapping
-            /*
+            else
+            {
 ItemList[Items.HeartPieceNotebookHand].ReplacesItemId = Items.HeartPieceNotebookHand;
 ItemList[Items.ItemBottleAliens].ReplacesItemId = Items.ItemBottleAliens;
 ItemList[Items.MaskAllNight].ReplacesItemId = Items.MaskAllNight;
@@ -1587,8 +1541,8 @@ ItemList[Items.MaskFierceDeity].ReplacesItemId = Items.MaskFierceDeity;
 ItemList[Items.ShopItemZoraArrow10].ReplacesItemId = Items.PreClocktownDekuNuts10;
 ItemList[Items.ShopItemZoraRedPotion].ReplacesItemId = Items.TwinmoldTrialBombchu10;
 ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
-*/
-/*
+            }
+            /*
             // Generate the random mapping
             PlaceQuestItems(itemPool);
             PlaceTradeItems(itemPool);

@@ -285,6 +285,9 @@
     <None Include="Resources\mods\doggy-racetrack-dog-text">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Resources\mods\fix-0thday-erase">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\mods\fix-action-swap">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -559,10 +559,11 @@ namespace MMRando
                 WriteStartupStrings();
 
                 ResourceUtils.ApplyHack(Values.ModsDirectory + "fierce-deity-anywhere");
-                ResourceUtils.ApplyHack(Values.ModsDirectory + "no-starting-shield");
+                //ResourceUtils.ApplyHack(Values.ModsDirectory + "no-starting-shield");
                 // make hookshot "broken" and not work
                 //ROMFuncs.ApplyHack(Values.ModsDirectory + "fix-hookshot");
                 ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-action-swap");
+                ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-0thday-erase");
                 //ResourceUtils.ApplyHack(Values.ModsDirectory + "deadly-poe");
                 //ResourceUtils.ApplyHack(Values.ModsDirectory + "doggy-racetrack-all-blue-dogs");
                 //ResourceUtils.ApplyHack(Values.ModsDirectory + "doggy-racetrack-dog-text");
