@@ -179,10 +179,10 @@ namespace MMRando.Utils
                     UpdateShop(location, item, newMessages);
                 }
 
-                if (location == Item.StartingSword)
-                {
-                    ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-sword-song-of-time");
-                }
+                //if (location == Item.StartingSword)
+                //{
+                //    ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-sword-song-of-time");
+                //}
 
                 if (location == Item.MundaneItemSeahorse)
                 {
