@@ -1060,7 +1060,7 @@ namespace MMRando
 ItemList[Items.ItemBottleAliens].ReplacesItemId = Items.HeartPieceFishermanGame;
 ItemList[Items.MaskAllNight].ReplacesItemId = Items.HeartPieceDekuTrial;
 ItemList[Items.ItemBottleBeavers].ReplacesItemId = Items.HeartPieceGoronVillageScrub;
-ItemList[Items.MaskBlast].ReplacesItemId = Items.MaskFierceDeity;
+ItemList[Items.MaskBlast].ReplacesItemId = Items.TwinmoldTrialArrows30;
 ItemList[Items.ShopItemGoronBomb10].ReplacesItemId = Items.HeartContainerWoodfall;
 ItemList[Items.ShopItemBombsBomb10].ReplacesItemId = Items.ItemFairySword;
 ItemList[Items.ShopItemBombsBombchu10].ReplacesItemId = Items.UpgradeGildedSword;
@@ -1157,7 +1157,7 @@ ItemList[Items.ShopItemTradingPostGreenPotion].ReplacesItemId = Items.ChestToGor
 ItemList[Items.ShopItemTradingPostNut10].ReplacesItemId = Items.HeartPieceSouthClockTown;
 ItemList[Items.ShopItemTradingPostRedPotion].ReplacesItemId = Items.ItemGreatBayCompass;
 ItemList[Items.ShopItemTradingPostShield].ReplacesItemId = Items.MaskPostmanHat;
-ItemList[Items.UpgradeBigBombBag].ReplacesItemId = Items.TwinmoldTrialArrows30;
+ItemList[Items.UpgradeBigBombBag].ReplacesItemId = Items.MaskFierceDeity;
 ItemList[Items.ItemBottleWitch].ReplacesItemId = Items.MaskScents;
 ItemList[Items.ShopItemWitchBluePotion].ReplacesItemId = Items.ItemGreatBayBossKey;
 ItemList[Items.ShopItemWitchGreenPotion].ReplacesItemId = Items.ChestGraveyardGrotto;
