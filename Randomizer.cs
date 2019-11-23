@@ -1,15 +1,19 @@
 using MMRando.Constants;
+using MMRando.Extensions;
+using MMRando.GameObjects;
 using MMRando.LogicMigrator;
 using MMRando.Models;
 using MMRando.Models.Rom;
+using MMRando.Models.Settings;
+using MMRando.Models.SoundEffects;
 using MMRando.Utils;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace MMRando
 {
@@ -25,21 +29,19 @@ namespace MMRando
 
         public List<ItemObject> ItemList { get; set; }
 
-        List<Gossip> GossipList { get; set; }
-
         #region Dependence and Conditions
-        List<int> ConditionsChecked { get; set; }
-        Dictionary<int, Dependence> DependenceChecked { get; set; }
+        List<Item> ConditionsChecked { get; set; }
+        Dictionary<Item, Dependence> DependenceChecked { get; set; }
         List<int[]> ConditionRemoves { get; set; }
 
         private class Dependence
         {
-            public int[] ItemIds { get; set; }
+            public Item[] Items { get; set; }
             public DependenceType Type { get; set; }
 
             public static Dependence Dependent => new Dependence { Type = DependenceType.Dependent };
             public static Dependence NotDependent => new Dependence { Type = DependenceType.NotDependent };
-            public static Dependence Circular(params int[] itemIds) => new Dependence { ItemIds = itemIds, Type = DependenceType.Circular };
+            public static Dependence Circular(params Item[] items) => new Dependence { Items = items, Type = DependenceType.Circular };
         }
 
         private enum DependenceType
@@ -49,60 +51,55 @@ namespace MMRando
             Circular
         }
 
-        Dictionary<int, List<int>> ForbiddenReplacedBy = new Dictionary<int, List<int>>
-        {
-            // Deku_Mask should not be replaced by trade items, or items that can be downgraded.
+        // Starting items should not be replaced by trade items, or items that can be downgraded.
+        private readonly List<Item> ForbiddenStartingItems = new List<Item>
             {
-                Items.MaskDeku, new List<int>
-                {
-                    Items.UpgradeGildedSword,
-                    Items.UpgradeMirrorShield,
-                    Items.UpgradeBiggestQuiver,
-                    Items.UpgradeBigBombBag,
-                    Items.UpgradeBiggestBombBag,
-                    Items.UpgradeGiantWallet
-                }
-                .Concat(Enumerable.Range(Items.TradeItemMoonTear, Items.TradeItemMamaLetter - Items.TradeItemMoonTear + 1))
-                .Concat(Enumerable.Range(Items.ItemBottleWitch, Items.ItemBottleMadameAroma - Items.ItemBottleWitch + 1))
-                .ToList()
-            },
+                // Starting with Magic Bean or Powder Keg doesn't actually give you one,
+                // nor do you get one when you play Song of Time.
+                Item.ItemMagicBean,
+                Item.ItemPowderKeg,
+            }
+            .Concat(Enumerable.Range((int)Item.TradeItemMoonTear, Item.TradeItemMamaLetter - Item.TradeItemMoonTear + 1).Cast<Item>())
+            .Concat(Enumerable.Range((int)Item.ItemBottleWitch, Item.ItemBottleMadameAroma - Item.ItemBottleWitch + 1).Cast<Item>())
+            .ToList();
 
+        private readonly Dictionary<Item, List<Item>> ForbiddenReplacedBy = new Dictionary<Item, List<Item>>
+        {
             // Keaton_Mask and Mama_Letter are obtained one directly after another
             // Keaton_Mask cannot be replaced by items that may be overwritten by item obtained at Mama_Letter
             {
-                Items.MaskKeaton,
-                new List<int> {
-                    Items.UpgradeGiantWallet,
-                    Items.UpgradeGildedSword,
-                    Items.UpgradeMirrorShield,
-                    Items.UpgradeBiggestQuiver,
-                    Items.UpgradeBigBombBag,
-                    Items.UpgradeBiggestBombBag,
-                    Items.TradeItemMoonTear,
-                    Items.TradeItemLandDeed,
-                    Items.TradeItemSwampDeed,
-                    Items.TradeItemMountainDeed,
-                    Items.TradeItemOceanDeed,
-                    Items.TradeItemRoomKey,
-                    Items.TradeItemMamaLetter,
-                    Items.TradeItemKafeiLetter,
-                    Items.TradeItemPendant
+                Item.MaskKeaton,
+                new List<Item> {
+                    Item.TradeItemMoonTear,
+                    Item.TradeItemLandDeed,
+                    Item.TradeItemSwampDeed,
+                    Item.TradeItemMountainDeed,
+                    Item.TradeItemOceanDeed,
+                    Item.TradeItemRoomKey,
+                    Item.TradeItemMamaLetter,
+                    Item.TradeItemKafeiLetter,
+                    Item.TradeItemPendant
                 }
             },
         };
 
-        Dictionary<int, List<int>> ForbiddenPlacedAt = new Dictionary<int, List<int>>
+        private readonly Dictionary<Item, List<Item>> ForbiddenPlacedAt = new Dictionary<Item, List<Item>>
         {
         };
 
         #endregion
 
-        private Settings _settings;
+        private SettingsObject _settings;
         private RandomizedResult _randomized;
 
-        public Randomizer(Settings settings)
+        public Randomizer(SettingsObject settings)
         {
             _settings = settings;
+            if (!_settings.PreventDowngrades)
+            {
+                ForbiddenReplacedBy[Item.MaskKeaton].AddRange(ItemUtils.DowngradableItems());
+                ForbiddenStartingItems.AddRange(ItemUtils.DowngradableItems());
+            }
         }
 
         //rando functions
@@ -111,132 +108,8 @@ namespace MMRando
 
         private void MakeGossipQuotes()
         {
-            var gossipQuotes = new List<string>();
-            ReadAndPopulateGossipList();
-
-            for (int itemIndex = 0; itemIndex < ItemList.Count; itemIndex++)
-            {
-                if (!ItemList[itemIndex].ReplacesAnotherItem)
-                {
-                    continue;
-                }
-
-                // Skip hints for vanilla bottle content
-                if ((!_settings.RandomizeBottleCatchContents)
-                    && ItemUtils.IsBottleCatchContent(itemIndex))
-                {
-                    continue;
-                }
-
-                // Skip hints for vanilla shop items
-                if ((!_settings.AddShopItems)
-                    && ItemUtils.IsShopItem(itemIndex))
-                {
-                    continue;
-                }
-
-                // Skip hints for vanilla dungeon items
-                if (!_settings.AddDungeonItems
-                    && ItemUtils.IsDungeonItem(itemIndex))
-                {
-                    continue;
-                }
-
-                // Skip hint for song of soaring
-                if (_settings.ExcludeSongOfSoaring && itemIndex == Items.SongSoaring)
-                {
-                    continue;
-                }
-
-                // Skip hints for moon items
-                if (!_settings.AddMoonItems
-                    && ItemUtils.IsMoonItem(itemIndex))
-                {
-                    continue;
-                }
-
-                // Skip hints for other items
-                if (!_settings.AddOther
-                    && ItemUtils.IsOtherItem(itemIndex))
-                {
-                    continue;
-                }
-
-                int sourceItemId = ItemList[itemIndex].ReplacesItemId;
-                sourceItemId = ItemUtils.SubtractItemOffset(sourceItemId);
-
-                int toItemId = itemIndex;
-                toItemId = ItemUtils.SubtractItemOffset(toItemId);
-
-                // 5% chance of being fake
-                bool isFake = (Random.Next(100) < 5);
-                if (isFake)
-                {
-                    sourceItemId = Random.Next(GossipList.Count);
-                }
-
-                int sourceMessageLength = GossipList[sourceItemId]
-                    .SourceMessage
-                    .Length;
-
-                int destinationMessageLength = GossipList[toItemId]
-                    .DestinationMessage
-                    .Length;
-
-                // Randomize messages
-                string sourceMessage = GossipList[sourceItemId]
-                    .SourceMessage[Random.Next(sourceMessageLength)];
-
-                string destinationMessage = GossipList[toItemId]
-                    .DestinationMessage[Random.Next(destinationMessageLength)];
-
-                // Sound differs if hint is fake
-                ushort soundEffectId = (ushort)(isFake ? 0x690A : 0x690C);
-
-                var quote = BuildGossipQuote(soundEffectId, sourceMessage, destinationMessage);
-
-                gossipQuotes.Add(quote);
-            }
-
-            for (int i = 0; i < Gossip.JunkMessages.Count; i++)
-            {
-                gossipQuotes.Add(Gossip.JunkMessages[i]);
-            }
-
-            _randomized.GossipQuotes = gossipQuotes;
-        }
-
-        private void ReadAndPopulateGossipList()
-        {
-            GossipList = new List<Gossip>();
-
-            string[] gossipLines = Properties.Resources.GOSSIP
-                .Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-
-            for (int i = 0; i < gossipLines.Length; i += 2)
-            {
-                var sourceMessage = gossipLines[i].Split(';');
-                var destinationMessage = gossipLines[i + 1].Split(';');
-                var nextGossip = new Gossip
-                {
-                    SourceMessage = sourceMessage,
-                    DestinationMessage = destinationMessage
-                };
-
-                GossipList.Add(nextGossip);
-            }
-        }
-
-        public string BuildGossipQuote(ushort soundEffectId, string sourceMessage, string destinationMessage)
-        {
-            int startIndex = Random.Next(Gossip.MessageStartSentences.Count);
-            int midIndex = Random.Next(Gossip.MessageMidSentences.Count);
-            string start = Gossip.MessageStartSentences[startIndex];
-            string mid = Gossip.MessageMidSentences[midIndex];
-
-            string sfx = $"{(char)((soundEffectId >> 8) & 0xFF)}{(char)(soundEffectId & 0xFF)}";
-
-            return $"\x1E{sfx}{start} \x01{sourceMessage}\x00\x11{mid} \x06{destinationMessage}\x00" + "...\xBF";
+            _randomized.GossipQuotes = MessageUtils.MakeGossipQuotes
+                (_randomized);
         }
 
         #endregion
@@ -261,37 +134,38 @@ namespace MMRando
             }
 
             var areaAccessObjects = new ItemObject[] {
-                ItemList[Items.AreaWoodFallTempleAccess],
-                ItemList[Items.AreaSnowheadTempleAccess],
-                ItemList[Items.AreaInvertedStoneTowerTempleAccess],
-                ItemList[Items.AreaGreatBayTempleAccess]
+                ItemList[(int)Item.AreaWoodFallTempleAccess],
+                ItemList[(int)Item.AreaSnowheadTempleAccess],
+                ItemList[(int)Item.AreaInvertedStoneTowerTempleAccess],
+                ItemList[(int)Item.AreaGreatBayTempleAccess]
             };
 
             var areaAccessObjectIndexes = new int[] {
-                Items.AreaWoodFallTempleAccess,
-                Items.AreaSnowheadTempleAccess,
-                Items.AreaInvertedStoneTowerTempleAccess,
-                Items.AreaGreatBayTempleAccess
+                (int)Item.AreaWoodFallTempleAccess,
+                (int)Item.AreaSnowheadTempleAccess,
+                (int)Item.AreaInvertedStoneTowerTempleAccess,
+                (int)Item.AreaGreatBayTempleAccess
             };
 
             for (int i = 0; i < 4; i++)
             {
-                Debug.WriteLine($"Entrance {Items.ITEM_NAMES[areaAccessObjectIndexes[newEntranceIndices[i]]]} placed at {Items.ITEM_NAMES[areaAccessObjects[i].ID]}.");
+                //Debug.WriteLine($"Entrance {Item.ITEM_NAMES[areaAccessObjectIndexes[newEntranceIndices[i]]]} placed at {Item.ITEM_NAMES[areaAccessObjects[i].ID]}.");
+                areaAccessObjects[i].IsRandomized = true;
                 ItemList[areaAccessObjectIndexes[newEntranceIndices[i]]] = areaAccessObjects[i];
             }
 
             var areaClearObjects = new ItemObject[] {
-                ItemList[Items.AreaWoodFallTempleClear],
-                ItemList[Items.AreaSnowheadTempleClear],
-                ItemList[Items.AreaStoneTowerClear],
-                ItemList[Items.AreaGreatBayTempleClear]
+                ItemList[(int)Item.AreaWoodFallTempleClear],
+                ItemList[(int)Item.AreaSnowheadTempleClear],
+                ItemList[(int)Item.AreaStoneTowerClear],
+                ItemList[(int)Item.AreaGreatBayTempleClear]
             };
 
             var areaClearObjectIndexes = new int[] {
-                Items.AreaWoodFallTempleClear,
-                Items.AreaSnowheadTempleClear,
-                Items.AreaStoneTowerClear,
-                Items.AreaGreatBayTempleClear
+                (int)Item.AreaWoodFallTempleClear,
+                (int)Item.AreaSnowheadTempleClear,
+                (int)Item.AreaStoneTowerClear,
+                (int)Item.AreaGreatBayTempleClear
             };
 
             for (int i = 0; i < 4; i++)
@@ -318,74 +192,6 @@ namespace MMRando
             _randomized.NewDCMasks = newDCMasks;
         }
 
-        #region Sequences and BGM
-
-        private void BGMShuffle()
-        {
-            while (RomData.TargetSequences.Count > 0)
-            {
-                List<SequenceInfo> Unassigned = RomData.SequenceList.FindAll(u => u.Replaces == -1);
-
-                int targetIndex = Random.Next(RomData.TargetSequences.Count);
-                var targetSequence = RomData.TargetSequences[targetIndex];
-
-                while (true)
-                {
-                    int unassignedIndex = Random.Next(Unassigned.Count);
-
-                    if (Unassigned[unassignedIndex].Name.StartsWith("mm")
-                        & (Random.Next(100) < 50))
-                    {
-                        continue;
-                    }
-
-                    for (int i = 0; i < Unassigned[unassignedIndex].Type.Count; i++)
-                    {
-                        if (targetSequence.Type.Contains(Unassigned[unassignedIndex].Type[i]))
-                        {
-                            Unassigned[unassignedIndex].Replaces = targetSequence.Replaces;
-                            Debug.WriteLine(Unassigned[unassignedIndex].Name + " -> " + targetSequence.Name);
-                            RomData.TargetSequences.RemoveAt(targetIndex);
-                            break;
-                        }
-                        else if (i + 1 == Unassigned[unassignedIndex].Type.Count)
-                        {
-                            if ((Random.Next(30) == 0)
-                                && ((Unassigned[unassignedIndex].Type[0] & 8) == (targetSequence.Type[0] & 8))
-                                && (Unassigned[unassignedIndex].Type.Contains(10) == targetSequence.Type.Contains(10))
-                                && (!Unassigned[unassignedIndex].Type.Contains(16)))
-                            {
-                                Unassigned[unassignedIndex].Replaces = targetSequence.Replaces;
-                                Debug.WriteLine(Unassigned[unassignedIndex].Name + " -> " + targetSequence.Name);
-                                RomData.TargetSequences.RemoveAt(targetIndex);
-                                break;
-                            }
-                        }
-                    }
-
-                    if (Unassigned[unassignedIndex].Replaces != -1)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            RomData.SequenceList.RemoveAll(u => u.Replaces == -1);
-        }
-
-        private void SortBGM()
-        {
-            if (!_settings.RandomizeBGM)
-            {
-                return;
-            }
-
-            SequenceUtils.ReadSequenceInfo();
-            BGMShuffle();
-        }
-
-        #endregion
-
         private void SetTatlColour()
         {
             if (_settings.TatlColorSchema == TatlColorSchema.Rainbow)
@@ -405,8 +211,25 @@ namespace MMRando
                     }
 
                     Values.TatlColours[4, i] = BitConverter.ToUInt32(c, 0);
-                };
-            };
+                }
+            }
+        }
+
+        private void UpdateLogicForSettings()
+        {
+            if (_settings.CustomStartingItemList != null)
+            {
+                foreach (var itemObject in ItemList)
+                {
+                    itemObject.DependsOnItems?.RemoveAll(item => _settings.CustomStartingItemList.Contains(item));
+                    itemObject.Conditionals?.ForEach(c => c.RemoveAll(item => _settings.CustomStartingItemList.Contains(item)));
+                }
+            }
+            if (_settings.AddShopItems)
+            {
+                ItemList[(int)Item.ShopItemWitchBluePotion].DependsOnItems?.Remove(Item.BottleCatchMushroom);
+            }
+            // todo handle progressive upgrades here.
         }
 
         private void PrepareRulesetItemData()
@@ -431,11 +254,12 @@ namespace MMRando
         /// </summary>
         private void PopulateItemListWithoutLogic()
         {
-            for (var i = 0; i < Items.TotalNumberOfItems; i++)
+            foreach (var item in Enum.GetValues(typeof(Item)).Cast<Item>())
             {
                 var currentItem = new ItemObject
                 {
-                    ID = i,
+                    ID = (int)item,
+                    Name = item.Name() ?? item.ToString(),
                     TimeAvailable = 63
                 };
 
@@ -451,7 +275,7 @@ namespace MMRando
         {
             if (Migrator.GetVersion(data.ToList()) != Migrator.CurrentVersion)
             {
-                throw new InvalidDataException("Logic file is out of date. Open it in the Logic Editor to bring it up to date.");
+                throw new InvalidDataException("Logic file is out of date or invalid. Open it in the Logic Editor to bring it up to date.");
             }
 
             int itemId = 0;
@@ -464,6 +288,7 @@ namespace MMRando
             {
                 if (line.Contains("-"))
                 {
+                    currentItem.Name = line.Substring(2);
                     continue;
                 }
 
@@ -508,7 +333,7 @@ namespace MMRando
 
         private void ProcessConditionalsForItem(ItemObject currentItem, string line)
         {
-            List<List<int>> conditional = new List<List<int>>();
+            List<List<Item>> conditional = new List<List<Item>>();
 
             if (line == "")
             {
@@ -518,16 +343,14 @@ namespace MMRando
             {
                 foreach (string conditions in line.Split(';'))
                 {
-                    int[] conditionaloption = Array.ConvertAll(conditions.Split(','), int.Parse);
-                    conditional.Add(conditionaloption.ToList());
+                    currentItem.Conditionals.Add(Array.ConvertAll(conditions.Split(','), int.Parse).Select(i => (Item)i).ToList());
                 }
-                currentItem.Conditionals = conditional;
             }
         }
 
         private void ProcessDependenciesForItem(ItemObject currentItem, string line)
         {
-            List<int> dependencies = new List<int>();
+            List<Item> dependencies = new List<Item>();
 
             if (line == "")
             {
@@ -537,9 +360,8 @@ namespace MMRando
             {
                 foreach (string dependency in line.Split(','))
                 {
-                    dependencies.Add(Convert.ToInt32(dependency));
+                    currentItem.DependsOnItems.Add((Item)Convert.ToInt32(dependency));
                 }
-                currentItem.DependsOnItems = dependencies;
             }
         }
 
@@ -572,74 +394,69 @@ namespace MMRando
             return lines;
         }
 
-        private Dependence CheckDependence(int CurrentItem, int Target, List<int> dependencyPath)
+        private Dependence CheckDependence(Item currentItem, Item target, List<Item> dependencyPath)
         {
-            Debug.WriteLine($"CheckDependence({CurrentItem}, {Target})");
-            if (ItemList[CurrentItem].TimeNeeded == 0
-                && !ItemList.Any(io => (io.Conditionals?.Any(c => c.Contains(CurrentItem)) ?? false) || (io.DependsOnItems?.Contains(CurrentItem) ?? false)))
-            {
-                return Dependence.NotDependent;
-            }
+            Debug.WriteLine($"CheckDependence({currentItem}, {target})");
 
-            // permanent items ignore dependencies of Blast Mask check
-            if (Target == Items.MaskBlast && !ItemUtils.IsTemporaryItem(CurrentItem))
+            if (ItemList[(int)currentItem].TimeNeeded == 0
+                && !ItemList.Any(io => (io.Conditionals?.Any(c => c.Contains(currentItem)) ?? false) || (io.DependsOnItems?.Contains(currentItem) ?? false)))
             {
                 return Dependence.NotDependent;
             }
 
             //check timing
-            if (ItemList[CurrentItem].TimeNeeded != 0 && dependencyPath.Skip(1).All(p => ItemUtils.IsFakeItem(p) || ItemUtils.IsTemporaryItem(ItemList.Single(i => i.ReplacesItemId == p).ID)))
+            if (ItemList[(int)currentItem].TimeNeeded != 0 && dependencyPath.Skip(1).All(p => p.IsFake() || ItemList.Single(i => i.NewLocation == p).Item.IsTemporary()))
             {
-                if ((ItemList[CurrentItem].TimeNeeded & ItemList[Target].TimeAvailable) == 0)
+                if ((ItemList[(int)currentItem].TimeNeeded & ItemList[(int)target].TimeAvailable) == 0)
                 {
-                    Debug.WriteLine($"{CurrentItem} is needed at {ItemList[CurrentItem].TimeNeeded} but {Target} is only available at {ItemList[Target].TimeAvailable}");
+                    Debug.WriteLine($"{currentItem} is needed at {ItemList[(int)currentItem].TimeNeeded} but {target} is only available at {ItemList[(int)target].TimeAvailable}");
                     return Dependence.Dependent;
                 }
             }
 
-            if (ItemList[Target].HasConditionals)
+            if (ItemList[(int)target].HasConditionals)
             {
-                if (ItemList[Target].Conditionals
-                    .FindAll(u => u.Contains(CurrentItem)).Count == ItemList[Target].Conditionals.Count)
+                if (ItemList[(int)target].Conditionals
+                    .FindAll(u => u.Contains(currentItem)).Count == ItemList[(int)target].Conditionals.Count)
                 {
-                    Debug.WriteLine($"All conditionals of {Target} contains {CurrentItem}");
+                    Debug.WriteLine($"All conditionals of {target} contains {currentItem}");
                     return Dependence.Dependent;
                 }
 
-                if (ItemList[CurrentItem].HasCannotRequireItems)
+                if (ItemList[(int)currentItem].HasCannotRequireItems)
                 {
-                    for (int i = 0; i < ItemList[CurrentItem].CannotRequireItems.Count; i++)
+                    for (int i = 0; i < ItemList[(int)currentItem].CannotRequireItems.Count; i++)
                     {
-                        if (ItemList[Target].Conditionals
-                            .FindAll(u => u.Contains(ItemList[CurrentItem].CannotRequireItems[i])
-                            || u.Contains(CurrentItem)).Count == ItemList[Target].Conditionals.Count)
+                        if (ItemList[(int)target].Conditionals
+                            .FindAll(u => u.Contains(ItemList[(int)currentItem].CannotRequireItems[i])
+                            || u.Contains(currentItem)).Count == ItemList[(int)target].Conditionals.Count)
                         {
-                            Debug.WriteLine($"All conditionals of {Target} cannot be required by {CurrentItem}");
+                            Debug.WriteLine($"All conditionals of {target} cannot be required by {currentItem}");
                             return Dependence.Dependent;
                         }
                     }
                 }
 
                 int k = 0;
-                var circularDependencies = new List<int>();
-                for (int i = 0; i < ItemList[Target].Conditionals.Count; i++)
+                var circularDependencies = new List<Item>();
+                for (int i = 0; i < ItemList[(int)target].Conditionals.Count; i++)
                 {
                     bool match = false;
-                    for (int j = 0; j < ItemList[Target].Conditionals[i].Count; j++)
+                    for (int j = 0; j < ItemList[(int)target].Conditionals[i].Count; j++)
                     {
-                        int d = ItemList[Target].Conditionals[i][j];
-                        if (!ItemUtils.IsFakeItem(d) && !ItemList[d].ReplacesAnotherItem && d != CurrentItem)
+                        var d = ItemList[(int)target].Conditionals[i][j];
+                        if (!d.IsFake() && !ItemList[(int)d].NewLocation.HasValue && d != currentItem)
                         {
                             continue;
                         }
 
-                        int[] check = new int[] { Target, i, j };
+                        int[] check = new int[] { (int)target, i, j };
 
-                        if (ItemList[d].ReplacesAnotherItem)
+                        if (ItemList[(int)d].NewLocation.HasValue)
                         {
-                            d = ItemList[d].ReplacesItemId;
+                            d = ItemList[(int)d].NewLocation.Value;
                         }
-                        if (d == CurrentItem)
+                        if (d == currentItem)
                         {
                             DependenceChecked[d] = Dependence.Dependent;
                         }
@@ -649,17 +466,17 @@ namespace MMRando
                             {
                                 DependenceChecked[d] = Dependence.Circular(d);
                             }
-                            if (!DependenceChecked.ContainsKey(d) || (DependenceChecked[d].Type == DependenceType.Circular && !DependenceChecked[d].ItemIds.All(id => dependencyPath.Contains(id))))
+                            if (!DependenceChecked.ContainsKey(d) || (DependenceChecked[d].Type == DependenceType.Circular && !DependenceChecked[d].Items.All(id => dependencyPath.Contains(id))))
                             {
                                 var childPath = dependencyPath.ToList();
                                 childPath.Add(d);
-                                DependenceChecked[d] = CheckDependence(CurrentItem, d, childPath);
+                                DependenceChecked[d] = CheckDependence(currentItem, d, childPath);
                             }
                         }
 
                         if (DependenceChecked[d].Type != DependenceType.NotDependent)
                         {
-                            if (!dependencyPath.Contains(d) && DependenceChecked[d].Type == DependenceType.Circular && DependenceChecked[d].ItemIds.All(id => id == d))
+                            if (!dependencyPath.Contains(d) && DependenceChecked[d].Type == DependenceType.Circular && DependenceChecked[d].Items.All(id => id == d))
                             {
                                 DependenceChecked[d] = Dependence.Dependent;
                             }
@@ -672,7 +489,7 @@ namespace MMRando
                             }
                             else
                             {
-                                circularDependencies = circularDependencies.Union(DependenceChecked[d].ItemIds).ToList();
+                                circularDependencies = circularDependencies.Union(DependenceChecked[d].Items).ToList();
                             }
                             if (!match)
                             {
@@ -683,50 +500,55 @@ namespace MMRando
                     }
                 }
 
-                if (k == ItemList[Target].Conditionals.Count)
+                if (k == ItemList[(int)target].Conditionals.Count)
                 {
                     if (circularDependencies.Any())
                     {
                         return Dependence.Circular(circularDependencies.ToArray());
                     }
-                    Debug.WriteLine($"All conditionals of {Target} failed dependency check for {CurrentItem}.");
+                    Debug.WriteLine($"All conditionals of {target} failed dependency check for {currentItem}.");
                     return Dependence.Dependent;
                 }
             }
 
-            if (ItemList[Target].DependsOnItems == null)
+            if (ItemList[(int)target].DependsOnItems == null)
             {
                 return Dependence.NotDependent;
             }
 
             //cycle through all things
-            for (int i = 0; i < ItemList[Target].DependsOnItems.Count; i++)
+            for (int i = 0; i < ItemList[(int)target].DependsOnItems.Count; i++)
             {
-                int dependency = ItemList[Target].DependsOnItems[i];
-                if (dependency == CurrentItem)
+                var dependency = ItemList[(int)target].DependsOnItems[i];
+                if (!currentItem.IsTemporary() && target == Item.MaskBlast && (dependency == Item.TradeItemKafeiLetter || dependency == Item.TradeItemPendant))
                 {
-                    Debug.WriteLine($"{Target} has direct dependence on {CurrentItem}");
+                    // Permanent items ignore Kafei Letter and Pendant on Blast Mask check.
+                    continue;
+                }
+                if (dependency == currentItem)
+                {
+                    Debug.WriteLine($"{target} has direct dependence on {currentItem}");
                     return Dependence.Dependent;
                 }
 
-                if (ItemList[CurrentItem].HasCannotRequireItems)
+                if (ItemList[(int)currentItem].HasCannotRequireItems)
                 {
-                    for (int j = 0; j < ItemList[CurrentItem].CannotRequireItems.Count; j++)
+                    for (int j = 0; j < ItemList[(int)currentItem].CannotRequireItems.Count; j++)
                     {
-                        if (ItemList[Target].DependsOnItems.Contains(ItemList[CurrentItem].CannotRequireItems[j]))
+                        if (ItemList[(int)target].DependsOnItems.Contains(ItemList[(int)currentItem].CannotRequireItems[j]))
                         {
-                            Debug.WriteLine($"Dependence {ItemList[CurrentItem].CannotRequireItems[j]} of {Target} cannot be required by {CurrentItem}");
+                            Debug.WriteLine($"Dependence {ItemList[(int)currentItem].CannotRequireItems[j]} of {target} cannot be required by {currentItem}");
                             return Dependence.Dependent;
                         }
                     }
                 }
 
-                if (ItemUtils.IsFakeItem(dependency)
-                    || ItemList[dependency].ReplacesAnotherItem)
+                if (dependency.IsFake()
+                    || ItemList[(int)dependency].NewLocation.HasValue)
                 {
-                    if (ItemList[dependency].ReplacesAnotherItem)
+                    if (ItemList[(int)dependency].NewLocation.HasValue)
                     {
-                        dependency = ItemList[dependency].ReplacesItemId;
+                        dependency = ItemList[(int)dependency].NewLocation.Value;
                     }
 
                     if (dependencyPath.Contains(dependency))
@@ -734,19 +556,19 @@ namespace MMRando
                         DependenceChecked[dependency] = Dependence.Circular(dependency);
                         return DependenceChecked[dependency];
                     }
-                    if (!DependenceChecked.ContainsKey(dependency) || (DependenceChecked[dependency].Type == DependenceType.Circular && !DependenceChecked[dependency].ItemIds.All(id => dependencyPath.Contains(id))))
+                    if (!DependenceChecked.ContainsKey(dependency) || (DependenceChecked[dependency].Type == DependenceType.Circular && !DependenceChecked[dependency].Items.All(id => dependencyPath.Contains(id))))
                     {
                         var childPath = dependencyPath.ToList();
                         childPath.Add(dependency);
-                        DependenceChecked[dependency] = CheckDependence(CurrentItem, dependency, childPath);
+                        DependenceChecked[dependency] = CheckDependence(currentItem, dependency, childPath);
                     }
                     if (DependenceChecked[dependency].Type != DependenceType.NotDependent)
                     {
-                        if (DependenceChecked[dependency].Type == DependenceType.Circular && DependenceChecked[dependency].ItemIds.All(id => id == dependency))
+                        if (DependenceChecked[dependency].Type == DependenceType.Circular && DependenceChecked[dependency].Items.All(id => id == dependency))
                         {
                             DependenceChecked[dependency] = Dependence.Dependent;
                         }
-                        Debug.WriteLine($"{CurrentItem} is dependent on {dependency}");
+                        Debug.WriteLine($"{currentItem} is dependent on {dependency}");
                         return DependenceChecked[dependency];
                     }
                 }
@@ -755,7 +577,7 @@ namespace MMRando
             return Dependence.NotDependent;
         }
 
-        private void RemoveConditionals(int CurrentItem)
+        private void RemoveConditionals(Item currentItem)
         {
             for (int i = 0; i < ConditionRemoves.Count; i++)
             {
@@ -777,15 +599,15 @@ namespace MMRando
                     {
                         for (int k = 0; k < ItemList[x].Conditionals[j].Count; k++)
                         {
-                            int d = ItemList[x].Conditionals[j][k];
+                            var d = ItemList[x].Conditionals[j][k];
 
                             if (!ItemList[x].HasCannotRequireItems)
                             {
-                                ItemList[x].CannotRequireItems = new List<int>();
+                                ItemList[x].CannotRequireItems = new List<Item>();
                             }
-                            if (!ItemList[d].CannotRequireItems.Contains(CurrentItem))
+                            if (!ItemList[(int)d].CannotRequireItems.Contains(currentItem))
                             {
-                                ItemList[d].CannotRequireItems.Add(CurrentItem);
+                                ItemList[(int)d].CannotRequireItems.Add(currentItem);
                             }
                         }
                     }
@@ -799,60 +621,111 @@ namespace MMRando
                     ItemList[i].Conditionals.RemoveAll(u => u == null);
                 }
             }
+
+            /*
+            for (int i = 0; i < ConditionRemoves.Count; i++)
+            {
+                for (int j = 0; j < ItemList[ConditionRemoves[i][0]].Conditional[ConditionRemoves[i][1]].Count; j++)
+                {
+                    int d = ItemList[ConditionRemoves[i][0]].Conditional[ConditionRemoves[i][1]][j];
+                    if (ItemList[d].Cannot_Require == null)
+                    {
+                        ItemList[d].Cannot_Require = new List<int>();
+                    };
+                    ItemList[d].Cannot_Require.Add(CurrentItem);
+                    if (ItemList[ConditionRemoves[i][0]].Dependence == null)
+                    {
+                        ItemList[ConditionRemoves[i][0]].Dependence = new List<int>();
+                    };
+                    ItemList[ConditionRemoves[i][0]].Dependence.Add(d);
+                };
+                ItemList[ConditionRemoves[i][0]].Conditional[ConditionRemoves[i][1]] = null;
+            };
+            for (int i = 0; i < ItemList.Count; i++)
+            {
+                if (ItemList[i].Conditional != null)
+                {
+                    if (ItemList[i].Conditional.Contains(null))
+                    {
+                        ItemList[i].Conditional = null;
+                    };
+                };
+            };
+            */
         }
 
-        private void UpdateConditionals(int CurrentItem, int Target)
+        private void UpdateConditionals(Item currentItem, Item target)
         {
-            if (!ItemList[Target].HasConditionals)
+            var targetId = (int)target;
+            if (!ItemList[targetId].HasConditionals)
             {
                 return;
             }
 
-            if (ItemList[Target].Conditionals.Count == 1)
+            //if ((Target == 114) || (Target == 115))
+            //{
+            //    return;
+            //};
+            /*
+            if (ItemList[Target].Cannot_Require != null)
             {
-                for (int i = 0; i < ItemList[Target].Conditionals[0].Count; i++)
+                for (int i = 0; i < ItemList[CurrentItem].Cannot_Require.Count; i++)
                 {
-                    if (!ItemList[Target].HasDependencies)
+                    ItemList[Target].Conditional.RemoveAll(u => u.Contains(ItemList[CurrentItem].Cannot_Require[i]));
+                };
+            };
+            ItemList[Target].Conditional.RemoveAll(u => u.Contains(CurrentItem));
+            if (ItemList[Target].Conditional.Count == 0)
+            {
+                return;
+            };
+            */
+            if (ItemList[targetId].Conditionals.Count == 1)
+            {
+                for (int i = 0; i < ItemList[targetId].Conditionals[0].Count; i++)
+                {
+                    if (!ItemList[targetId].HasDependencies)
                     {
-                        ItemList[Target].DependsOnItems = new List<int>();
+                        ItemList[targetId].DependsOnItems = new List<Item>();
                     }
 
-                    int j = ItemList[Target].Conditionals[0][i];
-                    if (!ItemList[Target].DependsOnItems.Contains(j))
+                    var j = ItemList[targetId].Conditionals[0][i];
+                    var jId = (int)j;
+                    if (!ItemList[targetId].DependsOnItems.Contains(j))
                     {
-                        ItemList[Target].DependsOnItems.Add(j);
+                        ItemList[targetId].DependsOnItems.Add(j);
                     }
-                    if (!ItemList[j].HasCannotRequireItems)
+                    if (!ItemList[jId].HasCannotRequireItems)
                     {
-                        ItemList[j].CannotRequireItems = new List<int>();
+                        ItemList[jId].CannotRequireItems = new List<Item>();
                     }
-                    if (!ItemList[j].CannotRequireItems.Contains(CurrentItem))
+                    if (!ItemList[jId].CannotRequireItems.Contains(currentItem))
                     {
-                        ItemList[j].CannotRequireItems.Add(CurrentItem);
+                        ItemList[jId].CannotRequireItems.Add(currentItem);
                     }
                 }
-                ItemList[Target].Conditionals.RemoveAt(0);
+                ItemList[targetId].Conditionals.RemoveAt(0);
             }
             else
             {
                 //check if all conditions have a common item
-                for (int i = 0; i < ItemList[Target].Conditionals[0].Count; i++)
+                for (int i = 0; i < ItemList[targetId].Conditionals[0].Count; i++)
                 {
-                    int testitem = ItemList[Target].Conditionals[0][i];
-                    if (ItemList[Target].Conditionals.FindAll(u => u.Contains(testitem)).Count == ItemList[Target].Conditionals.Count)
+                    var testitem = ItemList[targetId].Conditionals[0][i];
+                    if (ItemList[targetId].Conditionals.FindAll(u => u.Contains(testitem)).Count == ItemList[targetId].Conditionals.Count)
                     {
                         // require this item and remove from conditions
-                        if (!ItemList[Target].HasDependencies)
+                        if (!ItemList[targetId].HasDependencies)
                         {
-                            ItemList[Target].DependsOnItems = new List<int>();
+                            ItemList[targetId].DependsOnItems = new List<Item>();
                         }
-                        if (!ItemList[Target].DependsOnItems.Contains(testitem))
+                        if (!ItemList[targetId].DependsOnItems.Contains(testitem))
                         {
-                            ItemList[Target].DependsOnItems.Add(testitem);
+                            ItemList[targetId].DependsOnItems.Add(testitem);
                         }
-                        for (int j = 0; j < ItemList[Target].Conditionals.Count; j++)
+                        for (int j = 0; j < ItemList[targetId].Conditionals.Count; j++)
                         {
-                            ItemList[Target].Conditionals[j].Remove(testitem);
+                            ItemList[targetId].Conditionals[j].Remove(testitem);
                         }
 
                         break;
@@ -873,72 +746,74 @@ namespace MMRando
             };
         }
 
-        private void AddConditionals(int target, int currentItem, int d)
+        private void AddConditionals(Item target, Item currentItem, int d)
         {
-            List<List<int>> baseConditionals = ItemList[target].Conditionals;
+            var targetId = (int)target;
+            var baseConditionals = ItemList[targetId].Conditionals;
 
             if (baseConditionals == null)
             {
-                baseConditionals = new List<List<int>>();
+                baseConditionals = new List<List<Item>>();
             }
 
-            ItemList[target].Conditionals = new List<List<int>>();
-            foreach (List<int> conditions in ItemList[d].Conditionals)
+            ItemList[targetId].Conditionals = new List<List<Item>>();
+            foreach (var conditions in ItemList[d].Conditionals)
             {
                 if (!conditions.Contains(currentItem))
                 {
-                    List<List<int>> newConditional = new List<List<int>>();
+                    var newConditional = new List<List<Item>>();
                     if (baseConditionals.Count == 0)
                     {
                         newConditional.Add(conditions);
                     }
                     else
                     {
-                        foreach (List<int> baseConditions in baseConditionals)
+                        foreach (var baseConditions in baseConditionals)
                         {
                             newConditional.Add(baseConditions.Concat(conditions).ToList());
                         }
                     }
 
-                    ItemList[target].Conditionals.AddRange(newConditional);
+                    ItemList[targetId].Conditionals.AddRange(newConditional);
                 }
             }
         }
 
-        private void CheckConditionals(int currentItem, int target, List<int> dependencyPath)
+        private void CheckConditionals(Item currentItem, Item target, List<Item> dependencyPath)
         {
-            if (target == Items.MaskBlast)
+            if (target == Item.MaskBlast)
             {
-                if (!ItemUtils.IsTemporaryItem(currentItem))
+                if (!currentItem.IsTemporary())
                 {
-                    ItemList[target].DependsOnItems = null;
+                    ItemList[(int)target].DependsOnItems?.Remove(Item.TradeItemKafeiLetter);
+                    ItemList[(int)target].DependsOnItems?.Remove(Item.TradeItemPendant);
                 }
             }
 
             ConditionsChecked.Add(target);
             UpdateConditionals(currentItem, target);
 
-            if (!ItemList[target].HasDependencies)
+            if (!ItemList[(int)target].HasDependencies)
             {
                 return;
             }
 
-            for (int i = 0; i < ItemList[target].DependsOnItems.Count; i++)
+            for (int i = 0; i < ItemList[(int)target].DependsOnItems.Count; i++)
             {
-                int dependency = ItemList[target].DependsOnItems[i];
-                if (!ItemList[dependency].HasCannotRequireItems)
+                var dependency = ItemList[(int)target].DependsOnItems[i];
+                if (!ItemList[(int)dependency].HasCannotRequireItems)
                 {
-                    ItemList[dependency].CannotRequireItems = new List<int>();
+                    ItemList[(int)dependency].CannotRequireItems = new List<Item>();
                 }
-                if (!ItemList[dependency].CannotRequireItems.Contains(currentItem))
+                if (!ItemList[(int)dependency].CannotRequireItems.Contains(currentItem))
                 {
-                    ItemList[dependency].CannotRequireItems.Add(currentItem);
+                    ItemList[(int)dependency].CannotRequireItems.Add(currentItem);
                 }
-                if (ItemUtils.IsFakeItem(dependency) || ItemList[dependency].ReplacesAnotherItem)
+                if (dependency.IsFake() || ItemList[(int)dependency].NewLocation.HasValue)
                 {
-                    if (ItemList[dependency].ReplacesAnotherItem)
+                    if (ItemList[(int)dependency].NewLocation.HasValue)
                     {
-                        dependency = ItemList[dependency].ReplacesItemId;
+                        dependency = ItemList[(int)dependency].NewLocation.Value;
                     }
 
                     if (!ConditionsChecked.Contains(dependency))
@@ -948,17 +823,41 @@ namespace MMRando
                         CheckConditionals(currentItem, dependency, childPath);
                     }
                 }
-                else if (ItemList[currentItem].TimeNeeded != 0 && ItemUtils.IsTemporaryItem(dependency) && dependencyPath.Skip(1).All(p => ItemUtils.IsFakeItem(p) || ItemUtils.IsTemporaryItem(ItemList.Single(j => j.ReplacesItemId == p).ID)))
+                else if (ItemList[(int)currentItem].TimeNeeded != 0 && dependency.IsTemporary() && dependencyPath.Skip(1).All(p => p.IsFake() || ItemList.Single(j => j.NewLocation == p).Item.IsTemporary()))
                 {
-                    ItemList[dependency].TimeNeeded &= ItemList[currentItem].TimeNeeded;
+                    if (ItemList[(int)dependency].TimeNeeded == 0)
+                    {
+                        ItemList[(int)dependency].TimeNeeded = ItemList[(int)currentItem].TimeNeeded;
+                    }
+                    else
+                    {
+                        ItemList[(int)dependency].TimeNeeded &= ItemList[(int)currentItem].TimeNeeded;
+                    }
                 }
             }
 
-            ItemList[target].DependsOnItems.RemoveAll(u => u == -1);
+            // todo double check this
+            //ItemList[(int)target].DependsOnItems.RemoveAll(u => u == -1);
         }
 
-        private bool CheckMatch(int currentItem, int target)
+        private bool CheckMatch(Item currentItem, Item target)
         {
+            if (_settings.CustomStartingItemList.Contains(currentItem))
+            {
+                return true;
+            }
+
+            if (ItemUtils.IsStartingLocation(target) && ForbiddenStartingItems.Contains(currentItem))
+            {
+                Debug.WriteLine($"{currentItem} cannot be a starting item.");
+                return false;
+            }
+
+            if (_settings.LogicMode == LogicMode.NoLogic)
+            {
+                return true;
+            }
+
             if (ForbiddenPlacedAt.ContainsKey(currentItem)
                 && ForbiddenPlacedAt[currentItem].Contains(target))
             {
@@ -972,7 +871,7 @@ namespace MMRando
                 return false;
             }
 
-            if (ItemUtils.IsTemporaryItem(currentItem) && ItemUtils.IsMoonItem(target))
+            if (currentItem.IsTemporary() && ItemUtils.IsMoonLocation(target))
             {
                 Debug.WriteLine($"{currentItem} cannot be placed on the moon.");
                 return false;
@@ -980,8 +879,8 @@ namespace MMRando
 
             //check direct dependence
             ConditionRemoves = new List<int[]>();
-            DependenceChecked = new Dictionary<int, Dependence> { { target, new Dependence { Type = DependenceType.Dependent } } };
-            var dependencyPath = new List<int> { target };
+            DependenceChecked = new Dictionary<Item, Dependence> { { target, new Dependence { Type = DependenceType.Dependent } } };
+            var dependencyPath = new List<Item> { target };
 
             if (CheckDependence(currentItem, target, dependencyPath).Type != DependenceType.NotDependent)
             {
@@ -990,52 +889,51 @@ namespace MMRando
 
             //check conditional dependence
             RemoveConditionals(currentItem);
-            ConditionsChecked = new List<int>();
+            ConditionsChecked = new List<Item>();
             CheckConditionals(currentItem, target, dependencyPath);
             return true;
         }
 
-        private void PlaceItem(int currentItem, List<int> targets)
+        private void PlaceItem(Item currentItem, List<Item> targets)
         {
-            if (ItemList[currentItem].ReplacesAnotherItem)
+            var currentItemObject = ItemList[(int)currentItem];
+            if (currentItemObject.NewLocation.HasValue)
             {
                 return;
             }
 
             var availableItems = targets.ToList();
+            if (currentItem > Item.SongOath)
+            {
+                availableItems.Remove(Item.MaskDeku);
+                availableItems.Remove(Item.SongHealing);
+            }
 
             while (true)
             {
                 if (availableItems.Count == 0)
                 {
-                    throw new Exception($"Unable to place {Items.ITEM_NAMES[currentItem]} anywhere.");
+                    throw new Exception($"Unable to place {currentItem.Name()} anywhere.");
                 }
 
-                int targetItem = 0;
-                if (currentItem > Items.SongOath && availableItems.Contains(0))
+                var targetLocation = availableItems.Random(Random);// Random.Next(availableItems.Count);
+
+                Debug.WriteLine($"----Attempting to place {currentItem.Name()} at {targetLocation.Location()}.---");
+
+                if (CheckMatch(currentItem, targetLocation))
                 {
-                    targetItem = Random.Next(1, availableItems.Count);
-                }
-                else
-                {
-                    targetItem = Random.Next(availableItems.Count);
-                }
+                    currentItemObject.NewLocation = targetLocation;
+                    currentItemObject.IsRandomized = true;
 
-                Debug.WriteLine($"----Attempting to place {Items.ITEM_NAMES[currentItem]} at {Items.ITEM_NAMES[availableItems[targetItem]]}.---");
+                    Debug.WriteLine($"----Placed {currentItem.Name()} at {targetLocation.Location()}----");
 
-                if (CheckMatch(currentItem, availableItems[targetItem]))
-                {
-                    ItemList[currentItem].ReplacesItemId = availableItems[targetItem];
-
-                    Debug.WriteLine($"----Placed {Items.ITEM_NAMES[currentItem]} at {Items.ITEM_NAMES[ItemList[currentItem].ReplacesItemId]}----");
-
-                    targets.Remove(availableItems[targetItem]);
+                    targets.Remove(targetLocation);
                     return;
                 }
                 else
                 {
-                    Debug.WriteLine($"----Failed to place {Items.ITEM_NAMES[currentItem]} at {Items.ITEM_NAMES[availableItems[targetItem]]}----");
-                    availableItems.RemoveAt(targetItem);
+                    Debug.WriteLine($"----Failed to place {currentItem.Name()} at {targetLocation.Location()}----");
+                    availableItems.Remove(targetLocation);
                 }
             }
         }
@@ -1051,522 +949,51 @@ namespace MMRando
                 Setup();
             }
 
-            var itemPool = new List<int>();
+            UpdateLogicForSettings();
+
+            var itemPool = new List<Item>();
 
             AddAllItems(itemPool);
-            bool puzzle_output = true;
-            if(puzzle_output)
-            {
-ItemList[Items.ItemBottleAliens].ReplacesItemId = Items.HeartPieceFishermanGame;
-ItemList[Items.MaskAllNight].ReplacesItemId = Items.HeartPieceDekuTrial;
-ItemList[Items.ItemBottleBeavers].ReplacesItemId = Items.HeartPieceGoronVillageScrub;
-ItemList[Items.MaskBlast].ReplacesItemId = Items.TwinmoldTrialArrows30;
-ItemList[Items.ShopItemGoronBomb10].ReplacesItemId = Items.HeartContainerWoodfall;
-ItemList[Items.ShopItemBombsBomb10].ReplacesItemId = Items.ItemFairySword;
-ItemList[Items.ShopItemBombsBombchu10].ReplacesItemId = Items.UpgradeGildedSword;
-ItemList[Items.BottleCatchBigPoe].ReplacesItemId = Items.BottleCatchHotSpringWater;
-ItemList[Items.BottleCatchBug].ReplacesItemId = Items.BottleCatchFairy;
-ItemList[Items.BottleCatchPrincess].ReplacesItemId = Items.BottleCatchEgg;
-ItemList[Items.BottleCatchFairy].ReplacesItemId = Items.BottleCatchBug;
-ItemList[Items.BottleCatchFish].ReplacesItemId = Items.BottleCatchFish;
-ItemList[Items.BottleCatchHotSpringWater].ReplacesItemId = Items.BottleCatchMushroom;
-ItemList[Items.BottleCatchMushroom].ReplacesItemId = Items.BottleCatchBigPoe;
-ItemList[Items.BottleCatchPoe].ReplacesItemId = Items.BottleCatchSpringWater;
-ItemList[Items.BottleCatchSpringWater].ReplacesItemId = Items.BottleCatchPoe;
-ItemList[Items.BottleCatchEgg].ReplacesItemId = Items.BottleCatchPrincess;
-ItemList[Items.MaskBremen].ReplacesItemId = Items.ChestLensCaveRedRupee;
-ItemList[Items.MaskCaptainHat].ReplacesItemId = Items.ItemBottleDampe;
-ItemList[Items.ItemBottleMadameAroma].ReplacesItemId = Items.UpgradeBiggestBombBag;
-ItemList[Items.MaskCouple].ReplacesItemId = Items.MaskBremen;
-ItemList[Items.ItemBottleDampe].ReplacesItemId = Items.MaskCircusLeader;
-ItemList[Items.MaskDeku].ReplacesItemId = Items.TradeItemKafeiLetter;
-ItemList[Items.MaskDonGero].ReplacesItemId = Items.HeartPieceDogRace;
-ItemList[Items.SongElegy].ReplacesItemId = Items.ItemGoldDust;
-ItemList[Items.SongEpona].ReplacesItemId = Items.ChestGreatBayCoastGrotto;
-ItemList[Items.ItemSnowheadKey1].ReplacesItemId = Items.HeartPieceSwampScrub;
-ItemList[Items.ItemFireArrow].ReplacesItemId = Items.HeartPieceChoir;
-ItemList[Items.MaskGaro].ReplacesItemId = Items.HeartPiecePictobox;
-ItemList[Items.MaskGiant].ReplacesItemId = Items.HeartContainerStoneTower;
-ItemList[Items.MaskGibdo].ReplacesItemId = Items.HeartPieceSeaHorse;
-ItemList[Items.UpgradeGildedSword].ReplacesItemId = Items.ItemHookshot;
-ItemList[Items.ItemGoldDust].ReplacesItemId = Items.MaskStone;
-ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.UpgradeMirrorShield;
-ItemList[Items.MaskFierceDeity].ReplacesItemId = Items.ItemIceArrow;
-ItemList[Items.ChestIkanaGrottoRecoveryHeart].ReplacesItemId = Items.HeartPieceSwampArchery;
-ItemList[Items.ShopItemGoronRedPotion].ReplacesItemId = Items.MaskGiant;
-ItemList[Items.ChestGraveyardGrotto].ReplacesItemId = Items.HeartPieceNotebookGran1;
-ItemList[Items.ItemGreatBayBossKey].ReplacesItemId = Items.ItemStoneTowerBossKey;
-ItemList[Items.ChestGreatBayCapeGrotto].ReplacesItemId = Items.HeartPieceNotebookGran2;
-ItemList[Items.MaskGoron].ReplacesItemId = Items.ItemFireArrow;
-ItemList[Items.MaskGreatFairy].ReplacesItemId = Items.PreClocktownDekuNuts10;
-ItemList[Items.ItemFairySword].ReplacesItemId = Items.ChestInnGuestRoom;
-ItemList[Items.ItemBow].ReplacesItemId = Items.UpgradeBiggestQuiver;
-ItemList[Items.ItemHookshot].ReplacesItemId = Items.SongElegy;
-ItemList[Items.ItemIceArrow].ReplacesItemId = Items.MaskRomani;
-ItemList[Items.ItemBombBag].ReplacesItemId = Items.HeartContainerSnowhead;
-ItemList[Items.MaskKafei].ReplacesItemId = Items.MaskCaptainHat;
-ItemList[Items.MaskKamaro].ReplacesItemId = Items.TradeItemPendant;
-ItemList[Items.MaskKeaton].ReplacesItemId = Items.SongOath;
-ItemList[Items.TradeItemLandDeed].ReplacesItemId = Items.HeartPieceNotebookRosa;
-ItemList[Items.ItemLens].ReplacesItemId = Items.HeartPieceZoraTrial;
-ItemList[Items.TradeItemKafeiLetter].ReplacesItemId = Items.TradeItemLandDeed;
-ItemList[Items.TradeItemMamaLetter].ReplacesItemId = Items.ItemLightArrow;
-ItemList[Items.ItemLightArrow].ReplacesItemId = Items.ItemBottleMadameAroma;
-ItemList[Items.ItemMagicBean].ReplacesItemId = Items.MaskKafei;
-ItemList[Items.MaskScents].ReplacesItemId = Items.ChestWellRightPurpleRupee;
-ItemList[Items.MaskTruth].ReplacesItemId = Items.HeartPiecePiratesFortress;
-ItemList[Items.UpgradeMirrorShield].ReplacesItemId = Items.MaskGibdo;
-ItemList[Items.TradeItemMoonTear].ReplacesItemId = Items.HeartPieceKnuckle;
-ItemList[Items.UpgradeBiggestBombBag].ReplacesItemId = Items.HeartPieceLinkTrial;
-ItemList[Items.TradeItemMountainDeed].ReplacesItemId = Items.UpgradeRazorSword;
-ItemList[Items.ChestMountainVillageGrottoBottle].ReplacesItemId = Items.SongLullaby;
-ItemList[Items.SongNewWaveBossaNova].ReplacesItemId = Items.TradeItemMountainDeed;
-ItemList[Items.HeartPieceNotebookMayor].ReplacesItemId = Items.MaskDeku;
-ItemList[Items.SongOath].ReplacesItemId = Items.MaskCouple;
-ItemList[Items.TradeItemOceanDeed].ReplacesItemId = Items.ChestIkanaGrottoRecoveryHeart;
-ItemList[Items.UpgradeGiantWallet].ReplacesItemId = Items.ItemGreatBayMap;
-ItemList[Items.TradeItemPendant].ReplacesItemId = Items.HeartPieceHoneyAndDarling;
-ItemList[Items.ItemPictobox].ReplacesItemId = Items.TwinmoldTrialBombchu10;
-ItemList[Items.MaskPostmanHat].ReplacesItemId = Items.HeartContainerGreatBay;
-ItemList[Items.ItemPowderKeg].ReplacesItemId = Items.ChestToGoronVillageRedRupee;
-ItemList[Items.UpgradeRazorSword].ReplacesItemId = Items.HeartPieceKeatonQuiz;
-ItemList[Items.MaskRomani].ReplacesItemId = Items.ChestInsidePiratesFortressHeartPieceRoomBlueRupee;
-ItemList[Items.TradeItemRoomKey].ReplacesItemId = Items.MaskBunnyHood;
-ItemList[Items.ItemSnowheadBossKey].ReplacesItemId = Items.ChestWellLeftPurpleRupee;
-ItemList[Items.ItemGreatBayKey1].ReplacesItemId = Items.HeartPieceToSnowhead;
-ItemList[Items.SongLullaby].ReplacesItemId = Items.ChestInvertedStoneTowerSilverRupee;
-ItemList[Items.ItemSnowheadKey3].ReplacesItemId = Items.ItemStoneTowerKey1;
-ItemList[Items.SongSonata].ReplacesItemId = Items.HeartPieceTwinIslandsChest;
-ItemList[Items.SongSoaring].ReplacesItemId = Items.HeartPieceDekuPlayground;
-ItemList[Items.SongStorms].ReplacesItemId = Items.ChestInvertedStoneTowerBombchu10;
-ItemList[Items.MaskStone].ReplacesItemId = Items.ItemBottleAliens;
-ItemList[Items.ChestInvertedStoneTowerBombchu10].ReplacesItemId = Items.MaskGoron;
-ItemList[Items.ItemStoneTowerBossKey].ReplacesItemId = Items.ItemWoodfallCompass;
-ItemList[Items.ItemStoneTowerKey1].ReplacesItemId = Items.ItemStoneTowerCompass;
-ItemList[Items.ItemStoneTowerKey2].ReplacesItemId = Items.ItemStoneTowerMap;
-ItemList[Items.ItemStoneTowerKey3].ReplacesItemId = Items.ChestInvertedStoneTowerBean;
-ItemList[Items.ItemStoneTowerKey4].ReplacesItemId = Items.ItemWoodfallKey1;
-ItemList[Items.UpgradeBiggestQuiver].ReplacesItemId = Items.HeartPieceGoronTrial;
-ItemList[Items.TradeItemSwampDeed].ReplacesItemId = Items.SongSonata;
-ItemList[Items.ChestTerminaGrottoBombchu].ReplacesItemId = Items.HeartPieceTownArchery;
-ItemList[Items.UpgradeBigQuiver].ReplacesItemId = Items.UpgradeBigQuiver;
-ItemList[Items.TwinmoldTrialBombchu10].ReplacesItemId = Items.HeartPieceBoatArchery;
-ItemList[Items.UpgradeAdultWallet].ReplacesItemId = Items.MaskAllNight;
-ItemList[Items.ShopItemTradingPostFairy].ReplacesItemId = Items.ItemGreatBayKey1;
-ItemList[Items.ShopItemTradingPostGreenPotion].ReplacesItemId = Items.ChestToGoronRaceGrotto;
-ItemList[Items.ShopItemTradingPostNut10].ReplacesItemId = Items.HeartPieceSouthClockTown;
-ItemList[Items.ShopItemTradingPostRedPotion].ReplacesItemId = Items.ItemGreatBayCompass;
-ItemList[Items.ShopItemTradingPostShield].ReplacesItemId = Items.MaskPostmanHat;
-ItemList[Items.UpgradeBigBombBag].ReplacesItemId = Items.MaskFierceDeity;
-ItemList[Items.ItemBottleWitch].ReplacesItemId = Items.MaskScents;
-ItemList[Items.ShopItemWitchBluePotion].ReplacesItemId = Items.ItemGreatBayBossKey;
-ItemList[Items.ShopItemWitchGreenPotion].ReplacesItemId = Items.ChestGraveyardGrotto;
-ItemList[Items.ShopItemWitchRedPotion].ReplacesItemId = Items.ItemBow;
-ItemList[Items.ChestWoodfallBlueRupee].ReplacesItemId = Items.SongNewWaveBossaNova;
-ItemList[Items.ItemWoodfallBossKey].ReplacesItemId = Items.UpgradeGiantWallet;
-ItemList[Items.ItemWoodfallKey1].ReplacesItemId = Items.ItemWoodfallBossKey;
-ItemList[Items.HeartContainerSnowhead].ReplacesItemId = Items.HeartPieceEvan;
-ItemList[Items.ShopItemZoraRedPotion].ReplacesItemId = Items.MaskDonGero;
-ItemList[Items.ItemSnowheadKey2].ReplacesItemId = Items.ChestSecretShrineDinoGrotto;
-ItemList[Items.HeartPieceSeaHorse].ReplacesItemId = Items.HeartPieceNotebookHand;
-ItemList[Items.ChestInvertedStoneTowerSilverRupee].ReplacesItemId = Items.HeartPieceBank;
-ItemList[Items.ChestGreatBayCapeLedge1].ReplacesItemId = Items.ChestBeanGrottoRedRupee;
-ItemList[Items.HeartPieceDekuPalace].ReplacesItemId = Items.ItemBottleBeavers;
-ItemList[Items.ChestBeanGrottoRedRupee].ReplacesItemId = Items.HeartPieceBeaverRace;
-ItemList[Items.ItemWoodfallCompass].ReplacesItemId = Items.HeartPieceZoraGrotto;
-ItemList[Items.ChestToGoronVillageRedRupee].ReplacesItemId = Items.MaskBlast;
-ItemList[Items.HeartPieceNotebookGran1].ReplacesItemId = Items.ItemBombBag;
-ItemList[Items.HeartPieceTreasureChestGame].ReplacesItemId = Items.ShopItemBombsBomb10;
-ItemList[Items.ChestWoodfallRedRupee].ReplacesItemId = Items.ShopItemBombsBombchu10;
-ItemList[Items.ShopItemZoraArrow10].ReplacesItemId = Items.ChestBomberHideoutSilverRupee;
-ItemList[Items.ChestSecretShrineGaroGrotto].ReplacesItemId = Items.ItemNotebook;
-ItemList[Items.ChestSouthClockTownPurpleRupee].ReplacesItemId = Items.HeartPieceDekuPalace;
-ItemList[Items.ItemTingleMapStoneTower].ReplacesItemId = Items.HeartPieceDodong;
-ItemList[Items.ChestInsidePiratesFortressGuardSilverRupee].ReplacesItemId = Items.ChestDogRacePurpleRupee;
-ItemList[Items.HeartPieceBank].ReplacesItemId = Items.ChestEastClockTownSilverRupee;
-ItemList[Items.HeartPieceZoraHallScrub].ReplacesItemId = Items.SongEpona;
-ItemList[Items.ChestInsidePiratesFortressHeartPieceRoomRedRupee].ReplacesItemId = Items.MaskGaro;
-ItemList[Items.HeartPieceDodong].ReplacesItemId = Items.ShopItemGoronArrow10;
-ItemList[Items.HeartPieceNorthClockTown].ReplacesItemId = Items.ShopItemGoronBomb10;
-ItemList[Items.ChestSwampGrotto].ReplacesItemId = Items.ShopItemGoronRedPotion;
-ItemList[Items.ChestInsidePiratesFortressMazeRedRupee].ReplacesItemId = Items.ChestBadBatsGrottoPurpleRupee;
-ItemList[Items.HeartPieceZoraGrotto].ReplacesItemId = Items.ChestGreatBayCapeGrotto;
-ItemList[Items.ItemTingleMapGreatBay].ReplacesItemId = Items.ChestGreatBayCapeLedge1;
-ItemList[Items.ChestGreatBayCapeUnderwater].ReplacesItemId = Items.ChestGreatBayCapeLedge2;
-ItemList[Items.ChestPiratesFortressEntranceRedRupee3].ReplacesItemId = Items.ChestGreatBayCapeUnderwater;
-ItemList[Items.ChestToGoronRaceGrotto].ReplacesItemId = Items.HeartPieceGreatBayCoast;
-ItemList[Items.HeartPiecePiratesFortress].ReplacesItemId = Items.HeartPieceGreatBayCapeLikeLike;
-ItemList[Items.TwinmoldTrialArrows30].ReplacesItemId = Items.MaskGreatFairy;
-ItemList[Items.ChestSouthClockTownRedRupee].ReplacesItemId = Items.ChestHotSpringGrottoRedRupee;
-ItemList[Items.HeartPieceSwampArchery].ReplacesItemId = Items.HeartPieceCastle;
-ItemList[Items.ChestLensCavePurpleRupee].ReplacesItemId = Items.HeartPieceIkana;
-ItemList[Items.ChestLensCaveRedRupee].ReplacesItemId = Items.ChestInnStaffRoom;
-ItemList[Items.ItemStoneTowerMap].ReplacesItemId = Items.MaskKamaro;
-ItemList[Items.ItemTingleMapWoodfall].ReplacesItemId = Items.MaskKeaton;
-ItemList[Items.HeartPieceNotebookHand].ReplacesItemId = Items.HeartPieceLabFish;
-ItemList[Items.HeartPiecePeahat].ReplacesItemId = Items.ChestLensCavePurpleRupee;
-ItemList[Items.MaskZora].ReplacesItemId = Items.ItemLens;
-ItemList[Items.ChestInsidePiratesFortressHeartPieceRoomBlueRupee].ReplacesItemId = Items.TradeItemMamaLetter;
-ItemList[Items.HeartPieceNotebookGran2].ReplacesItemId = Items.ItemMagicBean;
-ItemList[Items.ChestToSnowheadGrotto].ReplacesItemId = Items.ItemTingleMapTown;
-ItemList[Items.ChestInsidePiratesFortressTankRedRupee].ReplacesItemId = Items.ItemTingleMapGreatBay;
-ItemList[Items.HeartContainerStoneTower].ReplacesItemId = Items.ItemTingleMapRanch;
-ItemList[Items.HeartPieceOceanSpiderHouse].ReplacesItemId = Items.ItemTingleMapSnowhead;
-ItemList[Items.MaskCircusLeader].ReplacesItemId = Items.ItemTingleMapStoneTower;
-ItemList[Items.ChestGreatBayCapeLedge2].ReplacesItemId = Items.ItemTingleMapWoodfall;
-ItemList[Items.ChestPiratesFortressRedRupee1].ReplacesItemId = Items.MaskTruth;
-ItemList[Items.ItemNotebook].ReplacesItemId = Items.HeartPieceNotebookMayor;
-ItemList[Items.HeartPieceNotebookRosa].ReplacesItemId = Items.TradeItemMoonTear;
-ItemList[Items.HeartPieceSwampScrub].ReplacesItemId = Items.ChestMountainVillage;
-ItemList[Items.ChestTerminaGrottoRedRupee].ReplacesItemId = Items.ChestMountainVillageGrottoBottle;
-ItemList[Items.ChestTerminaStumpRedRupee].ReplacesItemId = Items.ChestWoodsGrotto;
-ItemList[Items.ItemWoodfallMap].ReplacesItemId = Items.HeartPieceNorthClockTown;
-ItemList[Items.HeartPieceTerminaGossipStones].ReplacesItemId = Items.HeartPieceOceanSpiderHouse;
-ItemList[Items.HeartPieceTwinIslandsChest].ReplacesItemId = Items.TradeItemOceanDeed;
-ItemList[Items.HeartPieceIkana].ReplacesItemId = Items.ChestToIkanaRedRupee;
-ItemList[Items.ChestMountainVillage].ReplacesItemId = Items.ChestToIkanaGrotto;
-ItemList[Items.HeartPieceWoodFallChest].ReplacesItemId = Items.ChestToSnowheadGrotto;
-ItemList[Items.HeartPieceBeaverRace].ReplacesItemId = Items.ChestToSwampGrotto;
-ItemList[Items.HeartPieceEvan].ReplacesItemId = Items.HeartPieceToSwamp;
-ItemList[Items.ChestEastClockTownSilverRupee].ReplacesItemId = Items.HeartPiecePeahat;
-ItemList[Items.ShopItemTradingPostStick].ReplacesItemId = Items.ChestPiratesFortressRedRupee1;
-ItemList[Items.ChestTerminaUnderwaterRedRupee].ReplacesItemId = Items.ChestPiratesFortressRedRupee2;
-ItemList[Items.ChestSecretShrineWartGrotto].ReplacesItemId = Items.ChestPiratesFortressEntranceRedRupee1;
-ItemList[Items.ItemGreatBayCompass].ReplacesItemId = Items.ChestPiratesFortressEntranceRedRupee2;
-ItemList[Items.HeartPieceSwordsmanSchool].ReplacesItemId = Items.ChestPiratesFortressEntranceRedRupee3;
-ItemList[Items.ItemGreatBayMap].ReplacesItemId = Items.ChestInsidePiratesFortressGuardSilverRupee;
-ItemList[Items.ChestBadBatsGrottoPurpleRupee].ReplacesItemId = Items.ChestInsidePiratesFortressHeartPieceRoomRedRupee;
-ItemList[Items.HeartPieceDekuTrial].ReplacesItemId = Items.ChestInsidePiratesFortressMazeRedRupee;
-ItemList[Items.HeartPieceGreatBayCoast].ReplacesItemId = Items.ChestInsidePiratesFortressTankRedRupee;
-ItemList[Items.HeartPiecePoeHut].ReplacesItemId = Items.ItemPictobox;
-ItemList[Items.ChestInnStaffRoom].ReplacesItemId = Items.HeartPiecePoeHut;
-ItemList[Items.ChestPiratesFortressEntranceRedRupee1].ReplacesItemId = Items.HeartPiecePostBox;
-ItemList[Items.ChestPinacleRockRedRupee2].ReplacesItemId = Items.HeartPieceNotebookPostman;
-ItemList[Items.HeartPieceToSwamp].ReplacesItemId = Items.ItemPowderKeg;
-ItemList[Items.HeartPieceGoronTrial].ReplacesItemId = Items.ChestPinacleRockRedRupee1;
-ItemList[Items.ChestWoodsGrotto].ReplacesItemId = Items.ChestPinacleRockRedRupee2;
-ItemList[Items.ChestSecretShrineWizzGrotto].ReplacesItemId = Items.TradeItemRoomKey;
-ItemList[Items.ShopItemTradingPostArrow30].ReplacesItemId = Items.ChestSecretShrineGaroGrotto;
-ItemList[Items.ChestToIkanaGrotto].ReplacesItemId = Items.ChestSecretShrineHeartPiece;
-ItemList[Items.HeartPieceDekuPlayground].ReplacesItemId = Items.ChestSecretShrineWartGrotto;
-ItemList[Items.ItemSnowheadCompass].ReplacesItemId = Items.ChestSecretShrineWizzGrotto;
-ItemList[Items.ItemTingleMapTown].ReplacesItemId = Items.ItemSnowheadBossKey;
-ItemList[Items.ChestWellRightPurpleRupee].ReplacesItemId = Items.ItemSnowheadCompass;
-ItemList[Items.MaskBunnyHood].ReplacesItemId = Items.ItemSnowheadKey1;
-ItemList[Items.ShopItemGoronArrow10].ReplacesItemId = Items.ItemSnowheadKey2;
-ItemList[Items.ChestToIkanaRedRupee].ReplacesItemId = Items.ItemSnowheadKey3;
-ItemList[Items.HeartPieceBoatArchery].ReplacesItemId = Items.ItemSnowheadMap;
-ItemList[Items.HeartPieceGreatBayCapeLikeLike].ReplacesItemId = Items.SongSoaring;
-ItemList[Items.ChestSecretShrineDinoGrotto].ReplacesItemId = Items.SongStorms;
-ItemList[Items.HeartPieceGoronVillageScrub].ReplacesItemId = Items.ChestSouthClockTownRedRupee;
-ItemList[Items.PreClocktownDekuNuts10].ReplacesItemId = Items.ChestSouthClockTownPurpleRupee;
-ItemList[Items.HeartPieceKeatonQuiz].ReplacesItemId = Items.ItemStoneTowerKey2;
-ItemList[Items.HeartPiecePictobox].ReplacesItemId = Items.ItemStoneTowerKey3;
-ItemList[Items.ItemSnowheadMap].ReplacesItemId = Items.ItemStoneTowerKey4;
-ItemList[Items.ChestDogRacePurpleRupee].ReplacesItemId = Items.ChestSwampGrotto;
-ItemList[Items.HeartPieceTownArchery].ReplacesItemId = Items.TradeItemSwampDeed;
-ItemList[Items.HeartContainerWoodfall].ReplacesItemId = Items.HeartPieceSwordsmanSchool;
-ItemList[Items.ItemStoneTowerCompass].ReplacesItemId = Items.ChestTerminaGrottoRedRupee;
-ItemList[Items.ChestPiratesFortressEntranceRedRupee2].ReplacesItemId = Items.ChestTerminaGrottoBombchu;
-ItemList[Items.ChestInnGuestRoom].ReplacesItemId = Items.HeartPieceTerminaBusinessScrub;
-ItemList[Items.ChestBomberHideoutSilverRupee].ReplacesItemId = Items.HeartPieceTerminaGossipStones;
-ItemList[Items.ChestTerminaGrassRedRupee].ReplacesItemId = Items.ChestTerminaGrassRedRupee;
-ItemList[Items.ChestSecretShrineHeartPiece].ReplacesItemId = Items.ChestTerminaStumpRedRupee;
-ItemList[Items.ChestPinacleRockRedRupee1].ReplacesItemId = Items.ChestTerminaUnderwaterRedRupee;
-ItemList[Items.HeartPieceFishermanGame].ReplacesItemId = Items.UpgradeBigBombBag;
-ItemList[Items.ChestWellLeftPurpleRupee].ReplacesItemId = Items.UpgradeAdultWallet;
-ItemList[Items.HeartPieceSouthClockTown].ReplacesItemId = Items.ShopItemTradingPostArrow30;
-ItemList[Items.ChestInvertedStoneTowerBean].ReplacesItemId = Items.ShopItemTradingPostArrow50;
-ItemList[Items.HeartPieceDogRace].ReplacesItemId = Items.ShopItemTradingPostFairy;
-ItemList[Items.ChestHotSpringGrottoRedRupee].ReplacesItemId = Items.ShopItemTradingPostGreenPotion;
-ItemList[Items.HeartPieceLabFish].ReplacesItemId = Items.ShopItemTradingPostNut10;
-ItemList[Items.HeartPieceZoraTrial].ReplacesItemId = Items.ShopItemTradingPostRedPotion;
-ItemList[Items.HeartPieceLinkTrial].ReplacesItemId = Items.ShopItemTradingPostShield;
-ItemList[Items.HeartPieceToSnowhead].ReplacesItemId = Items.ShopItemTradingPostStick;
-ItemList[Items.ChestGreatBayCoastGrotto].ReplacesItemId = Items.HeartPieceTreasureChestGame;
-ItemList[Items.ShopItemTradingPostArrow50].ReplacesItemId = Items.ItemBottleWitch;
-ItemList[Items.HeartPieceChoir].ReplacesItemId = Items.ShopItemWitchBluePotion;
-ItemList[Items.HeartPieceKnuckle].ReplacesItemId = Items.ShopItemWitchGreenPotion;
-ItemList[Items.HeartPiecePostBox].ReplacesItemId = Items.ShopItemWitchRedPotion;
-ItemList[Items.ChestPiratesFortressRedRupee2].ReplacesItemId = Items.ChestWoodfallRedRupee;
-ItemList[Items.HeartContainerGreatBay].ReplacesItemId = Items.ChestWoodfallBlueRupee;
-ItemList[Items.HeartPieceNotebookPostman].ReplacesItemId = Items.HeartPieceWoodFallChest;
-ItemList[Items.HeartPieceTerminaBusinessScrub].ReplacesItemId = Items.ItemWoodfallMap;
-ItemList[Items.ItemTingleMapRanch].ReplacesItemId = Items.HeartPieceZoraHallScrub;
-ItemList[Items.HeartPieceCastle].ReplacesItemId = Items.MaskZora;
-ItemList[Items.HeartPieceHoneyAndDarling].ReplacesItemId = Items.ShopItemZoraArrow10;
-ItemList[Items.ItemTingleMapSnowhead].ReplacesItemId = Items.ShopItemZoraRedPotion;
-ItemList[Items.ChestToSwampGrotto].ReplacesItemId = Items.ShopItemZoraShield;
-            }
-            // test mapping
-            else
-            {
-ItemList[Items.HeartPieceNotebookHand].ReplacesItemId = Items.HeartPieceNotebookHand;
-ItemList[Items.ItemBottleAliens].ReplacesItemId = Items.ItemBottleAliens;
-ItemList[Items.MaskAllNight].ReplacesItemId = Items.MaskAllNight;
-ItemList[Items.HeartPieceBank].ReplacesItemId = Items.HeartPieceBank;
-ItemList[Items.ChestBeanGrottoRedRupee].ReplacesItemId = Items.ChestBeanGrottoRedRupee;
-ItemList[Items.ItemBottleBeavers].ReplacesItemId = Items.ItemBottleBeavers;
-ItemList[Items.HeartPieceBeaverRace].ReplacesItemId = Items.HeartPieceBeaverRace;
-ItemList[Items.HeartPieceZoraGrotto].ReplacesItemId = Items.HeartPieceZoraGrotto;
-ItemList[Items.MaskBlast].ReplacesItemId = Items.MaskBlast;
-ItemList[Items.HeartPieceBoatArchery].ReplacesItemId = Items.HeartPieceBoatArchery;
-ItemList[Items.ItemBombBag].ReplacesItemId = Items.ItemBombBag;
-ItemList[Items.ShopItemBombsBomb10].ReplacesItemId = Items.ShopItemBombsBomb10;
-ItemList[Items.ShopItemBombsBombchu10].ReplacesItemId = Items.ShopItemBombsBombchu10;
-ItemList[Items.ChestBomberHideoutSilverRupee].ReplacesItemId = Items.ChestBomberHideoutSilverRupee;
-ItemList[Items.ItemNotebook].ReplacesItemId = Items.ItemNotebook;
-ItemList[Items.BottleCatchBigPoe].ReplacesItemId = Items.BottleCatchBigPoe;
-ItemList[Items.BottleCatchBug].ReplacesItemId = Items.BottleCatchBug;
-ItemList[Items.BottleCatchPrincess].ReplacesItemId = Items.BottleCatchPrincess;
-ItemList[Items.BottleCatchFairy].ReplacesItemId = Items.BottleCatchFairy;
-ItemList[Items.BottleCatchFish].ReplacesItemId = Items.BottleCatchFish;
-ItemList[Items.BottleCatchHotSpringWater].ReplacesItemId = Items.BottleCatchHotSpringWater;
-ItemList[Items.BottleCatchMushroom].ReplacesItemId = Items.BottleCatchMushroom;
-ItemList[Items.BottleCatchPoe].ReplacesItemId = Items.BottleCatchPoe;
-ItemList[Items.BottleCatchSpringWater].ReplacesItemId = Items.BottleCatchSpringWater;
-ItemList[Items.BottleCatchEgg].ReplacesItemId = Items.BottleCatchEgg;
-ItemList[Items.MaskBremen].ReplacesItemId = Items.MaskBremen;
-ItemList[Items.MaskBunnyHood].ReplacesItemId = Items.MaskBunnyHood;
-ItemList[Items.MaskCaptainHat].ReplacesItemId = Items.MaskCaptainHat;
-ItemList[Items.ItemBottleMadameAroma].ReplacesItemId = Items.ItemBottleMadameAroma;
-ItemList[Items.MaskCircusLeader].ReplacesItemId = Items.MaskCircusLeader;
-ItemList[Items.MaskCouple].ReplacesItemId = Items.MaskCouple;
-ItemList[Items.ItemBottleDampe].ReplacesItemId = Items.ItemBottleDampe;
-ItemList[Items.MaskDeku].ReplacesItemId = Items.MaskDeku;
-ItemList[Items.HeartPieceDekuPalace].ReplacesItemId = Items.HeartPieceDekuPalace;
-ItemList[Items.HeartPieceDekuPlayground].ReplacesItemId = Items.HeartPieceDekuPlayground;
-ItemList[Items.HeartPieceDodong].ReplacesItemId = Items.HeartPieceDodong;
-ItemList[Items.HeartPieceDogRace].ReplacesItemId = Items.HeartPieceDogRace;
-ItemList[Items.ChestDogRacePurpleRupee].ReplacesItemId = Items.ChestDogRacePurpleRupee;
-ItemList[Items.MaskDonGero].ReplacesItemId = Items.MaskDonGero;
-ItemList[Items.ChestEastClockTownSilverRupee].ReplacesItemId = Items.ChestEastClockTownSilverRupee;
-ItemList[Items.SongElegy].ReplacesItemId = Items.SongElegy;
-ItemList[Items.SongEpona].ReplacesItemId = Items.SongEpona;
-ItemList[Items.HeartPieceEvan].ReplacesItemId = Items.HeartPieceEvan;
-ItemList[Items.ChestTerminaUnderwaterRedRupee].ReplacesItemId = Items.ItemFireArrow;
-ItemList[Items.HeartPieceFishermanGame].ReplacesItemId = Items.HeartPieceFishermanGame;
-ItemList[Items.HeartPieceChoir].ReplacesItemId = Items.HeartPieceChoir;
-ItemList[Items.MaskGaro].ReplacesItemId = Items.MaskGaro;
-ItemList[Items.MaskGiant].ReplacesItemId = Items.MaskGiant;
-ItemList[Items.MaskGibdo].ReplacesItemId = Items.MaskGibdo;
-ItemList[Items.UpgradeGildedSword].ReplacesItemId = Items.UpgradeGildedSword;
-ItemList[Items.HeartContainerSnowhead].ReplacesItemId = Items.HeartContainerSnowhead;
-ItemList[Items.ItemGoldDust].ReplacesItemId = Items.ItemGoldDust;
-ItemList[Items.SongLullaby].ReplacesItemId = Items.SongLullaby;
-ItemList[Items.ChestTerminaStumpRedRupee].ReplacesItemId = Items.MaskGoron;
-ItemList[Items.ChestToGoronRaceGrotto].ReplacesItemId = Items.ChestToGoronRaceGrotto;
-ItemList[Items.ShopItemGoronArrow10].ReplacesItemId = Items.ShopItemGoronArrow10;
-ItemList[Items.ShopItemGoronBomb10].ReplacesItemId = Items.ShopItemGoronBomb10;
-ItemList[Items.ShopItemGoronRedPotion].ReplacesItemId = Items.ShopItemGoronRedPotion;
-ItemList[Items.HeartPieceGoronVillageScrub].ReplacesItemId = Items.HeartPieceGoronVillageScrub;
-ItemList[Items.HeartPieceNotebookGran2].ReplacesItemId = Items.HeartPieceNotebookGran2;
-ItemList[Items.HeartPieceNotebookGran1].ReplacesItemId = Items.HeartPieceNotebookGran1;
-ItemList[Items.ChestBadBatsGrottoPurpleRupee].ReplacesItemId = Items.ChestBadBatsGrottoPurpleRupee;
-ItemList[Items.ChestGraveyardGrotto].ReplacesItemId = Items.ChestGraveyardGrotto;
-ItemList[Items.HeartPieceKnuckle].ReplacesItemId = Items.HeartPieceKnuckle;
-ItemList[Items.ItemGreatBayBossKey].ReplacesItemId = Items.ItemGreatBayBossKey;
-ItemList[Items.ChestGreatBayCapeGrotto].ReplacesItemId = Items.ChestGreatBayCapeGrotto;
-ItemList[Items.ChestGreatBayCapeLedge1].ReplacesItemId = Items.ChestGreatBayCapeLedge1;
-ItemList[Items.ChestGreatBayCapeLedge2].ReplacesItemId = Items.ChestGreatBayCapeLedge2;
-ItemList[Items.ChestGreatBayCapeUnderwater].ReplacesItemId = Items.ChestGreatBayCapeUnderwater;
-ItemList[Items.ChestGreatBayCoastGrotto].ReplacesItemId = Items.ChestGreatBayCoastGrotto;
-ItemList[Items.HeartPieceGreatBayCoast].ReplacesItemId = Items.HeartPieceGreatBayCoast;
-ItemList[Items.ItemGreatBayCompass].ReplacesItemId = Items.ItemGreatBayCompass;
-ItemList[Items.ItemGreatBayKey1].ReplacesItemId = Items.ItemGreatBayKey1;
-ItemList[Items.HeartPieceGreatBayCapeLikeLike].ReplacesItemId = Items.HeartPieceGreatBayCapeLikeLike;
-ItemList[Items.ItemGreatBayMap].ReplacesItemId = Items.ItemGreatBayMap;
-ItemList[Items.MaskGreatFairy].ReplacesItemId = Items.MaskGreatFairy;
-ItemList[Items.ItemFairySword].ReplacesItemId = Items.ItemFairySword;
-ItemList[Items.HeartContainerGreatBay].ReplacesItemId = Items.HeartContainerGreatBay;
-ItemList[Items.ChestTerminaGrassRedRupee].ReplacesItemId = Items.ItemBow;
-ItemList[Items.HeartPieceHoneyAndDarling].ReplacesItemId = Items.HeartPieceHoneyAndDarling;
-ItemList[Items.ChestTerminaGrottoBombchu].ReplacesItemId = Items.ItemHookshot;
-ItemList[Items.ChestHotSpringGrottoRedRupee].ReplacesItemId = Items.ChestHotSpringGrottoRedRupee;
-ItemList[Items.ChestTerminaGrottoRedRupee].ReplacesItemId = Items.ItemIceArrow;
-ItemList[Items.HeartPieceCastle].ReplacesItemId = Items.HeartPieceCastle;
-ItemList[Items.ChestIkanaGrottoRecoveryHeart].ReplacesItemId = Items.ChestIkanaGrottoRecoveryHeart;
-ItemList[Items.HeartPieceIkana].ReplacesItemId = Items.HeartPieceIkana;
-ItemList[Items.ChestInnGuestRoom].ReplacesItemId = Items.ChestInnGuestRoom;
-ItemList[Items.ChestInnStaffRoom].ReplacesItemId = Items.ChestInnStaffRoom;
-ItemList[Items.ItemLightArrow].ReplacesItemId = Items.MaskKafei;
-ItemList[Items.MaskKamaro].ReplacesItemId = Items.MaskKamaro;
-ItemList[Items.MaskKeaton].ReplacesItemId = Items.MaskKeaton;
-ItemList[Items.HeartPieceKeatonQuiz].ReplacesItemId = Items.HeartPieceKeatonQuiz;
-ItemList[Items.HeartPieceLabFish].ReplacesItemId = Items.HeartPieceLabFish;
-ItemList[Items.TradeItemLandDeed].ReplacesItemId = Items.TradeItemLandDeed;
-ItemList[Items.ChestLensCaveRedRupee].ReplacesItemId = Items.ChestLensCaveRedRupee;
-ItemList[Items.ChestLensCavePurpleRupee].ReplacesItemId = Items.ChestLensCavePurpleRupee;
-ItemList[Items.ItemLens].ReplacesItemId = Items.ItemLens;
-ItemList[Items.TradeItemKafeiLetter].ReplacesItemId = Items.TradeItemKafeiLetter;
-ItemList[Items.TradeItemMamaLetter].ReplacesItemId = Items.TradeItemMamaLetter;
-ItemList[Items.MaskKafei].ReplacesItemId = Items.ItemLightArrow;
-ItemList[Items.ItemMagicBean].ReplacesItemId = Items.ItemMagicBean;
-ItemList[Items.ItemTingleMapTown].ReplacesItemId = Items.ItemTingleMapTown;
-ItemList[Items.ItemTingleMapGreatBay].ReplacesItemId = Items.ItemTingleMapGreatBay;
-ItemList[Items.ItemTingleMapRanch].ReplacesItemId = Items.ItemTingleMapRanch;
-ItemList[Items.ItemTingleMapSnowhead].ReplacesItemId = Items.ItemTingleMapSnowhead;
-ItemList[Items.ItemTingleMapStoneTower].ReplacesItemId = Items.ItemTingleMapStoneTower;
-ItemList[Items.ItemTingleMapWoodfall].ReplacesItemId = Items.ItemTingleMapWoodfall;
-ItemList[Items.MaskScents].ReplacesItemId = Items.MaskScents;
-ItemList[Items.MaskTruth].ReplacesItemId = Items.MaskTruth;
-ItemList[Items.HeartPieceNotebookMayor].ReplacesItemId = Items.HeartPieceNotebookMayor;
-ItemList[Items.UpgradeMirrorShield].ReplacesItemId = Items.UpgradeMirrorShield;
-ItemList[Items.TradeItemMoonTear].ReplacesItemId = Items.TradeItemMoonTear;
-ItemList[Items.UpgradeBiggestBombBag].ReplacesItemId = Items.UpgradeBiggestBombBag;
-ItemList[Items.TradeItemMountainDeed].ReplacesItemId = Items.TradeItemMountainDeed;
-ItemList[Items.ChestMountainVillage].ReplacesItemId = Items.ChestMountainVillage;
-ItemList[Items.ChestMountainVillageGrottoBottle].ReplacesItemId = Items.ChestMountainVillageGrottoBottle;
-ItemList[Items.ChestWoodsGrotto].ReplacesItemId = Items.ChestWoodsGrotto;
-ItemList[Items.SongNewWaveBossaNova].ReplacesItemId = Items.SongNewWaveBossaNova;
-ItemList[Items.HeartPieceNorthClockTown].ReplacesItemId = Items.HeartPieceNorthClockTown;
-ItemList[Items.SongOath].ReplacesItemId = Items.SongOath;
-ItemList[Items.HeartPieceOceanSpiderHouse].ReplacesItemId = Items.HeartPieceOceanSpiderHouse;
-ItemList[Items.TradeItemOceanDeed].ReplacesItemId = Items.TradeItemOceanDeed;
-ItemList[Items.UpgradeGiantWallet].ReplacesItemId = Items.UpgradeGiantWallet;
-ItemList[Items.HeartContainerWoodfall].ReplacesItemId = Items.HeartContainerWoodfall;
-ItemList[Items.ChestToIkanaRedRupee].ReplacesItemId = Items.ChestToIkanaRedRupee;
-ItemList[Items.ChestToIkanaGrotto].ReplacesItemId = Items.ChestToIkanaGrotto;
-ItemList[Items.ChestToSnowheadGrotto].ReplacesItemId = Items.ChestToSnowheadGrotto;
-ItemList[Items.HeartPieceToSnowhead].ReplacesItemId = Items.HeartPieceToSnowhead;
-ItemList[Items.ChestToSwampGrotto].ReplacesItemId = Items.ChestToSwampGrotto;
-ItemList[Items.HeartPieceToSwamp].ReplacesItemId = Items.HeartPieceToSwamp;
-ItemList[Items.HeartPiecePeahat].ReplacesItemId = Items.HeartPiecePeahat;
-ItemList[Items.TradeItemPendant].ReplacesItemId = Items.TradeItemPendant;
-ItemList[Items.ChestPiratesFortressRedRupee1].ReplacesItemId = Items.ChestPiratesFortressRedRupee1;
-ItemList[Items.ChestPiratesFortressRedRupee2].ReplacesItemId = Items.ChestPiratesFortressRedRupee2;
-ItemList[Items.ChestPiratesFortressEntranceRedRupee1].ReplacesItemId = Items.ChestPiratesFortressEntranceRedRupee1;
-ItemList[Items.ChestPiratesFortressEntranceRedRupee2].ReplacesItemId = Items.ChestPiratesFortressEntranceRedRupee2;
-ItemList[Items.ChestPiratesFortressEntranceRedRupee3].ReplacesItemId = Items.ChestPiratesFortressEntranceRedRupee3;
-ItemList[Items.ChestInsidePiratesFortressGuardSilverRupee].ReplacesItemId = Items.ChestInsidePiratesFortressGuardSilverRupee;
-ItemList[Items.ChestInsidePiratesFortressHeartPieceRoomRedRupee].ReplacesItemId = Items.ChestInsidePiratesFortressHeartPieceRoomRedRupee;
-ItemList[Items.ChestInsidePiratesFortressHeartPieceRoomBlueRupee].ReplacesItemId = Items.ChestInsidePiratesFortressHeartPieceRoomBlueRupee;
-ItemList[Items.ChestInsidePiratesFortressMazeRedRupee].ReplacesItemId = Items.ChestInsidePiratesFortressMazeRedRupee;
-ItemList[Items.ChestInsidePiratesFortressTankRedRupee].ReplacesItemId = Items.ChestInsidePiratesFortressTankRedRupee;
-ItemList[Items.ItemPictobox].ReplacesItemId = Items.ItemPictobox;
-ItemList[Items.HeartPiecePictobox].ReplacesItemId = Items.HeartPiecePictobox;
-ItemList[Items.HeartPiecePiratesFortress].ReplacesItemId = Items.HeartPiecePiratesFortress;
-ItemList[Items.HeartPiecePoeHut].ReplacesItemId = Items.HeartPiecePoeHut;
-ItemList[Items.HeartPiecePostBox].ReplacesItemId = Items.HeartPiecePostBox;
-ItemList[Items.HeartPieceNotebookPostman].ReplacesItemId = Items.HeartPieceNotebookPostman;
-ItemList[Items.MaskPostmanHat].ReplacesItemId = Items.MaskPostmanHat;
-ItemList[Items.ItemPowderKeg].ReplacesItemId = Items.ItemPowderKeg;
-ItemList[Items.ChestPinacleRockRedRupee1].ReplacesItemId = Items.ChestPinacleRockRedRupee1;
-ItemList[Items.ChestPinacleRockRedRupee2].ReplacesItemId = Items.ChestPinacleRockRedRupee2;
-ItemList[Items.HeartPieceSouthClockTown].ReplacesItemId = Items.UpgradeRazorSword;
-ItemList[Items.MaskRomani].ReplacesItemId = Items.MaskRomani;
-ItemList[Items.TradeItemRoomKey].ReplacesItemId = Items.TradeItemRoomKey;
-ItemList[Items.HeartPieceNotebookRosa].ReplacesItemId = Items.HeartPieceNotebookRosa;
-ItemList[Items.HeartPieceSeaHorse].ReplacesItemId = Items.HeartPieceSeaHorse;
-ItemList[Items.ChestSecretShrineDinoGrotto].ReplacesItemId = Items.ChestSecretShrineDinoGrotto;
-ItemList[Items.ChestSecretShrineGaroGrotto].ReplacesItemId = Items.ChestSecretShrineGaroGrotto;
-ItemList[Items.ChestSecretShrineHeartPiece].ReplacesItemId = Items.ChestSecretShrineHeartPiece;
-ItemList[Items.ChestSecretShrineWartGrotto].ReplacesItemId = Items.ChestSecretShrineWartGrotto;
-ItemList[Items.ChestSecretShrineWizzGrotto].ReplacesItemId = Items.ChestSecretShrineWizzGrotto;
-ItemList[Items.ItemSnowheadBossKey].ReplacesItemId = Items.ItemSnowheadBossKey;
-ItemList[Items.ItemSnowheadCompass].ReplacesItemId = Items.ItemSnowheadCompass;
-ItemList[Items.ItemSnowheadKey1].ReplacesItemId = Items.ItemSnowheadKey1;
-ItemList[Items.ItemSnowheadKey2].ReplacesItemId = Items.ItemSnowheadKey2;
-ItemList[Items.ItemSnowheadKey3].ReplacesItemId = Items.ItemSnowheadKey3;
-ItemList[Items.ItemSnowheadMap].ReplacesItemId = Items.ItemSnowheadMap;
-ItemList[Items.SongSonata].ReplacesItemId = Items.SongSonata;
-ItemList[Items.SongSoaring].ReplacesItemId = Items.SongSoaring;
-ItemList[Items.SongStorms].ReplacesItemId = Items.SongStorms;
-ItemList[Items.MaskZora].ReplacesItemId = Items.ChestSouthClockTownRedRupee;
-ItemList[Items.ChestSouthClockTownPurpleRupee].ReplacesItemId = Items.ChestSouthClockTownPurpleRupee;
-ItemList[Items.UpgradeRazorSword].ReplacesItemId = Items.HeartPieceSouthClockTown;
-ItemList[Items.MaskStone].ReplacesItemId = Items.MaskStone;
-ItemList[Items.ChestInvertedStoneTowerSilverRupee].ReplacesItemId = Items.ChestInvertedStoneTowerSilverRupee;
-ItemList[Items.ChestInvertedStoneTowerBombchu10].ReplacesItemId = Items.ChestInvertedStoneTowerBombchu10;
-ItemList[Items.ItemStoneTowerBossKey].ReplacesItemId = Items.ItemStoneTowerBossKey;
-ItemList[Items.ItemStoneTowerCompass].ReplacesItemId = Items.ItemStoneTowerCompass;
-ItemList[Items.ItemStoneTowerKey1].ReplacesItemId = Items.ItemStoneTowerKey1;
-ItemList[Items.ItemStoneTowerKey2].ReplacesItemId = Items.ItemStoneTowerKey2;
-ItemList[Items.ItemStoneTowerKey3].ReplacesItemId = Items.ItemStoneTowerKey3;
-ItemList[Items.ItemStoneTowerKey4].ReplacesItemId = Items.ItemStoneTowerKey4;
-ItemList[Items.ChestInvertedStoneTowerBean].ReplacesItemId = Items.ChestInvertedStoneTowerBean;
-ItemList[Items.ItemStoneTowerMap].ReplacesItemId = Items.ItemStoneTowerMap;
-ItemList[Items.HeartPieceSwampArchery].ReplacesItemId = Items.HeartPieceSwampArchery;
-ItemList[Items.UpgradeBiggestQuiver].ReplacesItemId = Items.UpgradeBiggestQuiver;
-ItemList[Items.ChestSwampGrotto].ReplacesItemId = Items.ChestSwampGrotto;
-ItemList[Items.HeartPieceSwampScrub].ReplacesItemId = Items.HeartPieceSwampScrub;
-ItemList[Items.TradeItemSwampDeed].ReplacesItemId = Items.TradeItemSwampDeed;
-ItemList[Items.HeartPieceSwordsmanSchool].ReplacesItemId = Items.HeartPieceSwordsmanSchool;
-ItemList[Items.ItemFireArrow].ReplacesItemId = Items.ChestTerminaGrottoRedRupee;
-ItemList[Items.MaskGoron].ReplacesItemId = Items.ChestTerminaGrottoBombchu;
-ItemList[Items.HeartPieceTerminaBusinessScrub].ReplacesItemId = Items.HeartPieceTerminaBusinessScrub;
-ItemList[Items.HeartPieceTerminaGossipStones].ReplacesItemId = Items.HeartPieceTerminaGossipStones;
-ItemList[Items.ItemBow].ReplacesItemId = Items.ChestTerminaGrassRedRupee;
-ItemList[Items.ItemHookshot].ReplacesItemId = Items.ChestTerminaStumpRedRupee;
-ItemList[Items.ItemIceArrow].ReplacesItemId = Items.ChestTerminaUnderwaterRedRupee;
-ItemList[Items.HeartPieceTownArchery].ReplacesItemId = Items.HeartPieceTownArchery;
-ItemList[Items.UpgradeBigQuiver].ReplacesItemId = Items.UpgradeBigQuiver;
-ItemList[Items.UpgradeBigBombBag].ReplacesItemId = Items.UpgradeBigBombBag;
-ItemList[Items.UpgradeAdultWallet].ReplacesItemId = Items.UpgradeAdultWallet;
-ItemList[Items.ShopItemTradingPostArrow30].ReplacesItemId = Items.ShopItemTradingPostArrow30;
-ItemList[Items.ShopItemTradingPostArrow50].ReplacesItemId = Items.ShopItemTradingPostArrow50;
-ItemList[Items.PreClocktownDekuNuts10].ReplacesItemId = Items.ShopItemTradingPostFairy;
-ItemList[Items.TwinmoldTrialBombchu10].ReplacesItemId = Items.ShopItemTradingPostGreenPotion;
-ItemList[Items.TwinmoldTrialArrows30].ReplacesItemId = Items.ShopItemTradingPostNut10;
-ItemList[Items.ShopItemTradingPostRedPotion].ReplacesItemId = Items.ShopItemTradingPostRedPotion;
-ItemList[Items.ShopItemTradingPostShield].ReplacesItemId = Items.ShopItemTradingPostShield;
-ItemList[Items.ShopItemTradingPostStick].ReplacesItemId = Items.ShopItemTradingPostStick;
-ItemList[Items.HeartPieceTreasureChestGame].ReplacesItemId = Items.HeartPieceTreasureChestGame;
-ItemList[Items.ChestToGoronVillageRedRupee].ReplacesItemId = Items.ChestToGoronVillageRedRupee;
-ItemList[Items.HeartPieceTwinIslandsChest].ReplacesItemId = Items.HeartPieceTwinIslandsChest;
-ItemList[Items.HeartContainerStoneTower].ReplacesItemId = Items.HeartContainerStoneTower;
-ItemList[Items.ChestWellLeftPurpleRupee].ReplacesItemId = Items.ChestWellLeftPurpleRupee;
-ItemList[Items.ChestWellRightPurpleRupee].ReplacesItemId = Items.ChestWellRightPurpleRupee;
-ItemList[Items.ItemBottleWitch].ReplacesItemId = Items.ItemBottleWitch;
-ItemList[Items.ShopItemWitchBluePotion].ReplacesItemId = Items.ShopItemWitchBluePotion;
-ItemList[Items.ShopItemWitchGreenPotion].ReplacesItemId = Items.ShopItemWitchGreenPotion;
-ItemList[Items.ShopItemWitchRedPotion].ReplacesItemId = Items.ShopItemWitchRedPotion;
-ItemList[Items.ChestWoodfallRedRupee].ReplacesItemId = Items.ChestWoodfallRedRupee;
-ItemList[Items.ChestWoodfallBlueRupee].ReplacesItemId = Items.ChestWoodfallBlueRupee;
-ItemList[Items.ItemWoodfallBossKey].ReplacesItemId = Items.ItemWoodfallBossKey;
-ItemList[Items.HeartPieceWoodFallChest].ReplacesItemId = Items.HeartPieceWoodFallChest;
-ItemList[Items.ItemWoodfallCompass].ReplacesItemId = Items.ItemWoodfallCompass;
-ItemList[Items.ItemWoodfallKey1].ReplacesItemId = Items.ItemWoodfallKey1;
-ItemList[Items.ItemWoodfallMap].ReplacesItemId = Items.ItemWoodfallMap;
-ItemList[Items.HeartPieceZoraHallScrub].ReplacesItemId = Items.HeartPieceZoraHallScrub;
-ItemList[Items.ChestSouthClockTownRedRupee].ReplacesItemId = Items.MaskZora;
-ItemList[Items.ShopItemTradingPostFairy].ReplacesItemId = Items.ShopItemZoraArrow10;
-ItemList[Items.ShopItemTradingPostGreenPotion].ReplacesItemId = Items.ShopItemZoraRedPotion;
-ItemList[Items.ShopItemTradingPostNut10].ReplacesItemId = Items.ShopItemZoraShield;
-ItemList[Items.HeartPieceDekuTrial].ReplacesItemId = Items.HeartPieceDekuTrial;
-ItemList[Items.HeartPieceGoronTrial].ReplacesItemId = Items.HeartPieceGoronTrial;
-ItemList[Items.HeartPieceZoraTrial].ReplacesItemId = Items.HeartPieceZoraTrial;
-ItemList[Items.HeartPieceLinkTrial].ReplacesItemId = Items.HeartPieceLinkTrial;
-ItemList[Items.MaskFierceDeity].ReplacesItemId = Items.MaskFierceDeity;
-ItemList[Items.ShopItemZoraArrow10].ReplacesItemId = Items.PreClocktownDekuNuts10;
-ItemList[Items.ShopItemZoraRedPotion].ReplacesItemId = Items.TwinmoldTrialBombchu10;
-ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
-            }
-            /*
-            // Generate the random mapping
+
+            PlaceFreeItems(itemPool);
             PlaceQuestItems(itemPool);
             PlaceTradeItems(itemPool);
             PlaceDungeonItems(itemPool);
-            PlaceFreeItem(itemPool);
+            PlaceStartingItems(itemPool);
             PlaceUpgrades(itemPool);
             PlaceSongs(itemPool);
             PlaceMasks(itemPool);
             PlaceRegularItems(itemPool);
+            PlaceSkulltulaTokens(itemPool);
+            PlaceStrayFairies(itemPool);
+            PlaceMundaneRewards(itemPool);
             PlaceShopItems(itemPool);
+            PlaceCowMilk(itemPool);
             PlaceMoonItems(itemPool);
             PlaceHeartpieces(itemPool);
             PlaceOther(itemPool);
             PlaceTingleMaps(itemPool);
-            */
+
             _randomized.ItemList = ItemList;
+        }
+
+        /// <summary>
+        /// Places starting items in the randomization pool.
+        /// </summary>
+        private void PlaceStartingItems(List<Item> itemPool)
+        {
+            for (var i = Item.StartingSword; i <= Item.StartingHeartContainer2; i++)
+            {
+                PlaceItem(i, itemPool);
+            }
         }
 
         /// <summary>
         /// Places moon items in the randomization pool.
         /// </summary>
-        private void PlaceMoonItems(List<int> itemPool)
+        private void PlaceMoonItems(List<Item> itemPool)
         {
-            for (int i = Items.HeartPieceDekuTrial; i <= Items.TwinmoldTrialArrows30; i++)
+            for (var i = Item.HeartPieceDekuTrial; i <= Item.ChestLinkTrialBombchu10; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1575,9 +1002,42 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// <summary>
         /// Places tingle maps in the randomization pool.
         /// </summary>
-        private void PlaceTingleMaps(List<int> itemPool)
+        private void PlaceTingleMaps(List<Item> itemPool)
         {
-            for (int i = Items.ItemTingleMapTown; i <= Items.ItemTingleMapStoneTower; i++)
+            for (var i = Item.ItemTingleMapTown; i <= Item.ItemTingleMapStoneTower; i++)
+            {
+                PlaceItem(i, itemPool);
+            }
+        }
+
+        /// <summary>
+        /// Places skulltula tokens in the randomization pool.
+        /// </summary>
+        private void PlaceSkulltulaTokens(List<Item> itemPool)
+        {
+            for (var i = Item.CollectibleSwampSpiderToken1; i <= Item.CollectibleOceanSpiderToken30; i++)
+            {
+                PlaceItem(i, itemPool);
+            }
+        }
+
+        /// <summary>
+        /// Places stray fairies in the randomization pool.
+        /// </summary>
+        private void PlaceStrayFairies(List<Item> itemPool)
+        {
+            for (var i = Item.CollectibleStrayFairyClockTown; i <= Item.CollectibleStrayFairyStoneTower15; i++)
+            {
+                PlaceItem(i, itemPool);
+            }
+        }
+
+        /// <summary>
+        /// Places mundane rewards in the randomization pool.
+        /// </summary>
+        private void PlaceMundaneRewards(List<Item> itemPool)
+        {
+            for (var i = Item.MundaneItemLotteryPurpleRupee; i <= Item.MundaneItemSeahorse; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1587,32 +1047,34 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// Places other chests and grottos in the randomization pool.
         /// </summary>
         /// <param name="itemPool"></param>
-        private void PlaceOther(List<int> itemPool)
+        private void PlaceOther(List<Item> itemPool)
         {
-            for (int i = Items.ChestLensCaveRedRupee; i <= Items.ChestSouthClockTownPurpleRupee; i++)
+            for (var i = Item.ChestLensCaveRedRupee; i <= Item.ChestSouthClockTownPurpleRupee; i++)
             {
                 PlaceItem(i, itemPool);
             }
 
-            PlaceItem(Items.ChestToGoronRaceGrotto, itemPool);
+            PlaceItem(Item.ChestToGoronRaceGrotto, itemPool);
+            PlaceItem(Item.IkanaScrubGoldRupee, itemPool);
+            PlaceItem(Item.ChestPreClocktownDekuNut, itemPool);
         }
 
         /// <summary>
         /// Places heart pieces in the randomization pool. Includes rewards/chests, as well as standing heart pieces.
         /// </summary>
-        private void PlaceHeartpieces(List<int> itemPool)
+        private void PlaceHeartpieces(List<Item> itemPool)
         {
             // Rewards/chests
-            for (int i = Items.HeartPieceNotebookMayor; i <= Items.HeartPieceKnuckle; i++)
+            for (var i = Item.HeartPieceNotebookMayor; i <= Item.HeartPieceKnuckle; i++)
             {
                 PlaceItem(i, itemPool);
             }
 
             // Bank reward
-            PlaceItem(Items.HeartPieceBank, itemPool);
+            PlaceItem(Item.HeartPieceBank, itemPool);
 
             // Standing heart pieces
-            for (int i = Items.HeartPieceSouthClockTown; i <= Items.HeartContainerStoneTower; i++)
+            for (var i = Item.HeartPieceSouthClockTown; i <= Item.HeartContainerStoneTower; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1621,9 +1083,20 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// <summary>
         /// Places shop items in the randomization pool
         /// </summary>
-        private void PlaceShopItems(List<int> itemPool)
+        private void PlaceShopItems(List<Item> itemPool)
         {
-            for (int i = Items.ShopItemTradingPostRedPotion; i <= Items.ShopItemZoraRedPotion; i++)
+            for (var i = Item.ShopItemTradingPostRedPotion; i <= Item.ShopItemZoraRedPotion; i++)
+            {
+                PlaceItem(i, itemPool);
+            }
+        }
+
+        /// <summary>
+        /// Places cow milk in the randomization pool
+        /// </summary>
+        private void PlaceCowMilk(List<Item> itemPool)
+        {
+            for (var i = Item.ItemRanchBarnMainCowMilk; i <= Item.ItemCoastGrottoCowMilk2; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1632,9 +1105,9 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// <summary>
         /// Places dungeon items in the randomization pool
         /// </summary>
-        private void PlaceDungeonItems(List<int> itemPool)
+        private void PlaceDungeonItems(List<Item> itemPool)
         {
-            for (int i = Items.ItemWoodfallMap; i <= Items.ItemStoneTowerKey4; i++)
+            for (var i = Item.ItemWoodfallMap; i <= Item.ItemStoneTowerKey4; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1643,9 +1116,9 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// <summary>
         /// Places songs in the randomization pool
         /// </summary>
-        private void PlaceSongs(List<int> itemPool)
+        private void PlaceSongs(List<Item> itemPool)
         {
-            for (int i = Items.SongSoaring; i <= Items.SongOath; i++)
+            for (var i = Item.SongHealing; i <= Item.SongOath; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1654,9 +1127,9 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// <summary>
         /// Places masks in the randomization pool
         /// </summary>
-        private void PlaceMasks(List<int> itemPool)
+        private void PlaceMasks(List<Item> itemPool)
         {
-            for (int i = Items.MaskPostmanHat; i <= Items.MaskZora; i++)
+            for (var i = Item.MaskPostmanHat; i <= Item.MaskZora; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1665,9 +1138,9 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// <summary>
         /// Places upgrade items in the randomization pool
         /// </summary>
-        private void PlaceUpgrades(List<int> itemPool)
+        private void PlaceUpgrades(List<Item> itemPool)
         {
-            for (int i = Items.UpgradeRazorSword; i <= Items.UpgradeGiantWallet; i++)
+            for (var i = Item.UpgradeRazorSword; i <= Item.UpgradeGiantWallet; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1676,62 +1149,73 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// <summary>
         /// Places regular items in the randomization pool
         /// </summary>
-        private void PlaceRegularItems(List<int> itemPool)
+        private void PlaceRegularItems(List<Item> itemPool)
         {
-            for (int i = Items.MaskDeku; i <= Items.ItemNotebook; i++)
+            for (var i = Item.MaskDeku; i <= Item.ItemNotebook; i++)
             {
                 PlaceItem(i, itemPool);
             }
         }
 
         /// <summary>
-        /// Replace starting deku mask with free item if not already replaced.
+        /// Replace starting deku mask and song of healing with free items if not already replaced.
         /// </summary>
-        private void PlaceFreeItem(List<int> itemPool)
+        private void PlaceFreeItems(List<Item> itemPool)
         {
-            if (ItemList.FindIndex(item => item.ReplacesItemId == Items.MaskDeku) != -1)
+            var freeItemLocations = new List<Item>
             {
-                return;
-            }
-
-            int freeItem = Random.Next(Items.SongOath + 1);
-            if (ForbiddenReplacedBy.ContainsKey(Items.MaskDeku))
+                Item.MaskDeku,
+                Item.SongHealing,
+                Item.StartingShield,
+                Item.StartingSword,
+                Item.StartingHeartContainer1,
+                Item.StartingHeartContainer2,
+            };
+            var availableStartingItems = (_settings.NoStartingItems
+                ? ItemUtils.AllRupees()
+                : ItemUtils.StartingItems())
+                .Where(item => !ItemList[(int)item].NewLocation.HasValue && !ForbiddenStartingItems.Contains(item))
+                .Cast<Item?>()
+                .ToList();
+            foreach (var location in freeItemLocations)
             {
-                while (ItemList[freeItem].ReplacesItemId != -1
-                    || ForbiddenReplacedBy[Items.MaskDeku].Contains(freeItem))
+                var placedItem = ItemList.FirstOrDefault(item => item.NewLocation == location)?.Item;
+                if (placedItem == null)
                 {
-                    freeItem = Random.Next(Items.SongOath + 1);
+                    placedItem = availableStartingItems.RandomOrDefault(Random);
+                    if (placedItem == null)
+                    {
+                        throw new Exception("Failed to replace a starting item.");
+                    }
+                    ItemList[(int)placedItem].NewLocation = location;
+                    ItemList[(int)placedItem].IsRandomized = true;
+                    itemPool.Remove(location);
+                    availableStartingItems.Remove(placedItem.Value);
+                }
+
+
+                var forbiddenStartTogether = ItemUtils.ForbiddenStartTogether.FirstOrDefault(list => list.Contains(placedItem.Value));
+                if (forbiddenStartTogether != null)
+                {
+                    availableStartingItems.RemoveAll(item => forbiddenStartTogether.Contains(item.Value));
                 }
             }
-            ItemList[freeItem].ReplacesItemId = Items.MaskDeku;
-            itemPool.Remove(Items.MaskDeku);
         }
 
         /// <summary>
         /// Adds all items into the randomization pool (excludes area/other and items that already have placement)
         /// </summary>
-        private void AddAllItems(List<int> itemPool)
+        private void AddAllItems(List<Item> itemPool)
         {
-            for (int i = 0; i < ItemList.Count; i++)
-            {
-                // Skip item if its in area and other, is out of range or has placement
-                if ((ItemUtils.IsAreaOrOther(i)
-                    || ItemUtils.IsOutOfRange(i))
-                    || (ItemList[i].ReplacesAnotherItem))
-                {
-                    continue;
-                }
-
-                itemPool.Add(i);
-            }
+            itemPool.AddRange(ItemUtils.AllLocations().Where(location => !ItemList.Any(io => io.NewLocation == location)));
         }
 
         /// <summary>
         /// Places quest items in the randomization pool
         /// </summary>
-        private void PlaceQuestItems(List<int> itemPool)
+        private void PlaceQuestItems(List<Item> itemPool)
         {
-            for (int i = Items.TradeItemRoomKey; i <= Items.TradeItemMamaLetter; i++)
+            for (var i = Item.TradeItemRoomKey; i <= Item.TradeItemMamaLetter; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1740,9 +1224,9 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// <summary>
         /// Places trade items in the randomization pool
         /// </summary>
-        private void PlaceTradeItems(List<int> itemPool)
+        private void PlaceTradeItems(List<Item> itemPool)
         {
-            for (int i = Items.TradeItemMoonTear; i <= Items.TradeItemOceanDeed; i++)
+            for (var i = Item.TradeItemMoonTear; i <= Item.TradeItemOceanDeed; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1755,7 +1239,7 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         {
             if (_settings.ExcludeSongOfSoaring)
             {
-                ItemList[Items.SongSoaring].ReplacesItemId = Items.SongSoaring;
+                ItemList[(int)Item.SongSoaring].NewLocation = Item.SongSoaring;
             }
 
             if (!_settings.AddSongs)
@@ -1791,6 +1275,46 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
             {
                 PreserveMoonItems();
             }
+
+            if (!_settings.AddFairyRewards)
+            {
+                PreserveFairyRewards();
+            }
+
+            if (!_settings.AddNutChest || _settings.LogicMode == LogicMode.Casual)
+            {
+                PreserveNutChest();
+            }
+
+            if (!_settings.CrazyStartingItems)
+            {
+                PreserveStartingItems();
+            }
+
+            if (!_settings.AddCowMilk)
+            {
+                PreserveCowMilk();
+            }
+
+            if (!_settings.AddSkulltulaTokens)
+            {
+                PreserveSkulltulaTokens();
+            }
+
+            if (!_settings.AddStrayFairies)
+            {
+                PreserveStrayFairies();
+            }
+
+            if (!_settings.AddMundaneRewards)
+            {
+                PreserveMundaneRewards();
+            }
+
+            if (_settings.LogicMode == LogicMode.Casual)
+            {
+                PreserveGlitchedCowMilk();
+            }
         }
 
         /// <summary>
@@ -1798,9 +1322,9 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// </summary>
         private void PreserveBottleCatchContents()
         {
-            for (int i = Items.BottleCatchFairy; i <= Items.BottleCatchMushroom; i++)
+            for (var i = Item.BottleCatchFairy; i <= Item.BottleCatchMushroom; i++)
             {
-                ItemList[i].ReplacesItemId = i;
+                ItemList[(int)i].NewLocation = i;
             }
         }
 
@@ -1809,17 +1333,17 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// </summary>
         private void AddBottleCatchContents()
         {
-            var itemPool = new List<int>();
-            for (int i = Items.BottleCatchFairy; i <= Items.BottleCatchMushroom; i++)
+            var itemPool = new List<Item>();
+            for (var i = Item.BottleCatchFairy; i <= Item.BottleCatchMushroom; i++)
             {
-                if (ItemList[i].ReplacesAnotherItem)
+                if (ItemList[(int)i].NewLocation.HasValue)
                 {
                     continue;
                 }
                 itemPool.Add(i);
             }
 
-            for (int i = Items.BottleCatchFairy; i <= Items.BottleCatchMushroom; i++)
+            for (var i = Item.BottleCatchFairy; i <= Item.BottleCatchMushroom; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1830,9 +1354,9 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// </summary>
         private void PreserveOther()
         {
-            for (int i = Items.ChestLensCaveRedRupee; i <= Items.ChestToGoronRaceGrotto; i++)
+            for (var i = Item.ChestLensCaveRedRupee; i <= Item.IkanaScrubGoldRupee; i++)
             {
-                ItemList[i].ReplacesItemId = i;
+                ItemList[(int)i].NewLocation = i;
             }
         }
 
@@ -1841,14 +1365,21 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// </summary>
         private void PreserveShopItems()
         {
-            for (int i = Items.ShopItemTradingPostRedPotion; i <= Items.ShopItemZoraRedPotion; i++)
+            for (var i = Item.ShopItemTradingPostRedPotion; i <= Item.ShopItemZoraRedPotion; i++)
             {
-                ItemList[i].ReplacesItemId = i;
+                ItemList[(int)i].NewLocation = i;
             }
 
-            ItemList[Items.ItemBombBag].ReplacesItemId = Items.ItemBombBag;
-            ItemList[Items.UpgradeBigBombBag].ReplacesItemId = Items.UpgradeBigBombBag;
-            ItemList[Items.MaskAllNight].ReplacesItemId = Items.MaskAllNight;
+            ItemList[(int)Item.ItemBombBag].NewLocation = Item.ItemBombBag;
+            ItemList[(int)Item.UpgradeBigBombBag].NewLocation = Item.UpgradeBigBombBag;
+            ItemList[(int)Item.MaskAllNight].NewLocation = Item.MaskAllNight;
+
+            ItemList[(int)Item.ShopItemMilkBarChateau].NewLocation = Item.ShopItemMilkBarChateau;
+            ItemList[(int)Item.ShopItemMilkBarMilk].NewLocation = Item.ShopItemMilkBarMilk;
+            ItemList[(int)Item.ShopItemBusinessScrubMagicBean].NewLocation = Item.ShopItemBusinessScrubMagicBean;
+            ItemList[(int)Item.ShopItemBusinessScrubGreenPotion].NewLocation = Item.ShopItemBusinessScrubGreenPotion;
+            ItemList[(int)Item.ShopItemBusinessScrubBluePotion].NewLocation = Item.ShopItemBusinessScrubBluePotion;
+            ItemList[(int)Item.ShopItemGormanBrosMilk].NewLocation = Item.ShopItemGormanBrosMilk;
         }
 
         /// <summary>
@@ -1856,9 +1387,9 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// </summary>
         private void PreserveDungeonItems()
         {
-            for (int i = Items.ItemWoodfallMap; i <= Items.ItemStoneTowerKey4; i++)
+            for (var i = Item.ItemWoodfallMap; i <= Item.ItemStoneTowerKey4; i++)
             {
-                ItemList[i].ReplacesItemId = i;
+                ItemList[(int)i].NewLocation = i;
             };
         }
 
@@ -1867,10 +1398,93 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// </summary>
         private void PreserveMoonItems()
         {
-            for (int i = Items.HeartPieceDekuTrial; i <= Items.TwinmoldTrialArrows30; i++)
+            for (var i = Item.HeartPieceDekuTrial; i <= Item.ChestLinkTrialBombchu10; i++)
             {
-                ItemList[i].ReplacesItemId = i;
+                ItemList[(int)i].NewLocation = i;
             }
+        }
+
+        /// <summary>
+        /// Keeps great fairy rewards vanilla
+        /// </summary>
+        private void PreserveFairyRewards()
+        {
+            for (var i = Item.FairyMagic; i <= Item.ItemFairySword; i++)
+            {
+                ItemList[(int)i].NewLocation = i;
+            }
+            ItemList[(int)Item.MaskGreatFairy].NewLocation = Item.MaskGreatFairy;
+        }
+
+        /// <summary>
+        /// Keeps nut chest vanilla
+        /// </summary>
+        private void PreserveNutChest()
+        {
+            ItemList[(int)Item.ChestPreClocktownDekuNut].NewLocation = Item.ChestPreClocktownDekuNut;
+        }
+
+        /// <summary>
+        /// Keeps regular starting items vanilla
+        /// </summary>
+        private void PreserveStartingItems()
+        {
+            for (var i = Item.StartingSword; i <= Item.StartingHeartContainer2; i++)
+            {
+                ItemList[(int)i].NewLocation = i;
+            }
+        }
+
+        /// <summary>
+        /// Keeps cow milk vanilla
+        /// </summary>
+        private void PreserveCowMilk()
+        {
+            for (var i = Item.ItemRanchBarnMainCowMilk; i <= Item.ItemCoastGrottoCowMilk2; i++)
+            {
+                ItemList[(int)i].NewLocation = i;
+            }
+        }
+
+        /// <summary>
+        /// Keeps skulltula tokens vanilla
+        /// </summary>
+        private void PreserveSkulltulaTokens()
+        {
+            for (var i = Item.CollectibleSwampSpiderToken1; i <= Item.CollectibleOceanSpiderToken30; i++)
+            {
+                ItemList[(int)i].NewLocation = i;
+            }
+        }
+
+        /// <summary>
+        /// Keeps stray fairies vanilla
+        /// </summary>
+        private void PreserveStrayFairies()
+        {
+            for (var i = Item.CollectibleStrayFairyClockTown; i <= Item.CollectibleStrayFairyStoneTower15; i++)
+            {
+                ItemList[(int)i].NewLocation = i;
+            }
+        }
+
+        private void PreserveMundaneRewards()
+        {
+            for (var i = Item.MundaneItemLotteryPurpleRupee; i <= Item.MundaneItemSeahorse; i++)
+            {
+                if (!ItemUtils.IsShopItem(i))
+                {
+                    ItemList[(int)i].NewLocation = i;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Keeps glitched cow milk vanilla
+        /// </summary>
+        private void PreserveGlitchedCowMilk()
+        {
+            ItemList[(int)Item.ItemRanchBarnOtherCowMilk2].NewLocation = Item.ItemRanchBarnOtherCowMilk2;
         }
 
         /// <summary>
@@ -1878,17 +1492,17 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// </summary>
         private void ShuffleSongs()
         {
-            var itemPool = new List<int>();
-            for (int i = Items.SongSoaring; i <= Items.SongOath; i++)
+            var itemPool = new List<Item>();
+            for (var i = Item.SongHealing; i <= Item.SongOath; i++)
             {
-                if (ItemList[i].ReplacesAnotherItem)
+                if (ItemList[(int)i].NewLocation.HasValue)
                 {
                     continue;
                 }
                 itemPool.Add(i);
             }
 
-            for (int i = Items.SongSoaring; i <= Items.SongOath; i++)
+            for (var i = Item.SongHealing; i <= Item.SongOath; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1901,6 +1515,15 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         {
             // Keep shop items vanilla, unless custom item list contains a shop item
             _settings.AddShopItems = false;
+
+            // Keep cows vanilla, unless custom item list contains a cow
+            _settings.AddCowMilk = false;
+
+            // Keep skulltula tokens vanilla, unless custom item list contains a token
+            _settings.AddSkulltulaTokens = false;
+
+            // Keep stray fairies vanilla, unless custom item list contains a fairy
+            _settings.AddStrayFairies = false;
 
             // Make all items vanilla, and override using custom item list
             MakeAllItemsVanilla();
@@ -1922,15 +1545,9 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// </summary>
         private void MakeAllItemsVanilla()
         {
-            for (int item = 0; item < ItemList.Count; item++)
+            foreach (var location in ItemUtils.AllLocations())
             {
-                if (ItemUtils.IsAreaOrOther(item)
-                    || ItemUtils.IsOutOfRange(item))
-                {
-                    continue;
-                }
-
-                ItemList[item].ReplacesItemId = item;
+                ItemList[(int)location].NewLocation = location;
             }
         }
 
@@ -1939,6 +1556,10 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// </summary>
         private void ApplyCustomItemList()
         {
+            if (_settings.CustomItemList.Contains(-1))
+            {
+                throw new InvalidDataException("Invalid custom item string.");
+            }
             for (int i = 0; i < _settings.CustomItemList.Count; i++)
             {
                 int selectedItem = _settings.CustomItemList[i];
@@ -1949,14 +1570,108 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
 
                 if (selectedItemIndex != -1)
                 {
-                    ItemList[selectedItemIndex].ReplacesItemId = -1;
+                    ItemList[selectedItemIndex].NewLocation = null;
                 }
 
-                if (ItemUtils.IsShopItem(selectedItem))
+                if (ItemUtils.IsShopItem((Item)selectedItem))
                 {
                     _settings.AddShopItems = true;
                 }
+
+                if (ItemUtils.IsCowItem((Item)selectedItem))
+                {
+                    _settings.AddCowMilk = true;
+                }
+
+                if (ItemUtils.IsSkulltulaToken((Item)selectedItem))
+                {
+                    _settings.AddSkulltulaTokens = true;
+                }
+
+                if (ItemUtils.IsStrayFairy((Item)selectedItem))
+                {
+                    _settings.AddStrayFairies = true;
+                }
             }
+        }
+
+        private ReadOnlyCollection<Item> GetRequiredItems(Item item, List<ItemLogic> itemLogic, List<Item> logicPath = null, Dictionary<Item, ReadOnlyCollection<Item>> checkedItems = null, Item? exclude = null)
+        {
+            if (_settings.CustomStartingItemList.Contains(item))
+            {
+                return new List<Item>().AsReadOnly();
+            }
+            if (item == exclude)
+            {
+                return null;
+            }
+            if (logicPath == null)
+            {
+                logicPath = new List<Item>();
+            }
+            if (logicPath.Contains(item))
+            {
+                return null;
+            }
+            logicPath.Add(item);
+            if (checkedItems == null)
+            {
+                checkedItems = new Dictionary<Item, ReadOnlyCollection<Item>>();
+            }
+            if (checkedItems.ContainsKey(item))
+            {
+                return checkedItems[item];
+            }
+            var itemObject = ItemList[(int)item];
+            var locationId = itemObject.NewLocation.HasValue ? itemObject.NewLocation : item;
+            var locationLogic = itemLogic[(int)locationId];
+            var result = new List<Item>();
+            if (locationLogic.RequiredItemIds != null && locationLogic.RequiredItemIds.Any())
+            {
+                foreach (var requiredItemId in locationLogic.RequiredItemIds)
+                {
+                    var requiredChildren = GetRequiredItems((Item)requiredItemId, itemLogic, logicPath.ToList(), checkedItems, exclude);
+                    if (requiredChildren == null)
+                    {
+                        return null;
+                    }
+                    result.Add((Item)requiredItemId);
+                    result.AddRange(requiredChildren);
+                }
+            }
+            if (locationLogic.ConditionalItemIds != null && locationLogic.ConditionalItemIds.Any())
+            {
+                var found = false;
+                foreach (var conditions in locationLogic.ConditionalItemIds)
+                {
+                    var conditionalRequirements = new List<Item>();
+                    foreach (var conditionalItemId in conditions)
+                    {
+                        var requiredChildren = GetRequiredItems((Item)conditionalItemId, itemLogic, logicPath.ToList(), checkedItems, exclude);
+                        if (requiredChildren == null)
+                        {
+                            conditionalRequirements = null;
+                            break;
+                        }
+
+                        conditionalRequirements.Add((Item)conditionalItemId);
+                        conditionalRequirements.AddRange(requiredChildren);
+                    }
+
+                    if (conditionalRequirements != null)
+                    {
+                        found = true;
+                        result.AddRange(conditionalRequirements);
+                    }
+                }
+                if (!found)
+                {
+                    return null;
+                }
+            }
+            var readOnlyResult = result.Distinct().ToList().AsReadOnly();
+            checkedItems[item] = readOnlyResult;
+            return readOnlyResult;
         }
 
         /// <summary>
@@ -1984,10 +1699,34 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
                 worker.ReportProgress(30, "Shuffling items...");
                 RandomizeItems();
 
+                foreach (var itemLogic in _randomized.Logic)
+                {
+                    if (_settings.CustomStartingItemList.Contains((Item)itemLogic.ItemId) && !ItemList[itemLogic.ItemId].IsRandomized)
+                    {
+                        itemLogic.Acquired = true;
+                    }
+                }
 
-                if (_settings.EnableGossipHints)
+                _randomized.AllItemsOnPathToMoon = GetRequiredItems(Item.AreaMoonAccess, _randomized.Logic)?.Where(item => !item.IsFake()).ToList().AsReadOnly();
+                if (_randomized.AllItemsOnPathToMoon == null)
+                {
+                    throw new Exception("Moon Access is unobtainable.");
+                }
+                var itemsRequiredForMoonAccess = new List<Item>();
+                foreach (var item in _randomized.AllItemsOnPathToMoon)
+                {
+                    var checkPaths = GetRequiredItems(Item.AreaMoonAccess, _randomized.Logic, exclude: item);
+                    if (checkPaths == null)
+                    {
+                        itemsRequiredForMoonAccess.Add(item);
+                    }
+                }
+                _randomized.ItemsRequiredForMoonAccess = itemsRequiredForMoonAccess.AsReadOnly();
+
+                if (_settings.GossipHintStyle != GossipHintStyle.Default)
                 {
                     worker.ReportProgress(35, "Making gossip quotes...");
+
                     //gossip
                     SeedRNG();
                     MakeGossipQuotes();
@@ -1999,12 +1738,6 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
             //Randomize tatl colour
             SeedRNG();
             SetTatlColour();
-
-            worker.ReportProgress(45, "Randomizing Music...");
-
-            //Sort BGM
-            SeedRNG();
-            SortBGM();
 
             return _randomized;
         }

@@ -60,6 +60,7 @@
             this.bConAdd = new System.Windows.Forms.Button();
             this.bConClear = new System.Windows.Forms.Button();
             this.lConditional = new System.Windows.Forms.ListBox();
+            this.bConEdit = new System.Windows.Forms.Button();
             this.openLogic = new System.Windows.Forms.OpenFileDialog();
             this.saveLogic = new System.Windows.Forms.SaveFileDialog();
             this.mMenu = new System.Windows.Forms.MenuStrip();
@@ -67,9 +68,12 @@
             this.mNew = new System.Windows.Forms.ToolStripMenuItem();
             this.mImport = new System.Windows.Forms.ToolStripMenuItem();
             this.mSave = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.importTemplateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.casualToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.glitchedToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.btn_new_item = new System.Windows.Forms.Button();
             this.button_goto = new System.Windows.Forms.Button();
-            this.bConEdit = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.nItem)).BeginInit();
             this.tMain.SuspendLayout();
             this.tTimes.SuspendLayout();
@@ -510,6 +514,17 @@
             this.lConditional.TabIndex = 2;
             this.lConditional.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lConditional_MouseDoubleClick);
             // 
+            // bConEdit
+            // 
+            this.bConEdit.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.bConEdit.Location = new System.Drawing.Point(76, 351);
+            this.bConEdit.Name = "bConEdit";
+            this.bConEdit.Size = new System.Drawing.Size(67, 30);
+            this.bConEdit.TabIndex = 3;
+            this.bConEdit.Text = "Edit";
+            this.bConEdit.UseVisualStyleBackColor = true;
+            this.bConEdit.MouseClick += new System.Windows.Forms.MouseEventHandler(this.bConEdit_MouseClick);
+            // 
             // mMenu
             // 
             this.mMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -526,7 +541,9 @@
             this.mFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mNew,
             this.mImport,
-            this.mSave});
+            this.mSave,
+            this.toolStripSeparator1,
+            this.importTemplateToolStripMenuItem});
             this.mFile.Name = "mFile";
             this.mFile.Size = new System.Drawing.Size(37, 20);
             this.mFile.Text = "File";
@@ -554,6 +571,34 @@
             this.mSave.Text = "Save logic";
             this.mSave.Click += new System.EventHandler(this.mSave_Click);
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(179, 6);
+            // 
+            // importTemplateToolStripMenuItem
+            // 
+            this.importTemplateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.casualToolStripMenuItem1,
+            this.glitchedToolStripMenuItem1});
+            this.importTemplateToolStripMenuItem.Name = "importTemplateToolStripMenuItem";
+            this.importTemplateToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.importTemplateToolStripMenuItem.Text = "Import template";
+            // 
+            // casualToolStripMenuItem1
+            // 
+            this.casualToolStripMenuItem1.Name = "casualToolStripMenuItem1";
+            this.casualToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.casualToolStripMenuItem1.Text = "Casual";
+            this.casualToolStripMenuItem1.Click += new System.EventHandler(this.casualToolStripMenuItem1_Click);
+            // 
+            // glitchedToolStripMenuItem1
+            // 
+            this.glitchedToolStripMenuItem1.Name = "glitchedToolStripMenuItem1";
+            this.glitchedToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.glitchedToolStripMenuItem1.Text = "Glitched";
+            this.glitchedToolStripMenuItem1.Click += new System.EventHandler(this.glitchedToolStripMenuItem1_Click);
+            // 
             // btn_new_item
             // 
             this.btn_new_item.Location = new System.Drawing.Point(113, 81);
@@ -574,18 +619,7 @@
             this.button_goto.UseVisualStyleBackColor = true;
             this.button_goto.Click += new System.EventHandler(this.button_goto_Click);
             // 
-            // bConEdit
-            // 
-            this.bConEdit.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.bConEdit.Location = new System.Drawing.Point(76, 351);
-            this.bConEdit.Name = "bConEdit";
-            this.bConEdit.Size = new System.Drawing.Size(67, 30);
-            this.bConEdit.TabIndex = 3;
-            this.bConEdit.Text = "Edit";
-            this.bConEdit.UseVisualStyleBackColor = true;
-            this.bConEdit.MouseClick += new System.Windows.Forms.MouseEventHandler(this.bConEdit_MouseClick);
-            // 
-            // fLogicEdit
+            // LogicEditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -600,7 +634,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.Name = "fLogicEdit";
+            this.Name = "LogicEditorForm";
             this.Text = "Logic Editor";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.fLogicEdit_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.nItem)).EndInit();
@@ -660,5 +694,9 @@
         private System.Windows.Forms.Button bConAdd;
         private System.Windows.Forms.Button bConClear;
         private System.Windows.Forms.Button bConEdit;
+        private System.Windows.Forms.ToolStripMenuItem importTemplateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem casualToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem glitchedToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
     }
 }

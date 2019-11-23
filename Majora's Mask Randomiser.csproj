@@ -65,9 +65,58 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\ChestAttribute.cs" />
+    <Compile Include="Attributes\ChestTypeAttribute.cs" />
+    <Compile Include="Attributes\CycleRepeatableAttribute.cs" />
+    <Compile Include="Attributes\EntranceNameAttribute.cs" />
+    <Compile Include="Attributes\GetBottleItemIndicesAttribute.cs" />
+    <Compile Include="Attributes\GetItemIndexAttribute.cs" />
+    <Compile Include="Attributes\GossipCompetitiveHintAttribute.cs" />
+    <Compile Include="Attributes\GossipItemHintAttribute.cs" />
+    <Compile Include="Attributes\GossipLocationHintAttribute.cs" />
+    <Compile Include="Attributes\RupeeRepeatableAttribute.cs" />
+    <Compile Include="Attributes\ShopRoomAttribute.cs" />
+    <Compile Include="Attributes\ShopTextAttribute.cs" />
+    <Compile Include="Attributes\ShopInventoryAttribute.cs" />
+    <Compile Include="Attributes\TemporaryAttribute.cs" />
+    <Compile Include="Attributes\RegionNameAttribute.cs" />
+    <Compile Include="Attributes\LocationNameAttribute.cs" />
+    <Compile Include="Attributes\ItemNameAttribute.cs" />
+    <Compile Include="Attributes\RepeatableAttribute.cs" />
+    <Compile Include="Attributes\DowngradableAttribute.cs" />
+    <Compile Include="Attributes\GossipRestrictAttribute.cs" />
+    <Compile Include="Attributes\StartingItemAttribute.cs" />
+    <Compile Include="Extensions\AttributeExtensions.cs" />
+    <Compile Include="Extensions\ItemExtensions.cs" />
+    <Compile Include="Extensions\KeyEqualityComparer.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Forms\StartingItemEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\StartingItemEditForm.Designer.cs">
+      <DependentUpon>StartingItemEditForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Tooltips\TooltipBuilder.cs" />
+    <Compile Include="GameObjects\GossipQuote.cs" />
+    <Compile Include="GameObjects\Item.cs" />
+    <Compile Include="GameObjects\MessageShopText.cs" />
     <Compile Include="Models\RandomizedResult.cs" />
+    <Compile Include="Models\Rom\MessageTable.cs" />
     <Compile Include="Models\Rom\Enemy.cs" />
+    <Compile Include="Models\Settings\BlastMaskCooldown.cs" />
+    <Compile Include="Models\Settings\Music.cs" />
+    <Compile Include="Models\SoundEffects\EffectAttribute.cs" />
+    <Compile Include="Models\SoundEffects\ReplacableAttribute.cs" />
+    <Compile Include="Models\SoundEffects\ReplacableByTagsAttribute.cs" />
+    <Compile Include="Models\SoundEffects\ReplacableInMessageAttribute.cs" />
+    <Compile Include="Models\SoundEffects\SoundEffects.cs" />
+    <Compile Include="Models\SoundEffects\SoundEffectTag.cs" />
+    <Compile Include="Models\SoundEffects\SoundEffectExtensions.cs" />
+    <Compile Include="Models\SoundEffects\SoundEffect.cs" />
+    <Compile Include="Models\Settings\GossipHintStyle.cs" />
+    <Compile Include="Models\Settings\ClockSpeedMode.cs" />
+    <Compile Include="Models\Settings\SettingsObject.cs" />
+    <Compile Include="Models\SoundEffects\TagsAttribute.cs" />
     <Compile Include="Models\SpoilerItem.cs" />
     <Compile Include="Models\ItemLogic.cs" />
     <Compile Include="Constants\Addresses.cs" />
@@ -85,6 +134,11 @@
     <Compile Include="Models\Rom\SequenceInfo.cs" />
     <Compile Include="Models\Vectors\vecf32.cs" />
     <Compile Include="Models\Vectors\vec16.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Utils\Base36Utils.cs" />
     <Compile Include="Builder.cs" />
     <Compile Include="Constants\Values.cs" />
@@ -119,7 +173,6 @@
     <Compile Include="Models\Settings\FloorType.cs" />
     <Compile Include="Models\Settings\LogicMode.cs" />
     <Compile Include="Models\Settings\MovementMode.cs" />
-    <Compile Include="Models\Settings\Settings.cs" />
     <Compile Include="Models\Settings\TatlColorSchema.cs" />
     <Compile Include="Forms\NewItemForm.cs">
       <SubType>Form</SubType>
@@ -175,9 +228,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Forms\AboutForm.resx">
       <DependentUpon>AboutForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ItemEditForm.resx">
       <DependentUpon>ItemEditForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ItemSelectorForm.resx">
       <DependentUpon>ItemSelectorForm.cs</DependentUpon>
@@ -194,16 +249,14 @@
     <EmbeddedResource Include="Forms\NewItemForm.resx">
       <DependentUpon>NewItemForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\StartingItemEditForm.resx">
+      <DependentUpon>StartingItemEditForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="Resources\addresses\d-check">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -276,207 +329,6 @@
     <None Include="Resources\mods\de-5">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\mods\deadly-poe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\doggy-racetrack-all-blue-dogs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\doggy-racetrack-dog-text">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\fix-0thday-erase">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\fix-action-swap">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\fix-hookshot">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-10">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-11">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-12">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-13">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-14">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-15">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-16">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-17">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-18">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-19">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-2">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-20">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-21">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-22">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-23">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-24">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-25">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-26">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-27">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-28">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-29">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-3">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-30">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-31">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-32">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-33">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-34">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-35">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-36">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-37">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-38">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-39">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-4">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-40">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-41">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-42">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-43">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-44">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-45">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-46">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-47">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-48">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-49">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-5">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-50">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-51">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-52">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-53">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-54">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-55">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-56">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-57">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-58">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-59">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-6">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-60">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-61">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-7">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-8">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\misc-changes-9">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mods\no-starting-shield">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Resources\mods\dm-1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -490,6 +342,33 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Resources\mods\fierce-deity-anywhere">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\fix-deku-princess">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\fix-fd-mask-reset">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\fix-fisherman">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\fix-cow-bottle-check">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\fix-fairies">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\fix-skulltula-tokens">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\fix-sword-song-of-time">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\fix-clock-speed">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\fix-song-of-healing">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Resources\mods\file-select">
@@ -558,9 +437,6 @@
     <None Include="Resources\mods\movement-4">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\mods\permanent-razor-sword">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Resources\mods\postman-testing">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -577,6 +453,18 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Resources\mods\short-cutscenes">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\speedup-beavers">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\speedup-dampe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\speedup-dograce">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\mods\speedup-labfish">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Resources\mods\standing-hearts">
@@ -995,12 +883,10 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>HtmlSpoiler.cs</LastGenOutput>
     </Content>
-    <None Include="Resources\ITEM_INDICES.txt" />
     <None Include="Resources\ENEMIES.txt" />
-    <None Include="Resources\GOSSIP.txt" />
     <None Include="Resources\SEQS.txt" />
     <None Include="Resources\REQ_CASUAL.txt" />
-    <EmbeddedResource Include="Resources\REQ_GLITCH.txt" />
+    <None Include="Resources\REQ_GLITCH.txt" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

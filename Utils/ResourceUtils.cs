@@ -36,10 +36,38 @@ namespace MMRando.Utils
             byte[] hack_content = new byte[hack_len];
             hack_file.Read(hack_content, 0, hack_len);
             hack_file.Close();
-            
+            if (name.EndsWith("title-screen"))
+            {
+                //Random R = new Random();
+                int rot = 50;
+                Color l;
+                float h;
+                for (int i = 0; i < 144 * 64; i++)
+                {
+                    int p = (i * 4) + 8;
+                    l = Color.FromArgb(hack_content[p + 3], hack_content[p], hack_content[p + 1], hack_content[p + 2]);
+                    h = l.GetHue();
+                    h += rot;
+                    h %= 360f;
+                    l = ColorUtils.FromAHSB(l.A, h, l.GetSaturation(), l.GetBrightness());
+                    hack_content[p] = l.R;
+                    hack_content[p + 1] = l.G;
+                    hack_content[p + 2] = l.B;
+                    hack_content[p + 3] = l.A;
+                }
+                l = Color.FromArgb(hack_content[0x1FE72], hack_content[0x1FE73], hack_content[0x1FE76]);
+                h = l.GetHue();
+                h += rot;
+                h %= 360f;
+                l = ColorUtils.FromAHSB(255, h, l.GetSaturation(), l.GetBrightness());
+                hack_content[0x1FE72] = l.R;
+                hack_content[0x1FE73] = l.G;
+                hack_content[0x1FE76] = l.B;
+            }
             int addr = 0;
             while (hack_content[addr] != 0xFF)
             {
+                //Debug.WriteLine(addr.ToString("X4"));
                 uint dest = ReadWriteUtils.Arr_ReadU32(hack_content, addr);
                 addr += 4;
                 uint len = ReadWriteUtils.Arr_ReadU32(hack_content, addr);

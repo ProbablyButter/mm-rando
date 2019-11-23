@@ -39,7 +39,7 @@ namespace MMRando.Utils
             ProcessStartInfo p = new ProcessStartInfo
             {
                 FileName = "wadpacker.exe",
-                Arguments = "mm.tik mm.tmd mm.cert \"" + FileName + "\" -i NMUE",
+                Arguments = "mm.tik mm.tmd mm.cert \"" + FileName + "\" -i NMRE",
                 WorkingDirectory = VCDir
             };
             Process.Start(p);

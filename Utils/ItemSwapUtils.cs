@@ -1,143 +1,96 @@
-﻿using MMRando.Constants;
+﻿using MMRando.Attributes;
+using MMRando.Constants;
+using MMRando.Extensions;
+using MMRando.GameObjects;
 using MMRando.Models.Rom;
-using System;
 using System.Collections.Generic;
 
 namespace MMRando.Utils
 {
     public static class ItemSwapUtils
     {
+        const int BOTTLE_CATCH_TABLE = 0xCD7C08;
         static int cycle_repeat = 0;
+        static int cycle_repeat_count_address = 0xC72D16;
+        static ushort cycle_repeat_count = 0x74;
+        static int GET_ITEM_TABLE = 0;
 
         public static void ReplaceGetItemTable(string ModsDir)
         {
             ResourceUtils.ApplyHack(ModsDir + "replace-gi-table");
             int last_file = RomData.MMFileList.Count - 1;
-            Addresses.GetItemTable = RomUtils.AddNewFile(ModsDir + "gi-table");
+            GET_ITEM_TABLE = RomUtils.AddNewFile(ModsDir + "gi-table");
             ReadWriteUtils.WriteToROM(0xBDAEAC, (uint)last_file + 1);
             ResourceUtils.ApplyHack(ModsDir + "update-chests");
             RomUtils.AddNewFile(ModsDir + "chest-table");
             ReadWriteUtils.WriteToROM(0xBDAEA8, (uint)last_file + 2);
             ResourceUtils.ApplyHack(ModsDir + "standing-hearts");
             ResourceUtils.ApplyHack(ModsDir + "fix-item-checks");
-            cycle_repeat = 0xC72DF6;
+            cycle_repeat = 0xC72DF4;
             SceneUtils.ResetSceneFlagMask();
-        }
-
-        private static void InitIndices()
-        {
-            RomData.GetItemIndices = new List<int>();
-            RomData.BottleIndices = new List<int[]>();
-            string[] lines = Properties.Resources.ITEM_INDICES.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-            bool bottle = false;
-            foreach (var line in lines)
-            {
-                if (line.StartsWith("-"))
-                {
-                    continue;
-                }
-                else if (line == "bottle")
-                {
-                    bottle = true;
-                    continue;
-                }
-                else if (line == "endbottle")
-                {
-                    bottle = false;
-                    continue;
-                }
-                else if (bottle)
-                {
-                    RomData.GetItemIndices.Add(-1);
-                    int[] indices = Array.ConvertAll(
-                        line.Split(','), item => Convert.ToInt32(item, 16));
-                    RomData.BottleIndices.Add(indices);
-                }
-                else
-                {
-                    RomData.BottleIndices.Add(null);
-                    RomData.GetItemIndices.Add(Convert.ToInt32(line, 16));
-                }
-
-            }
+            SceneUtils.UpdateSceneFlagMask(0x5B); // red potion
+            SceneUtils.UpdateSceneFlagMask(0x91); // chateau romani
+            SceneUtils.UpdateSceneFlagMask(0x92); // milk
+            SceneUtils.UpdateSceneFlagMask(0x93); // gold dust
         }
 
         private static void InitGetBottleList()
         {
-            RomData.BottleList = new List<BottleCatchEntry[]>();
-            int f = RomUtils.GetFileIndexForWriting(Addresses.BottleCatchTable);
-            int baseaddr = Addresses.BottleCatchTable - RomData.MMFileList[f].Addr;
+            RomData.BottleList = new Dictionary<int, BottleCatchEntry>();
+            int f = RomUtils.GetFileIndexForWriting(BOTTLE_CATCH_TABLE);
+            int baseaddr = BOTTLE_CATCH_TABLE - RomData.MMFileList[f].Addr;
             var fileData = RomData.MMFileList[f].Data;
-            for (int i = 0; i < RomData.BottleIndices.Count; i++)
+            foreach (var getBottleItemIndex in ItemUtils.AllGetBottleItemIndices())
             {
-                if (RomData.BottleIndices[i] == null)
+                int offset = getBottleItemIndex * 6 + baseaddr;
+                RomData.BottleList[getBottleItemIndex] = new BottleCatchEntry
                 {
-                    RomData.BottleList.Add(null);
-                }
-                else
-                {
-                    BottleCatchEntry[] bi = new BottleCatchEntry[RomData.BottleIndices[i].Length];
-                    for (int j = 0; j < RomData.BottleIndices[i].Length; j++)
-                    {
-                        int offset = RomData.BottleIndices[i][j] * 6 + baseaddr;
-                        BottleCatchEntry b = new BottleCatchEntry
-                        {
-                            ItemGained = fileData[offset + 3],
-                            Index = fileData[offset + 4],
-                            Message = fileData[offset + 5]
-                        };
-                        bi[j] = b;
-                    }
-                    RomData.BottleList.Add(bi);
-                }
+                    ItemGained = fileData[offset + 3],
+                    Index = fileData[offset + 4],
+                    Message = fileData[offset + 5]
+                };
             }
         }
 
         private static void InitGetItemList()
         {
-            RomData.GetItemList = new List<GetItemEntry>();
-            int f = RomUtils.GetFileIndexForWriting(Addresses.GetItemTable);
-            int baseaddr = Addresses.GetItemTable - RomData.MMFileList[f].Addr;
+            RomData.GetItemList = new Dictionary<int, GetItemEntry>();
+            int f = RomUtils.GetFileIndexForWriting(GET_ITEM_TABLE);
+            int baseaddr = GET_ITEM_TABLE - RomData.MMFileList[f].Addr;
             var fileData = RomData.MMFileList[f].Data;
-            for (int i = 0; i < RomData.GetItemIndices.Count; i++)
+            foreach (var getItemIndex in ItemUtils.AllGetItemIndices())
             {
-                if (RomData.GetItemIndices[i] == -1)
+                int offset = (getItemIndex - 1) * 8 + baseaddr;
+                RomData.GetItemList[getItemIndex] = new GetItemEntry
                 {
-                    RomData.GetItemList.Add(null);
-                }
-                else
-                {
-                    int offset = (RomData.GetItemIndices[i] - 1) * 8 + baseaddr;
-                    GetItemEntry g = new GetItemEntry
-                    {
-                        ItemGained = fileData[offset],
-                        Flag = fileData[offset + 1],
-                        Index = fileData[offset + 2],
-                        Type = fileData[offset + 3],
-                        Message = (short)((fileData[offset + 4] << 8) | fileData[offset + 5]),
-                        Object = (short)((fileData[offset + 6] << 8) | fileData[offset + 7])
-                    };
-                    RomData.GetItemList.Add(g);
-                }
+                    ItemGained = fileData[offset],
+                    Flag = fileData[offset + 1],
+                    Index = fileData[offset + 2],
+                    Type = fileData[offset + 3],
+                    Message = (short)((fileData[offset + 4] << 8) | fileData[offset + 5]),
+                    Object = (short)((fileData[offset + 6] << 8) | fileData[offset + 7])
+                };
             }
         }
 
         public static void InitItems()
         {
-            InitIndices();
             InitGetItemList();
             InitGetBottleList();
         }
 
-        public static void WriteNewBottle(int ItemSlot, int NewItem)
+        public static void WriteNewBottle(Item location, Item item)
         {
-            int f = RomUtils.GetFileIndexForWriting(Addresses.BottleCatchTable);
-            int baseaddr = Addresses.BottleCatchTable - RomData.MMFileList[f].Addr;
+            System.Diagnostics.Debug.WriteLine($"Writing {item.Name()} --> {location.Location()}");
+
+            int f = RomUtils.GetFileIndexForWriting(BOTTLE_CATCH_TABLE);
+            int baseaddr = BOTTLE_CATCH_TABLE - RomData.MMFileList[f].Addr;
             var fileData = RomData.MMFileList[f].Data;
-            for (int i = 0; i < RomData.BottleIndices[ItemSlot].Length; i++)
+
+            foreach (var index in location.GetBottleItemIndices())
             {
-                int offset = RomData.BottleIndices[ItemSlot][i] * 6 + baseaddr;
-                var newBottle = RomData.BottleList[NewItem][0];
+                var offset = index * 6 + baseaddr;
+                var newBottle = RomData.BottleList[item.GetBottleItemIndices()[0]];
                 var data = new byte[]
                 {
                     newBottle.ItemGained,
@@ -148,18 +101,19 @@ namespace MMRando.Utils
             }
         }
 
-        public static void WriteNewItem(int ItemSlot, int NewItem, bool IsRepeatable, bool RepeatCycle)
+        public static void WriteNewItem(Item location, Item item, List<MessageEntry> newMessages, bool updateShop, bool preventDowngrades, bool updateChest, ChestTypeAttribute.ChestType? overrideChestType, bool isExtraStartingItem)
         {
-            int f = RomUtils.GetFileIndexForWriting(Addresses.GetItemTable);
-            int baseaddr = Addresses.GetItemTable - RomData.MMFileList[f].Addr;
-            var itemIndex = RomData.GetItemIndices[ItemSlot];
-            if (ItemSlot == Items.ItemGoldDust)
-            {
-                itemIndex = 0x6A; // Place items intended for Gold Dust at the Goron Race Bottle location.
-            }
-            int offset = (itemIndex - 1) * 8 + baseaddr;
-            var newItem = RomData.GetItemList[NewItem];
+            System.Diagnostics.Debug.WriteLine($"Writing {item.Name()} --> {location.Location()}");
+
+            int f = RomUtils.GetFileIndexForWriting(GET_ITEM_TABLE);
+            int baseaddr = GET_ITEM_TABLE - RomData.MMFileList[f].Addr;
+            var getItemIndex = location.GetItemIndex().Value;
+            int offset = (getItemIndex - 1) * 8 + baseaddr;
+            var newItem = isExtraStartingItem 
+                ? Items.RecoveryHeart // Warning: this will not work well for starting with Bottle contents (currently impossible), because you'll first have to acquire the Recovery Heart before getting the bottle-less version. Also may interfere with future implementation of progressive upgrades.
+                : RomData.GetItemList[item.GetItemIndex().Value];
             var fileData = RomData.MMFileList[f].Data;
+
             var data = new byte[]
             {
                 newItem.ItemGained,
@@ -172,41 +126,181 @@ namespace MMRando.Utils
                 (byte)(newItem.Object & 0xFF),
             };
             ReadWriteUtils.Arr_Insert(data, 0, data.Length, fileData, offset);
-
-            if (RepeatCycle)
+            
+            // todo use Logic Editor to handle which locations should be repeatable and which shouldn't.
+            if ((item.IsCycleRepeatable() && location != Item.HeartPieceNotebookMayor) || (item.Name().Contains("Rupee") && location.IsRupeeRepeatable()))
             {
-                ReadWriteUtils.WriteToROM(cycle_repeat, (ushort)itemIndex);
+                ReadWriteUtils.WriteToROM(cycle_repeat, (ushort)getItemIndex);
                 cycle_repeat += 2;
+                cycle_repeat_count += 2;
+
+                ReadWriteUtils.WriteToROM(cycle_repeat_count_address, cycle_repeat_count);
             }
 
-            if (!IsRepeatable)
+            var isRepeatable = item.IsRepeatable() || (!preventDowngrades && item.IsDowngradable());
+            if (!isRepeatable)
             {
-                SceneUtils.UpdateSceneFlagMask(itemIndex);
+                SceneUtils.UpdateSceneFlagMask(getItemIndex);
             }
 
-            if (NewItem == Items.ItemBottleWitch)
+            if (item == Item.ItemBottleWitch)
             {
-                ReadWriteUtils.WriteToROM(0xB49982, (ushort)itemIndex);
-                ReadWriteUtils.WriteToROM(0xC72B42, (ushort)itemIndex);
+                ReadWriteUtils.WriteToROM(0xB4997E, (ushort)getItemIndex);
+                ReadWriteUtils.WriteToROM(0xC72B42, (ushort)getItemIndex);
             }
 
-            if (NewItem == Items.ItemBottleMadameAroma)
+            if (item == Item.ItemBottleMadameAroma)
             {
-                ReadWriteUtils.WriteToROM(0xB4999A, (ushort)itemIndex);
-                ReadWriteUtils.WriteToROM(0xC72B4E, (ushort)itemIndex);
+                ReadWriteUtils.WriteToROM(0xB4998A, (ushort)getItemIndex);
+                ReadWriteUtils.WriteToROM(0xC72B4E, (ushort)getItemIndex);
             }
 
-            if (NewItem == Items.ItemBottleAliens)
+            if (item == Item.ItemBottleAliens)
             {
-                ReadWriteUtils.WriteToROM(0xB499A6, (ushort)itemIndex);
-                ReadWriteUtils.WriteToROM(0xC72B5A, (ushort)itemIndex);
-            };
-            // Goron Race Bottle now rewards a plain Gold Dust, so this is unnecessary until a proper fix for Goron Dust is found.
-            //if (NewItem == Items.ItemBottleGoronRace)
-            //{
-            //    WriteToROM(0xB499B2, (ushort)GetItemIndices[ItemSlot]);
-            //    WriteToROM(0xC72B66, (ushort)GetItemIndices[ItemSlot]);
-            //};
+                ReadWriteUtils.WriteToROM(0xB49996, (ushort)getItemIndex);
+                ReadWriteUtils.WriteToROM(0xC72B5A, (ushort)getItemIndex);
+            }
+            
+            if (item == Item.ItemBottleGoronRace)
+            {
+                ReadWriteUtils.WriteToROM(0xB499A2, (ushort)getItemIndex);
+                ReadWriteUtils.WriteToROM(0xC72B66, (ushort)getItemIndex);
+            }
+
+            if (updateChest)
+            {
+                UpdateChest(location, item, overrideChestType);
+            }
+
+            if (location != item)
+            {
+                if (updateShop)
+                {
+                    UpdateShop(location, item, newMessages);
+                }
+
+                if (location == Item.StartingSword)
+                {
+                    ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-sword-song-of-time");
+                }
+
+                if (location == Item.MundaneItemSeahorse)
+                {
+                    ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-fisherman");
+                }
+
+                if (location == Item.MaskFierceDeity)
+                {
+                    ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-fd-mask-reset");
+                }
+            }
+        }
+
+        private static void UpdateShop(Item location, Item item, List<MessageEntry> newMessages)
+        {
+            var newItem = RomData.GetItemList[item.GetItemIndex().Value];
+
+            var shopRooms = location.GetAttributes<ShopRoomAttribute>();
+            foreach (var shopRoom in shopRooms)
+            {
+                ReadWriteUtils.WriteToROM(shopRoom.RoomObjectAddress, (ushort)newItem.Object);
+            }
+
+            var shopInventories = location.GetAttributes<ShopInventoryAttribute>();
+            foreach (var shopInventory in shopInventories)
+            {
+                ReadWriteUtils.WriteToROM(shopInventory.ShopItemAddress, (ushort)newItem.Object);
+                var index = newItem.Index > 0x7F ? (byte)(0xFF - newItem.Index) : (byte)(newItem.Index - 1);
+                ReadWriteUtils.WriteToROM(shopInventory.ShopItemAddress + 0x03, index);
+
+                var shopTexts = item.ShopTexts();
+                string description;
+                switch (shopInventory.Keeper)
+                {
+                    case ShopInventoryAttribute.ShopKeeper.WitchShop:
+                        description = shopTexts.WitchShop;
+                        break;
+                    case ShopInventoryAttribute.ShopKeeper.TradingPostMain:
+                        description = shopTexts.TradingPostMain;
+                        break;
+                    case ShopInventoryAttribute.ShopKeeper.TradingPostPartTimer:
+                        description = shopTexts.TradingPostPartTimer;
+                        break;
+                    case ShopInventoryAttribute.ShopKeeper.CuriosityShop:
+                        description = shopTexts.CuriosityShop;
+                        break;
+                    case ShopInventoryAttribute.ShopKeeper.BombShop:
+                        description = shopTexts.BombShop;
+                        break;
+                    case ShopInventoryAttribute.ShopKeeper.ZoraShop:
+                        description = shopTexts.ZoraShop;
+                        break;
+                    case ShopInventoryAttribute.ShopKeeper.GoronShop:
+                        description = shopTexts.GoronShop;
+                        break;
+                    case ShopInventoryAttribute.ShopKeeper.GoronShopSpring:
+                        description = shopTexts.GoronShopSpring;
+                        break;
+                    default:
+                        description = null;
+                        break;
+                }
+                if (description == null)
+                {
+                    description = shopTexts.Default;
+                }
+
+                var messageId = ReadWriteUtils.ReadU16(shopInventory.ShopItemAddress + 0x0A);
+                newMessages.Add(new MessageEntry
+                {
+                    Id = messageId,
+                    Header = null,
+                    Message = MessageUtils.BuildShopDescriptionMessage(item.Name(), 20, description)
+                });
+
+                newMessages.Add(new MessageEntry
+                {
+                    Id = (ushort)(messageId + 1),
+                    Header = null,
+                    Message = MessageUtils.BuildShopPurchaseMessage(item.Name(), 20, item)
+                });
+            }
+        }
+
+        private static void UpdateChest(Item location, Item item, ChestTypeAttribute.ChestType? overrideChestType)
+        {
+            var chestType = item.GetAttribute<ChestTypeAttribute>().Type;
+            if (overrideChestType.HasValue)
+            {
+                chestType = overrideChestType.Value;
+            }
+            var chestAttribute = location.GetAttribute<ChestAttribute>();
+            if (chestAttribute != null)
+            {
+                foreach (var address in chestAttribute.Addresses)
+                {
+                    var chestVariable = ReadWriteUtils.Read(address);
+                    chestVariable &= 0x0F; // remove existing chest type
+                    var newChestType = ChestAttribute.GetType(chestType, chestAttribute.Type);
+                    newChestType <<= 4;
+                    chestVariable |= newChestType;
+                    ReadWriteUtils.WriteToROM(address, chestVariable);
+                }
+            }
+
+            var grottoChestAttribute = location.GetAttribute<GrottoChestAttribute>();
+            if (grottoChestAttribute != null)
+            {
+                foreach (var address in grottoChestAttribute.Addresses)
+                {
+                    var grottoVariable = ReadWriteUtils.Read(address);
+                    grottoVariable &= 0x1F; // remove existing chest type
+                    var newChestType = (byte)chestType;
+                    newChestType <<= 5;
+                    grottoVariable |= newChestType; // add new chest type
+                    ReadWriteUtils.WriteToROM(address, grottoVariable);
+                }
+            }
         }
 
     }

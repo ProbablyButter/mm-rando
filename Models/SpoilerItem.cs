@@ -1,25 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using MMRando.Extensions;
+using MMRando.GameObjects;
 
 namespace MMRando.Models
 {
     public class SpoilerItem
     {
-        public int Id { get; set; }
-        public string Name => Items.ITEM_NAMES[Id];
+        public Item Item { get; private set; }
 
-        public int NewLocationId { get; set; }
-        public string NewLocationName => Items.ITEM_NAMES[NewLocationId];
+        public int Id { get; private set; }
+        public string Name { get; private set; }
 
-        public int ReplacedById { get; set; }
-        public string ReplacedByName => Items.ITEM_NAMES[ReplacedById];
+        public int NewLocationId { get; private set; }
+        public string NewLocationName { get; private set; }
+
+        public string Region { get; private set; }
+
+        public bool IsJunk { get; private set; }
 
         public SpoilerItem(ItemObject itemObject)
         {
+            Item = itemObject.Item;
             Id = itemObject.ID;
-            NewLocationId = itemObject.ReplacesItemId;
+            Name = itemObject.Item.Name() ?? itemObject.Name;
+            NewLocationId = (int)itemObject.NewLocation.Value;
+            NewLocationName = itemObject.NewLocation.Value.Location();
+            Region = itemObject.NewLocation.Value.Region();
+            IsJunk = Name.Contains("Rupee") || Name.Contains("Heart");
         }
     }
 }
