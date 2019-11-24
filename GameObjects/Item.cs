@@ -14,6 +14,7 @@ namespace MMRando.GameObjects
         MaskDeku,
 
         // items
+        [Repeatable]
         [StartingItem(0xC5CE25, 0x01)]
         [StartingItem(0xC5CE6F, 0x01)]
         [ItemName("Hero's Bow"), LocationName("Hero's Bow Chest"), RegionName("Woodfall Temple")]
@@ -23,6 +24,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x22)]
         ItemBow,
 
+        [Repeatable]
         [StartingItem(0xC5CE26, 0x02)]
         [ItemName("Fire Arrow"), LocationName("Fire Arrow Chest"), RegionName("Snowhead Temple")]
         [GossipLocationHint("Snowhead Temple", "an icy gale"), GossipItemHint("the power of fire", "a magical item")]
@@ -31,6 +33,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x25)]
         ItemFireArrow,
 
+        [Repeatable]
         [StartingItem(0xC5CE27, 0x03)]
         [ItemName("Ice Arrow"), LocationName("Ice Arrow Chest"), RegionName("Great Bay Temple")]
         [GossipLocationHint("Great Bay Temple", "the ocean temple"), GossipItemHint("the power of ice", "a magical item")]
@@ -39,6 +42,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x26)]
         ItemIceArrow,
 
+        [Repeatable]
         [StartingItem(0xC5CE28, 0x04)]
         [ItemName("Light Arrow"), LocationName("Light Arrow Chest"), RegionName("Stone Tower Temple")]
         [GossipLocationHint("Stone Tower Temple", "the cursed temple"), GossipItemHint("the power of light", "a magical item")]
@@ -76,6 +80,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x123)]
         ItemPowderKeg,
 
+        [Repeatable]
         [StartingItem(0xC5CE31, 0x0D)]
         [ItemName("Pictobox"), LocationName("Koume"), RegionName("Southern Swamp")]
         [GossipLocationHint("a witch"), GossipItemHint("a light recorder", "a capture device")]
@@ -84,6 +89,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x43)]
         ItemPictobox,
 
+        [Repeatable]
         [StartingItem(0xC5CE32, 0x0E)]
         [ItemName("Lens of Truth"), LocationName("Lens of Truth Chest"), RegionName("Goron Village")]
         [GossipLocationHint("a lonely peak"), GossipItemHint("eyeglasses", "the truth", "focused vision")]
@@ -92,6 +98,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x42)]
         ItemLens,
 
+        [Repeatable]
         [StartingItem(0xC5CE33, 0x0F)]
         [ItemName("Hookshot"), LocationName("Hookshot Chest"), RegionName("Pirates' Fortress Interior")]
         [GossipLocationHint("the home of pirates"), GossipItemHint("a chain and grapple")]
@@ -136,6 +143,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x12F)]
         FairyDoubleDefense,
 
+        [Repeatable]
         [StartingItem(0xC5CE34, 0x10)]
         [ItemName("Great Fairy's Sword"), LocationName("Ikana Great Fairy"), RegionName("Ikana Canyon")]
         [GossipLocationHint("a magical being"), GossipItemHint("a black rose", "a powerful blade"), GossipCompetitiveHint(2, true)]
@@ -206,7 +214,7 @@ namespace MMRando.GameObjects
         ItemNotebook,
 
         //upgrades
-        [Repeatable]
+        [Repeatable, Temporary]
         [StartingItem(0xC5CE21, 0x02)]
         [StartingItem(0xC5CE00, 0x4E)]
         [ItemName("Razor Sword"), LocationName("Mountain Smithy Day 1"), RegionName("Mountain Village")]
@@ -632,6 +640,7 @@ namespace MMRando.GameObjects
         HeartPieceKnuckle,
 
         //mask
+        [Repeatable]
         [StartingItem(0xC5CE3C, 0x3E)]
         [ItemName("Postman's Hat"), LocationName("Postman's Freedom Reward"), RegionName("East Clock Town")]
         [GossipLocationHint("a special delivery", "one last job"), GossipItemHint("a hard worker's hat")]
@@ -640,6 +649,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x84)]
         MaskPostmanHat,
 
+        [Repeatable]
         [StartingItem(0xC5CE3D, 0x38)]
         [ItemName("All Night Mask"), LocationName("All Night Mask Purchase"), RegionName("West Clock Town")]
         [GossipLocationHint("a shady gentleman", "a dodgy seller", "a shady dealer"), GossipItemHint("insomnia"), GossipCompetitiveHint]
@@ -650,6 +660,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x7E)]
         MaskAllNight,
 
+        [Repeatable]
         [StartingItem(0xC5CE3E, 0x47)]
         [ItemName("Blast Mask"), LocationName("Old Lady"), RegionName("North Clock Town")]
         [GossipLocationHint("a good deed", "an old lady's struggle"), GossipItemHint("a dangerous mask")]
@@ -658,6 +669,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x8D)]
         MaskBlast,
 
+        [Repeatable]
         [StartingItem(0xC5CE3F, 0x45)]
         [ItemName("Stone Mask"), LocationName("Invisible Soldier"), RegionName("Road to Ikana")]
         [GossipLocationHint("a hidden soldier", "a stone circle"), GossipItemHint("inconspicuousness")]
@@ -666,6 +678,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x8B)]
         MaskStone,
 
+        [Repeatable]
         [StartingItem(0xC5CE40, 0x40)]
         [ItemName("Great Fairy's Mask"), LocationName("Town Great Fairy"), RegionName("North Clock Town")]
         [GossipLocationHint("a magical being"), GossipItemHint("a friend of fairies")]
@@ -674,6 +687,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x131)]
         MaskGreatFairy,
 
+        [Repeatable]
         [StartingItem(0xC5CE42, 0x3A)]
         [ItemName("Keaton Mask"), LocationName("Curiosity Shop Man #1"), RegionName("Laundry Pool")]
         [GossipLocationHint("a shady gentleman", "a dodgy seller", "a shady dealer"), GossipItemHint("a popular mask", "a fox's mask")]
@@ -682,6 +696,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x80)]
         MaskKeaton,
 
+        [Repeatable]
         [StartingItem(0xC5CE43, 0x46)]
         [ItemName("Bremen Mask"), LocationName("Guru Guru"), RegionName("Laundry Pool")]
         [GossipLocationHint("a musician", "an entertainer"), GossipItemHint("a mask of leadership", "a bird's mask")]
@@ -690,6 +705,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x8C)]
         MaskBremen,
 
+        [Repeatable]
         [StartingItem(0xC5CE44, 0x39)]
         [ItemName("Bunny Hood"), LocationName("Grog"), RegionName("Romani Ranch")]
         [GossipLocationHint("an ugly but kind heart", "a lover of chickens"), GossipItemHint("the ears of the wild", "a rabbit's hearing")]
@@ -698,6 +714,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x7F)]
         MaskBunnyHood,
 
+        [Repeatable]
         [StartingItem(0xC5CE45, 0x42)]
         [ItemName("Don Gero's Mask"), LocationName("Hungry Goron"), RegionName("Mountain Village")]
         [GossipLocationHint("a hungry goron", "a person in need"), GossipItemHint("a conductor's mask", "an amphibious mask")]
@@ -706,7 +723,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x88)]
         MaskDonGero,
 
-        [RupeeRepeatable]
+        [Repeatable]
         [StartingItem(0xC5CE46, 0x48)]
         [ItemName("Mask of Scents"), LocationName("Butler"), RegionName("Deku Palace")]
         [GossipLocationHint("a servant of royalty", "the royal servant"), GossipItemHint("heightened senses", "a pig's mask"), GossipCompetitiveHint(-1)]
@@ -715,6 +732,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x8E)]
         MaskScents,
 
+        [Repeatable]
         [StartingItem(0xC5CE48, 0x3C)]
         [ItemName("Romani's Mask"), LocationName("Cremia"), RegionName("Romani Ranch")]
         [GossipLocationHint("the ranch lady", "an older sister"), GossipItemHint("proof of membership", "a cow's mask"), GossipCompetitiveHint]
@@ -723,6 +741,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x82)]
         MaskRomani,
 
+        [Repeatable]
         [StartingItem(0xC5CE49, 0x3D)]
         [ItemName("Circus Leader's Mask"), LocationName("Gorman"), RegionName("East Clock Town")]
         [GossipLocationHint("an entertainer", "a miserable leader"), GossipItemHint("a mask of sadness")]
@@ -731,6 +750,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x83)]
         MaskCircusLeader,
 
+        [Repeatable]
         [StartingItem(0xC5CE4A, 0x37)]
         [ItemName("Kafei's Mask"), LocationName("Madame Aroma in Office"), RegionName("East Clock Town")]
         [GossipLocationHint("an important lady", "an esteemed woman"), GossipItemHint("the mask of a missing one", "a son's mask")]
@@ -739,6 +759,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x8F)]
         MaskKafei,
 
+        [Repeatable]
         [StartingItem(0xC5CE4B, 0x3F)]
         [ItemName("Couple's Mask"), LocationName("Anju and Kafei"), RegionName("East Clock Town")]
         [GossipLocationHint("a reunion", "a lovers' reunion"), GossipItemHint("a sign of love", "the mark of a couple"), GossipCompetitiveHint(1, true)]
@@ -747,6 +768,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x85)]
         MaskCouple,
 
+        [Repeatable]
         [StartingItem(0xC5CE4C, 0x36)]
         [ItemName("Mask of Truth"), LocationName("Swamp Spider House Reward"), RegionName("Southern Swamp")]
         [GossipLocationHint("a gold spider"), GossipItemHint("a piercing gaze"), GossipCompetitiveHint]
@@ -755,6 +777,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x8A)]
         MaskTruth,
 
+        [Repeatable]
         [StartingItem(0xC5CE4E, 0x43)]
         [ItemName("Kamaro's Mask"), LocationName("Kamaro"), RegionName("Termina Field")]
         [GossipLocationHint("a ghostly dancer", "a dancer"), GossipItemHint("dance moves")]
@@ -763,6 +786,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x89)]
         MaskKamaro,
 
+        [Repeatable]
         [StartingItem(0xC5CE4F, 0x41)]
         [ItemName("Gibdo Mask"), LocationName("Pamela's Father"), RegionName("Ikana Canyon")]
         [GossipLocationHint("a healed spirit", "a lost father"), GossipItemHint("a mask of monsters")]
@@ -771,7 +795,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x87)]
         MaskGibdo,
 
-        [RupeeRepeatable]
+        [Repeatable]
         [StartingItem(0xC5CE50, 0x3B)]
         [ItemName("Garo's Mask"), LocationName("Gorman Bros Race"), RegionName("Milk Road")]
         [GossipLocationHint("a sporting event"), GossipItemHint("the mask of spies")]
@@ -780,6 +804,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x81)]
         MaskGaro,
 
+        [Repeatable]
         [StartingItem(0xC5CE51, 0x44)]
         [ItemName("Captain's Hat"), LocationName("Captain Keeta's Chest"), RegionName("Ikana Graveyard")]
         [GossipLocationHint("a ghostly battle", "a skeletal leader"), GossipItemHint("a commanding presence")]
@@ -788,6 +813,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x7C)]
         MaskCaptainHat,
 
+        [Repeatable]
         [StartingItem(0xC5CE52, 0x49)]
         [ItemName("Giant's Mask"), LocationName("Giant's Mask Chest"), RegionName("Stone Tower Temple")]
         [GossipLocationHint("Stone Tower Temple", "the cursed temple"), GossipItemHint("a growth spurt")]
@@ -796,6 +822,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x7D)]
         MaskGiant,
 
+        [Repeatable]
         [StartingItem(0xC5CE47, 0x33)]
         [ItemName("Goron Mask"), LocationName("Darmani"), RegionName("Mountain Village")]
         [GossipLocationHint("a healed spirit", "the lost champion"), GossipItemHint("a mountain spirit")]
@@ -804,6 +831,7 @@ namespace MMRando.GameObjects
         [GetItemIndex(0x79)]
         MaskGoron,
 
+        [Repeatable]
         [StartingItem(0xC5CE4D, 0x34)]
         [ItemName("Zora Mask"), LocationName("Mikau"), RegionName("Great Bay Coast")]
         [GossipLocationHint("a healed spirit", "a fallen guitarist"), GossipItemHint("an ocean spirit")]
