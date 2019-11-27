@@ -1566,7 +1566,7 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// </summary>
         private void PlaceMoonItems(List<int> itemPool)
         {
-            for (int i = Items.HeartPieceDekuTrial; i <= Items.TwinmoldTrialArrows30; i++)
+            for (int i = Items.HeartPieceDekuTrial; i <= Items.DekuPrincess; i++)
             {
                 PlaceItem(i, itemPool);
             }
@@ -1867,7 +1867,7 @@ ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
         /// </summary>
         private void PreserveMoonItems()
         {
-            for (int i = Items.HeartPieceDekuTrial; i <= Items.TwinmoldTrialArrows30; i++)
+            for (int i = Items.HeartPieceDekuTrial; i <= Items.DekuPrincess; i++)
             {
                 ItemList[i].ReplacesItemId = i;
             }
