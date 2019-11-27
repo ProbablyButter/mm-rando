@@ -1318,7 +1318,7 @@ ItemList[Items.ChestBomberHideoutSilverRupee].ReplacesItemId = Items.ChestBomber
 ItemList[Items.ItemNotebook].ReplacesItemId = Items.ItemNotebook;
 ItemList[Items.BottleCatchBigPoe].ReplacesItemId = Items.BottleCatchBigPoe;
 ItemList[Items.BottleCatchBug].ReplacesItemId = Items.BottleCatchBug;
-ItemList[Items.BottleCatchPrincess].ReplacesItemId = Items.BottleCatchPrincess;
+//ItemList[Items.BottleCatchPrincess].ReplacesItemId = Items.BottleCatchPrincess;
 ItemList[Items.BottleCatchFairy].ReplacesItemId = Items.BottleCatchFairy;
 ItemList[Items.BottleCatchFish].ReplacesItemId = Items.BottleCatchFish;
 ItemList[Items.BottleCatchHotSpringWater].ReplacesItemId = Items.BottleCatchHotSpringWater;
@@ -1474,7 +1474,6 @@ ItemList[Items.SongSoaring].ReplacesItemId = Items.SongSoaring;
 ItemList[Items.SongStorms].ReplacesItemId = Items.SongStorms;
 ItemList[Items.MaskZora].ReplacesItemId = Items.ChestSouthClockTownRedRupee;
 ItemList[Items.ChestSouthClockTownPurpleRupee].ReplacesItemId = Items.ChestSouthClockTownPurpleRupee;
-ItemList[Items.UpgradeRazorSword].ReplacesItemId = Items.HeartPieceSouthClockTown;
 ItemList[Items.MaskStone].ReplacesItemId = Items.MaskStone;
 ItemList[Items.ChestInvertedStoneTowerSilverRupee].ReplacesItemId = Items.ChestInvertedStoneTowerSilverRupee;
 ItemList[Items.ChestInvertedStoneTowerBombchu10].ReplacesItemId = Items.ChestInvertedStoneTowerBombchu10;
@@ -1541,6 +1540,8 @@ ItemList[Items.MaskFierceDeity].ReplacesItemId = Items.MaskFierceDeity;
 ItemList[Items.ShopItemZoraArrow10].ReplacesItemId = Items.PreClocktownDekuNuts10;
 ItemList[Items.ShopItemZoraRedPotion].ReplacesItemId = Items.TwinmoldTrialBombchu10;
 ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
+ItemList[Items.DekuPrincess].ReplacesItemId = Items.HeartPieceSouthClockTown;
+//ItemList[Items.UpgradeRazorSword].ReplacesItemId = 
             }
             /*
             // Generate the random mapping
