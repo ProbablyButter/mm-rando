@@ -564,6 +564,7 @@ namespace MMRando
                 //ROMFuncs.ApplyHack(Values.ModsDirectory + "fix-hookshot");
                 ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-action-swap");
                 ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-0thday-erase");
+                ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-southern-swamp-owl");
                 ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-deku-guards-warps");
                 ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-deku-princess-gi-table");
                 //ResourceUtils.ApplyHack(Values.ModsDirectory + "deadly-poe");
