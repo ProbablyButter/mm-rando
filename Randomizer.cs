@@ -1040,23 +1040,257 @@ namespace MMRando
             }
         }
 
-        private void RandomizeItems()
-        {
-            if (_settings.UseCustomItemList)
-            {
-                SetupCustomItems();
-            }
-            else
-            {
-                Setup();
-            }
+      private void part1_mapping()
+      {
+        // TODO
+      }
 
-            var itemPool = new List<int>();
+      private void part2_mapping()
+      {
+ItemList[Items.ItemBottleAliens].ReplacesItemId = Items.HeartPieceFishermanGame;
+ItemList[Items.MaskAllNight].ReplacesItemId = Items.HeartPieceDekuTrial;
+ItemList[Items.ItemBottleBeavers].ReplacesItemId = Items.HeartPieceGoronVillageScrub;
+ItemList[Items.UpgradeBiggestQuiver].ReplacesItemId = Items.MaskFierceDeity;
+ItemList[Items.ShopItemGoronBomb10].ReplacesItemId = Items.HeartContainerWoodfall;
+ItemList[Items.ShopItemBombsBomb10].ReplacesItemId = Items.ItemFairySword;
+ItemList[Items.ShopItemBombsBombchu10].ReplacesItemId = Items.UpgradeGildedSword;
+ItemList[Items.BottleCatchBigPoe].ReplacesItemId = Items.BottleCatchHotSpringWater;
+ItemList[Items.BottleCatchBug].ReplacesItemId = Items.BottleCatchFairy;
+ItemList[Items.BottleCatchPrincess].ReplacesItemId = Items.BottleCatchEgg;
+ItemList[Items.BottleCatchFairy].ReplacesItemId = Items.BottleCatchBug;
+ItemList[Items.BottleCatchFish].ReplacesItemId = Items.BottleCatchFish;
+ItemList[Items.BottleCatchHotSpringWater].ReplacesItemId = Items.BottleCatchMushroom;
+ItemList[Items.BottleCatchMushroom].ReplacesItemId = Items.BottleCatchBigPoe;
+ItemList[Items.BottleCatchPoe].ReplacesItemId = Items.BottleCatchSpringWater;
+ItemList[Items.BottleCatchSpringWater].ReplacesItemId = Items.BottleCatchPoe;
+ItemList[Items.BottleCatchEgg].ReplacesItemId = Items.BottleCatchPrincess;
+ItemList[Items.MaskBremen].ReplacesItemId = Items.ChestLensCaveRedRupee;
+ItemList[Items.MaskCaptainHat].ReplacesItemId = Items.ItemBottleDampe;
+ItemList[Items.ItemBottleMadameAroma].ReplacesItemId = Items.UpgradeBiggestBombBag;
+ItemList[Items.MaskCouple].ReplacesItemId = Items.MaskBremen;
+ItemList[Items.ItemBottleDampe].ReplacesItemId = Items.MaskCircusLeader;
+ItemList[Items.MaskDeku].ReplacesItemId = Items.TradeItemKafeiLetter;
+ItemList[Items.MaskDonGero].ReplacesItemId = Items.HeartPieceDogRace;
+ItemList[Items.SongElegy].ReplacesItemId = Items.ItemGoldDust;
+ItemList[Items.SongEpona].ReplacesItemId = Items.ChestGreatBayCoastGrotto;
+ItemList[Items.ItemSnowheadKey1].ReplacesItemId = Items.HeartPieceSwampScrub;
+ItemList[Items.ItemFireArrow].ReplacesItemId = Items.HeartPieceChoir;
+ItemList[Items.MaskGaro].ReplacesItemId = Items.HeartPiecePictobox;
+ItemList[Items.MaskGiant].ReplacesItemId = Items.HeartContainerStoneTower;
+ItemList[Items.MaskGibdo].ReplacesItemId = Items.HeartPieceSeaHorse;
+ItemList[Items.UpgradeGildedSword].ReplacesItemId = Items.ItemHookshot;
+ItemList[Items.ItemGoldDust].ReplacesItemId = Items.MaskStone;
+ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.UpgradeMirrorShield;
+ItemList[Items.MaskFierceDeity].ReplacesItemId = Items.ItemIceArrow;
+ItemList[Items.ChestIkanaGrottoRecoveryHeart].ReplacesItemId = Items.HeartPieceSwampArchery;
+ItemList[Items.ShopItemGoronRedPotion].ReplacesItemId = Items.MaskGiant;
+ItemList[Items.ChestGraveyardGrotto].ReplacesItemId = Items.HeartPieceNotebookGran1;
+ItemList[Items.ItemGreatBayBossKey].ReplacesItemId = Items.ItemStoneTowerBossKey;
+ItemList[Items.ChestGreatBayCapeGrotto].ReplacesItemId = Items.HeartPieceNotebookGran2;
+ItemList[Items.MaskGoron].ReplacesItemId = Items.ItemFireArrow;
+ItemList[Items.MaskGreatFairy].ReplacesItemId = Items.PreClocktownDekuNuts10;
+ItemList[Items.ItemFairySword].ReplacesItemId = Items.ChestInnGuestRoom;
+ItemList[Items.ItemBow].ReplacesItemId = Items.UpgradeBiggestQuiver;
+ItemList[Items.ItemHookshot].ReplacesItemId = Items.SongElegy;
+ItemList[Items.ItemIceArrow].ReplacesItemId = Items.MaskRomani;
+ItemList[Items.ItemBombBag].ReplacesItemId = Items.HeartContainerSnowhead;
+ItemList[Items.MaskKafei].ReplacesItemId = Items.MaskCaptainHat;
+ItemList[Items.MaskKamaro].ReplacesItemId = Items.TradeItemPendant;
+ItemList[Items.MaskKeaton].ReplacesItemId = Items.SongOath;
+ItemList[Items.TradeItemLandDeed].ReplacesItemId = Items.HeartPieceNotebookRosa;
+ItemList[Items.ItemLens].ReplacesItemId = Items.HeartPieceZoraTrial;
+ItemList[Items.TradeItemKafeiLetter].ReplacesItemId = Items.TradeItemLandDeed;
+ItemList[Items.TradeItemMamaLetter].ReplacesItemId = Items.ItemLightArrow;
+ItemList[Items.ItemLightArrow].ReplacesItemId = Items.ItemBottleMadameAroma;
+ItemList[Items.ItemMagicBean].ReplacesItemId = Items.MaskKafei;
+ItemList[Items.MaskScents].ReplacesItemId = Items.ChestWellRightPurpleRupee;
+ItemList[Items.MaskTruth].ReplacesItemId = Items.HeartPiecePiratesFortress;
+ItemList[Items.UpgradeMirrorShield].ReplacesItemId = Items.MaskGibdo;
+ItemList[Items.TradeItemMoonTear].ReplacesItemId = Items.HeartPieceKnuckle;
+ItemList[Items.UpgradeBiggestBombBag].ReplacesItemId = Items.HeartPieceLinkTrial;
+ItemList[Items.TradeItemMountainDeed].ReplacesItemId = Items.UpgradeRazorSword;
+ItemList[Items.ChestMountainVillageGrottoBottle].ReplacesItemId = Items.SongLullaby;
+ItemList[Items.SongNewWaveBossaNova].ReplacesItemId = Items.TradeItemMountainDeed;
+ItemList[Items.HeartPieceNotebookMayor].ReplacesItemId = Items.MaskDeku;
+ItemList[Items.SongOath].ReplacesItemId = Items.MaskCouple;
+ItemList[Items.TradeItemOceanDeed].ReplacesItemId = Items.ChestIkanaGrottoRecoveryHeart;
+ItemList[Items.UpgradeGiantWallet].ReplacesItemId = Items.ItemGreatBayMap;
+ItemList[Items.TradeItemPendant].ReplacesItemId = Items.HeartPieceHoneyAndDarling;
+ItemList[Items.ItemPictobox].ReplacesItemId = Items.TwinmoldTrialBombchu10;
+ItemList[Items.MaskPostmanHat].ReplacesItemId = Items.HeartContainerGreatBay;
+ItemList[Items.ItemPowderKeg].ReplacesItemId = Items.ChestToGoronVillageRedRupee;
+ItemList[Items.UpgradeRazorSword].ReplacesItemId = Items.HeartPieceKeatonQuiz;
+ItemList[Items.MaskRomani].ReplacesItemId = Items.ChestInsidePiratesFortressHeartPieceRoomBlueRupee;
+ItemList[Items.TradeItemRoomKey].ReplacesItemId = Items.MaskBunnyHood;
+ItemList[Items.ItemSnowheadBossKey].ReplacesItemId = Items.ChestWellLeftPurpleRupee;
+ItemList[Items.ItemGreatBayKey1].ReplacesItemId = Items.HeartPieceToSnowhead;
+ItemList[Items.SongLullaby].ReplacesItemId = Items.ChestInvertedStoneTowerSilverRupee;
+ItemList[Items.ItemSnowheadKey3].ReplacesItemId = Items.ItemStoneTowerKey1;
+ItemList[Items.SongSonata].ReplacesItemId = Items.HeartPieceTwinIslandsChest;
+ItemList[Items.SongSoaring].ReplacesItemId = Items.HeartPieceDekuPlayground;
+ItemList[Items.SongStorms].ReplacesItemId = Items.ChestInvertedStoneTowerBombchu10;
+ItemList[Items.MaskStone].ReplacesItemId = Items.ItemBottleAliens;
+ItemList[Items.ChestInvertedStoneTowerBombchu10].ReplacesItemId = Items.MaskGoron;
+ItemList[Items.ItemStoneTowerBossKey].ReplacesItemId = Items.ItemWoodfallCompass;
+ItemList[Items.ItemStoneTowerKey1].ReplacesItemId = Items.ItemStoneTowerCompass;
+ItemList[Items.ItemStoneTowerKey2].ReplacesItemId = Items.ItemStoneTowerMap;
+ItemList[Items.ItemStoneTowerKey3].ReplacesItemId = Items.ChestInvertedStoneTowerBean;
+ItemList[Items.ItemStoneTowerKey4].ReplacesItemId = Items.ItemWoodfallKey1;
+ItemList[Items.MaskBlast].ReplacesItemId = Items.HeartPieceGoronTrial;
+ItemList[Items.TradeItemSwampDeed].ReplacesItemId = Items.SongSonata;
+ItemList[Items.ChestTerminaGrottoBombchu].ReplacesItemId = Items.HeartPieceTownArchery;
+ItemList[Items.UpgradeBigQuiver].ReplacesItemId = Items.UpgradeBigQuiver;
+ItemList[Items.TwinmoldTrialBombchu10].ReplacesItemId = Items.HeartPieceBoatArchery;
+ItemList[Items.UpgradeAdultWallet].ReplacesItemId = Items.MaskAllNight;
+ItemList[Items.ShopItemTradingPostFairy].ReplacesItemId = Items.ItemGreatBayKey1;
+ItemList[Items.ShopItemTradingPostGreenPotion].ReplacesItemId = Items.ChestToGoronRaceGrotto;
+ItemList[Items.ShopItemTradingPostNut10].ReplacesItemId = Items.HeartPieceSouthClockTown;
+ItemList[Items.ShopItemTradingPostRedPotion].ReplacesItemId = Items.ItemGreatBayCompass;
+ItemList[Items.ShopItemTradingPostShield].ReplacesItemId = Items.MaskPostmanHat;
+ItemList[Items.UpgradeBigBombBag].ReplacesItemId = Items.TwinmoldTrialArrows30;
+ItemList[Items.ItemBottleWitch].ReplacesItemId = Items.MaskScents;
+ItemList[Items.ShopItemWitchBluePotion].ReplacesItemId = Items.ItemGreatBayBossKey;
+ItemList[Items.ShopItemWitchGreenPotion].ReplacesItemId = Items.ChestGraveyardGrotto;
+ItemList[Items.ShopItemWitchRedPotion].ReplacesItemId = Items.ItemBow;
+ItemList[Items.ChestWoodfallBlueRupee].ReplacesItemId = Items.SongNewWaveBossaNova;
+ItemList[Items.ItemWoodfallBossKey].ReplacesItemId = Items.UpgradeGiantWallet;
+ItemList[Items.ItemWoodfallKey1].ReplacesItemId = Items.ItemWoodfallBossKey;
+ItemList[Items.HeartContainerSnowhead].ReplacesItemId = Items.HeartPieceEvan;
+ItemList[Items.ShopItemZoraRedPotion].ReplacesItemId = Items.MaskDonGero;
+ItemList[Items.ItemSnowheadKey2].ReplacesItemId = Items.ChestSecretShrineDinoGrotto;
+ItemList[Items.HeartPieceSeaHorse].ReplacesItemId = Items.HeartPieceNotebookHand;
+ItemList[Items.ChestInvertedStoneTowerSilverRupee].ReplacesItemId = Items.HeartPieceBank;
+ItemList[Items.ChestGreatBayCapeLedge1].ReplacesItemId = Items.ChestBeanGrottoRedRupee;
+ItemList[Items.HeartPieceDekuPalace].ReplacesItemId = Items.ItemBottleBeavers;
+ItemList[Items.ChestBeanGrottoRedRupee].ReplacesItemId = Items.HeartPieceBeaverRace;
+ItemList[Items.ItemWoodfallCompass].ReplacesItemId = Items.HeartPieceZoraGrotto;
+ItemList[Items.ChestToGoronVillageRedRupee].ReplacesItemId = Items.MaskBlast;
+ItemList[Items.HeartPieceNotebookGran1].ReplacesItemId = Items.ItemBombBag;
+ItemList[Items.HeartPieceTreasureChestGame].ReplacesItemId = Items.ShopItemBombsBomb10;
+ItemList[Items.ChestWoodfallRedRupee].ReplacesItemId = Items.ShopItemBombsBombchu10;
+ItemList[Items.ShopItemZoraArrow10].ReplacesItemId = Items.ChestBomberHideoutSilverRupee;
+ItemList[Items.ChestSecretShrineGaroGrotto].ReplacesItemId = Items.ItemNotebook;
+ItemList[Items.ChestSouthClockTownPurpleRupee].ReplacesItemId = Items.HeartPieceDekuPalace;
+ItemList[Items.ItemTingleMapStoneTower].ReplacesItemId = Items.HeartPieceDodong;
+ItemList[Items.ChestInsidePiratesFortressGuardSilverRupee].ReplacesItemId = Items.ChestDogRacePurpleRupee;
+ItemList[Items.HeartPieceBank].ReplacesItemId = Items.ChestEastClockTownSilverRupee;
+ItemList[Items.HeartPieceZoraHallScrub].ReplacesItemId = Items.SongEpona;
+ItemList[Items.ChestInsidePiratesFortressHeartPieceRoomRedRupee].ReplacesItemId = Items.MaskGaro;
+ItemList[Items.HeartPieceDodong].ReplacesItemId = Items.ShopItemGoronArrow10;
+ItemList[Items.HeartPieceNorthClockTown].ReplacesItemId = Items.ShopItemGoronBomb10;
+ItemList[Items.ChestSwampGrotto].ReplacesItemId = Items.ShopItemGoronRedPotion;
+ItemList[Items.ChestInsidePiratesFortressMazeRedRupee].ReplacesItemId = Items.ChestBadBatsGrottoPurpleRupee;
+ItemList[Items.HeartPieceZoraGrotto].ReplacesItemId = Items.ChestGreatBayCapeGrotto;
+ItemList[Items.ItemTingleMapGreatBay].ReplacesItemId = Items.ChestGreatBayCapeLedge1;
+ItemList[Items.ChestGreatBayCapeUnderwater].ReplacesItemId = Items.ChestGreatBayCapeLedge2;
+ItemList[Items.ChestPiratesFortressEntranceRedRupee3].ReplacesItemId = Items.ChestGreatBayCapeUnderwater;
+ItemList[Items.ChestToGoronRaceGrotto].ReplacesItemId = Items.HeartPieceGreatBayCoast;
+ItemList[Items.HeartPiecePiratesFortress].ReplacesItemId = Items.HeartPieceGreatBayCapeLikeLike;
+ItemList[Items.TwinmoldTrialArrows30].ReplacesItemId = Items.MaskGreatFairy;
+ItemList[Items.ChestSouthClockTownRedRupee].ReplacesItemId = Items.ChestHotSpringGrottoRedRupee;
+ItemList[Items.HeartPieceSwampArchery].ReplacesItemId = Items.HeartPieceCastle;
+ItemList[Items.ChestLensCavePurpleRupee].ReplacesItemId = Items.HeartPieceIkana;
+ItemList[Items.ChestLensCaveRedRupee].ReplacesItemId = Items.ChestInnStaffRoom;
+ItemList[Items.ItemStoneTowerMap].ReplacesItemId = Items.MaskKamaro;
+ItemList[Items.ItemTingleMapWoodfall].ReplacesItemId = Items.MaskKeaton;
+ItemList[Items.HeartPieceNotebookHand].ReplacesItemId = Items.HeartPieceLabFish;
+ItemList[Items.HeartPiecePeahat].ReplacesItemId = Items.ChestLensCavePurpleRupee;
+ItemList[Items.MaskZora].ReplacesItemId = Items.ItemLens;
+ItemList[Items.ChestInsidePiratesFortressHeartPieceRoomBlueRupee].ReplacesItemId = Items.TradeItemMamaLetter;
+ItemList[Items.HeartPieceNotebookGran2].ReplacesItemId = Items.ItemMagicBean;
+ItemList[Items.ChestToSnowheadGrotto].ReplacesItemId = Items.ItemTingleMapTown;
+ItemList[Items.ChestInsidePiratesFortressTankRedRupee].ReplacesItemId = Items.ItemTingleMapGreatBay;
+ItemList[Items.HeartContainerStoneTower].ReplacesItemId = Items.ItemTingleMapRanch;
+ItemList[Items.HeartPieceOceanSpiderHouse].ReplacesItemId = Items.ItemTingleMapSnowhead;
+ItemList[Items.MaskCircusLeader].ReplacesItemId = Items.ItemTingleMapStoneTower;
+ItemList[Items.ChestGreatBayCapeLedge2].ReplacesItemId = Items.ItemTingleMapWoodfall;
+ItemList[Items.ChestPiratesFortressRedRupee1].ReplacesItemId = Items.MaskTruth;
+ItemList[Items.ItemNotebook].ReplacesItemId = Items.HeartPieceNotebookMayor;
+ItemList[Items.HeartPieceNotebookRosa].ReplacesItemId = Items.TradeItemMoonTear;
+ItemList[Items.HeartPieceSwampScrub].ReplacesItemId = Items.ChestMountainVillage;
+ItemList[Items.ChestTerminaGrottoRedRupee].ReplacesItemId = Items.ChestMountainVillageGrottoBottle;
+ItemList[Items.ChestTerminaStumpRedRupee].ReplacesItemId = Items.ChestWoodsGrotto;
+ItemList[Items.ItemWoodfallMap].ReplacesItemId = Items.HeartPieceNorthClockTown;
+ItemList[Items.HeartPieceTerminaGossipStones].ReplacesItemId = Items.HeartPieceOceanSpiderHouse;
+ItemList[Items.HeartPieceTwinIslandsChest].ReplacesItemId = Items.TradeItemOceanDeed;
+ItemList[Items.HeartPieceIkana].ReplacesItemId = Items.ChestToIkanaRedRupee;
+ItemList[Items.ChestMountainVillage].ReplacesItemId = Items.ChestToIkanaGrotto;
+ItemList[Items.HeartPieceWoodFallChest].ReplacesItemId = Items.ChestToSnowheadGrotto;
+ItemList[Items.HeartPieceBeaverRace].ReplacesItemId = Items.ChestToSwampGrotto;
+ItemList[Items.HeartPieceEvan].ReplacesItemId = Items.HeartPieceToSwamp;
+ItemList[Items.ChestEastClockTownSilverRupee].ReplacesItemId = Items.HeartPiecePeahat;
+ItemList[Items.ShopItemTradingPostStick].ReplacesItemId = Items.ChestPiratesFortressRedRupee1;
+ItemList[Items.ChestTerminaUnderwaterRedRupee].ReplacesItemId = Items.ChestPiratesFortressRedRupee2;
+ItemList[Items.ChestSecretShrineWartGrotto].ReplacesItemId = Items.ChestPiratesFortressEntranceRedRupee1;
+ItemList[Items.ItemGreatBayCompass].ReplacesItemId = Items.ChestPiratesFortressEntranceRedRupee2;
+ItemList[Items.HeartPieceSwordsmanSchool].ReplacesItemId = Items.ChestPiratesFortressEntranceRedRupee3;
+ItemList[Items.ItemGreatBayMap].ReplacesItemId = Items.ChestInsidePiratesFortressGuardSilverRupee;
+ItemList[Items.ChestBadBatsGrottoPurpleRupee].ReplacesItemId = Items.ChestInsidePiratesFortressHeartPieceRoomRedRupee;
+ItemList[Items.HeartPieceDekuTrial].ReplacesItemId = Items.ChestInsidePiratesFortressMazeRedRupee;
+ItemList[Items.HeartPieceGreatBayCoast].ReplacesItemId = Items.ChestInsidePiratesFortressTankRedRupee;
+ItemList[Items.HeartPiecePoeHut].ReplacesItemId = Items.ItemPictobox;
+ItemList[Items.ChestInnStaffRoom].ReplacesItemId = Items.HeartPiecePoeHut;
+ItemList[Items.ChestPiratesFortressEntranceRedRupee1].ReplacesItemId = Items.HeartPiecePostBox;
+ItemList[Items.ChestPinacleRockRedRupee2].ReplacesItemId = Items.HeartPieceNotebookPostman;
+ItemList[Items.HeartPieceToSwamp].ReplacesItemId = Items.ItemPowderKeg;
+ItemList[Items.HeartPieceGoronTrial].ReplacesItemId = Items.ChestPinacleRockRedRupee1;
+ItemList[Items.ChestWoodsGrotto].ReplacesItemId = Items.ChestPinacleRockRedRupee2;
+ItemList[Items.ChestSecretShrineWizzGrotto].ReplacesItemId = Items.TradeItemRoomKey;
+ItemList[Items.ShopItemTradingPostArrow30].ReplacesItemId = Items.ChestSecretShrineGaroGrotto;
+ItemList[Items.ChestToIkanaGrotto].ReplacesItemId = Items.ChestSecretShrineHeartPiece;
+ItemList[Items.HeartPieceDekuPlayground].ReplacesItemId = Items.ChestSecretShrineWartGrotto;
+ItemList[Items.ItemSnowheadCompass].ReplacesItemId = Items.ChestSecretShrineWizzGrotto;
+ItemList[Items.ItemTingleMapTown].ReplacesItemId = Items.ItemSnowheadBossKey;
+ItemList[Items.ChestWellRightPurpleRupee].ReplacesItemId = Items.ItemSnowheadCompass;
+ItemList[Items.MaskBunnyHood].ReplacesItemId = Items.ItemSnowheadKey1;
+ItemList[Items.ShopItemGoronArrow10].ReplacesItemId = Items.ItemSnowheadKey2;
+ItemList[Items.ChestToIkanaRedRupee].ReplacesItemId = Items.ItemSnowheadKey3;
+ItemList[Items.HeartPieceBoatArchery].ReplacesItemId = Items.ItemSnowheadMap;
+ItemList[Items.HeartPieceGreatBayCapeLikeLike].ReplacesItemId = Items.SongSoaring;
+ItemList[Items.ChestSecretShrineDinoGrotto].ReplacesItemId = Items.SongStorms;
+ItemList[Items.HeartPieceGoronVillageScrub].ReplacesItemId = Items.ChestSouthClockTownRedRupee;
+ItemList[Items.PreClocktownDekuNuts10].ReplacesItemId = Items.ChestSouthClockTownPurpleRupee;
+ItemList[Items.HeartPieceKeatonQuiz].ReplacesItemId = Items.ItemStoneTowerKey2;
+ItemList[Items.HeartPiecePictobox].ReplacesItemId = Items.ItemStoneTowerKey3;
+ItemList[Items.ItemSnowheadMap].ReplacesItemId = Items.ItemStoneTowerKey4;
+ItemList[Items.ChestDogRacePurpleRupee].ReplacesItemId = Items.ChestSwampGrotto;
+ItemList[Items.HeartPieceTownArchery].ReplacesItemId = Items.TradeItemSwampDeed;
+ItemList[Items.HeartContainerWoodfall].ReplacesItemId = Items.HeartPieceSwordsmanSchool;
+ItemList[Items.ItemStoneTowerCompass].ReplacesItemId = Items.ChestTerminaGrottoRedRupee;
+ItemList[Items.ChestPiratesFortressEntranceRedRupee2].ReplacesItemId = Items.ChestTerminaGrottoBombchu;
+ItemList[Items.ChestInnGuestRoom].ReplacesItemId = Items.HeartPieceTerminaBusinessScrub;
+ItemList[Items.ChestBomberHideoutSilverRupee].ReplacesItemId = Items.HeartPieceTerminaGossipStones;
+ItemList[Items.ChestTerminaGrassRedRupee].ReplacesItemId = Items.ChestTerminaGrassRedRupee;
+ItemList[Items.ChestSecretShrineHeartPiece].ReplacesItemId = Items.ChestTerminaStumpRedRupee;
+ItemList[Items.ChestPinacleRockRedRupee1].ReplacesItemId = Items.ChestTerminaUnderwaterRedRupee;
+ItemList[Items.HeartPieceFishermanGame].ReplacesItemId = Items.UpgradeBigBombBag;
+ItemList[Items.ChestWellLeftPurpleRupee].ReplacesItemId = Items.UpgradeAdultWallet;
+ItemList[Items.HeartPieceSouthClockTown].ReplacesItemId = Items.ShopItemTradingPostArrow30;
+ItemList[Items.ChestInvertedStoneTowerBean].ReplacesItemId = Items.ShopItemTradingPostArrow50;
+ItemList[Items.HeartPieceDogRace].ReplacesItemId = Items.ShopItemTradingPostFairy;
+ItemList[Items.ChestHotSpringGrottoRedRupee].ReplacesItemId = Items.ShopItemTradingPostGreenPotion;
+ItemList[Items.HeartPieceLabFish].ReplacesItemId = Items.ShopItemTradingPostNut10;
+ItemList[Items.HeartPieceZoraTrial].ReplacesItemId = Items.ShopItemTradingPostRedPotion;
+ItemList[Items.HeartPieceLinkTrial].ReplacesItemId = Items.ShopItemTradingPostShield;
+ItemList[Items.HeartPieceToSnowhead].ReplacesItemId = Items.ShopItemTradingPostStick;
+ItemList[Items.ChestGreatBayCoastGrotto].ReplacesItemId = Items.HeartPieceTreasureChestGame;
+ItemList[Items.ShopItemTradingPostArrow50].ReplacesItemId = Items.ItemBottleWitch;
+ItemList[Items.HeartPieceChoir].ReplacesItemId = Items.ShopItemWitchBluePotion;
+ItemList[Items.HeartPieceKnuckle].ReplacesItemId = Items.ShopItemWitchGreenPotion;
+ItemList[Items.HeartPiecePostBox].ReplacesItemId = Items.ShopItemWitchRedPotion;
+ItemList[Items.ChestPiratesFortressRedRupee2].ReplacesItemId = Items.ChestWoodfallRedRupee;
+ItemList[Items.HeartContainerGreatBay].ReplacesItemId = Items.ChestWoodfallBlueRupee;
+ItemList[Items.HeartPieceNotebookPostman].ReplacesItemId = Items.HeartPieceWoodFallChest;
+ItemList[Items.HeartPieceTerminaBusinessScrub].ReplacesItemId = Items.ItemWoodfallMap;
+ItemList[Items.ItemTingleMapRanch].ReplacesItemId = Items.HeartPieceZoraHallScrub;
+ItemList[Items.HeartPieceCastle].ReplacesItemId = Items.MaskZora;
+ItemList[Items.HeartPieceHoneyAndDarling].ReplacesItemId = Items.ShopItemZoraArrow10;
+ItemList[Items.ItemTingleMapSnowhead].ReplacesItemId = Items.ShopItemZoraRedPotion;
+ItemList[Items.ChestToSwampGrotto].ReplacesItemId = Items.ShopItemZoraShield;
+      }
 
-            AddAllItems(itemPool);
-            bool puzzle_output = true;
-            if(puzzle_output)
-            {
+      private void part3_mapping()
+      {
 ItemList[Items.ShopItemGoronArrow10].ReplacesItemId = Items.HeartPieceNotebookHand;
 ItemList[Items.ItemGreatBayCompass].ReplacesItemId = Items.ItemBottleAliens;
 ItemList[Items.UpgradeBiggestBombBag].ReplacesItemId = Items.MaskAllNight;
@@ -1065,7 +1299,7 @@ ItemList[Items.TradeItemLandDeed].ReplacesItemId = Items.ChestBeanGrottoRedRupee
 ItemList[Items.ItemBottleBeavers].ReplacesItemId = Items.ItemBottleBeavers;
 ItemList[Items.MaskGiant].ReplacesItemId = Items.HeartPieceBeaverRace;
 ItemList[Items.MaskBremen].ReplacesItemId = Items.HeartPieceZoraGrotto;
-ItemList[Items.MaskTruth].ReplacesItemId = Items.MaskBlast;
+ItemList[Items.TradeItemSwampDeed].ReplacesItemId = Items.MaskBlast;
 ItemList[Items.ItemTingleMapTown].ReplacesItemId = Items.HeartPieceBoatArchery;
 ItemList[Items.ItemTingleMapGreatBay].ReplacesItemId = Items.ItemBombBag;
 ItemList[Items.ItemTingleMapRanch].ReplacesItemId = Items.ShopItemBombsBomb10;
@@ -1090,7 +1324,7 @@ ItemList[Items.ItemIceArrow].ReplacesItemId = Items.MaskCouple;
 ItemList[Items.SongEpona].ReplacesItemId = Items.ItemBottleDampe;
 ItemList[Items.HeartPieceNotebookHand].ReplacesItemId = Items.MaskDeku;
 ItemList[Items.TradeItemMamaLetter].ReplacesItemId = Items.HeartPieceDekuPalace;
-ItemList[Items.ItemMagicBean].ReplacesItemId = Items.HeartPieceDekuPlayground;
+ItemList[Items.DekuPrincess].ReplacesItemId = Items.HeartPieceDekuPlayground;
 ItemList[Items.ItemBombBag].ReplacesItemId = Items.HeartPieceDekuTrial;
 ItemList[Items.TradeItemMoonTear].ReplacesItemId = Items.HeartPieceDodong;
 ItemList[Items.TradeItemMountainDeed].ReplacesItemId = Items.HeartPieceDogRace;
@@ -1115,7 +1349,7 @@ ItemList[Items.SongElegy].ReplacesItemId = Items.MaskGoron;
 ItemList[Items.ItemStoneTowerCompass].ReplacesItemId = Items.ChestToGoronRaceGrotto;
 ItemList[Items.ChestInvertedStoneTowerBean].ReplacesItemId = Items.ShopItemGoronArrow10;
 ItemList[Items.ItemStoneTowerMap].ReplacesItemId = Items.ShopItemGoronBomb10;
-ItemList[Items.TradeItemSwampDeed].ReplacesItemId = Items.ShopItemGoronRedPotion;
+ItemList[Items.HeartPieceGreatBayCoast].ReplacesItemId = Items.ShopItemGoronRedPotion;
 ItemList[Items.ShopItemTradingPostShield].ReplacesItemId = Items.HeartPieceGoronTrial;
 ItemList[Items.ShopItemTradingPostArrow30].ReplacesItemId = Items.HeartPieceGoronVillageScrub;
 ItemList[Items.SongLullaby].ReplacesItemId = Items.HeartPieceNotebookGran2;
@@ -1149,7 +1383,7 @@ ItemList[Items.ItemStoneTowerKey4].ReplacesItemId = Items.ChestInnGuestRoom;
 ItemList[Items.ItemSnowheadKey1].ReplacesItemId = Items.ChestInnStaffRoom;
 ItemList[Items.MaskKafei].ReplacesItemId = Items.MaskKafei;
 ItemList[Items.ItemSnowheadKey2].ReplacesItemId = Items.MaskKamaro;
-ItemList[Items.DekuPrincess].ReplacesItemId = Items.MaskKeaton;
+ItemList[Items.ItemMagicBean].ReplacesItemId = Items.MaskKeaton;
 ItemList[Items.ItemBottleWitch].ReplacesItemId = Items.HeartPieceKeatonQuiz;
 ItemList[Items.ItemSnowheadKey3].ReplacesItemId = Items.HeartPieceLabFish;
 ItemList[Items.HeartPieceBoatArchery].ReplacesItemId = Items.TradeItemLandDeed;
@@ -1167,13 +1401,13 @@ ItemList[Items.HeartPieceChoir].ReplacesItemId = Items.ItemTingleMapRanch;
 ItemList[Items.HeartContainerSnowhead].ReplacesItemId = Items.ItemTingleMapSnowhead;
 ItemList[Items.HeartPieceGoronTrial].ReplacesItemId = Items.ItemTingleMapStoneTower;
 ItemList[Items.HeartPieceGoronVillageScrub].ReplacesItemId = Items.ItemTingleMapWoodfall;
-ItemList[Items.MaskDeku].ReplacesItemId = Items.MaskScents;
+ItemList[Items.MaskTruth].ReplacesItemId = Items.MaskScents;
 ItemList[Items.HeartPieceNotebookGran2].ReplacesItemId = Items.MaskTruth;
 ItemList[Items.HeartPieceNotebookGran1].ReplacesItemId = Items.HeartPieceNotebookMayor;
 ItemList[Items.MaskScents].ReplacesItemId = Items.UpgradeMirrorShield;
 ItemList[Items.HeartPieceKnuckle].ReplacesItemId = Items.TradeItemMoonTear;
 ItemList[Items.ItemWoodfallKey1].ReplacesItemId = Items.UpgradeBiggestBombBag;
-ItemList[Items.HeartPieceGreatBayCoast].ReplacesItemId = Items.TradeItemMountainDeed;
+ItemList[Items.MaskDeku].ReplacesItemId = Items.TradeItemMountainDeed;
 ItemList[Items.ItemGreatBayKey1].ReplacesItemId = Items.ChestMountainVillage;
 ItemList[Items.MaskGaro].ReplacesItemId = Items.ChestMountainVillageGrottoBottle;
 ItemList[Items.HeartPieceGreatBayCapeLikeLike].ReplacesItemId = Items.ChestWoodsGrotto;
@@ -1212,7 +1446,7 @@ ItemList[Items.HeartPieceTreasureChestGame].ReplacesItemId = Items.MaskPostmanHa
 ItemList[Items.HeartPieceTwinIslandsChest].ReplacesItemId = Items.ItemPowderKeg;
 ItemList[Items.HeartContainerStoneTower].ReplacesItemId = Items.ChestPinacleRockRedRupee1;
 ItemList[Items.HeartPieceWoodFallChest].ReplacesItemId = Items.ChestPinacleRockRedRupee2;
-ItemList[Items.MaskKeaton].ReplacesItemId = Items.PreClocktownDekuNuts10;
+ItemList[Items.SongSoaring].ReplacesItemId = Items.PreClocktownDekuNuts10;
 ItemList[Items.UpgradeAdultWallet].ReplacesItemId = Items.UpgradeRazorSword;
 ItemList[Items.HeartPieceZoraHallScrub].ReplacesItemId = Items.MaskRomani;
 ItemList[Items.HeartPieceZoraTrial].ReplacesItemId = Items.TradeItemRoomKey;
@@ -1237,7 +1471,7 @@ ItemList[Items.ChestToSnowheadGrotto].ReplacesItemId = Items.ChestSouthClockTown
 ItemList[Items.ChestToSwampGrotto].ReplacesItemId = Items.HeartPieceSouthClockTown;
 ItemList[Items.MaskFierceDeity].ReplacesItemId = Items.MaskStone;
 ItemList[Items.ShopItemWitchGreenPotion].ReplacesItemId = Items.ChestInvertedStoneTowerSilverRupee;
-ItemList[Items.SongSoaring].ReplacesItemId = Items.ChestInvertedStoneTowerBombchu10;
+ItemList[Items.MaskKeaton].ReplacesItemId = Items.ChestInvertedStoneTowerBombchu10;
 ItemList[Items.MaskDonGero].ReplacesItemId = Items.ItemStoneTowerBossKey;
 ItemList[Items.ShopItemBombsBombchu10].ReplacesItemId = Items.ItemStoneTowerCompass;
 ItemList[Items.ChestToGoronRaceGrotto].ReplacesItemId = Items.ItemStoneTowerKey1;
@@ -1296,10 +1530,10 @@ ItemList[Items.ChestGreatBayCapeLedge1].ReplacesItemId = Items.ShopItemZoraArrow
 ItemList[Items.ChestGreatBayCapeLedge2].ReplacesItemId = Items.ShopItemZoraRedPotion;
 ItemList[Items.ChestGreatBayCapeUnderwater].ReplacesItemId = Items.ShopItemZoraShield;
 ItemList[Items.MaskAllNight].ReplacesItemId = Items.HeartPieceZoraTrial;
-            }
-            // test mapping
-            else
-            {
+      }
+
+      private void test_mapping()
+      {
 ItemList[Items.HeartPieceNotebookHand].ReplacesItemId = Items.HeartPieceNotebookHand;
 ItemList[Items.ItemBottleAliens].ReplacesItemId = Items.ItemBottleAliens;
 ItemList[Items.MaskAllNight].ReplacesItemId = Items.MaskAllNight;
@@ -1541,6 +1775,40 @@ ItemList[Items.ShopItemZoraRedPotion].ReplacesItemId = Items.TwinmoldTrialBombch
 ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.TwinmoldTrialArrows30;
 ItemList[Items.DekuPrincess].ReplacesItemId = Items.HeartPieceSouthClockTown;
 //ItemList[Items.UpgradeRazorSword].ReplacesItemId = 
+      }
+
+        private void RandomizeItems()
+        {
+            if (_settings.UseCustomItemList)
+            {
+                SetupCustomItems();
+            }
+            else
+            {
+                Setup();
+            }
+
+            var itemPool = new List<int>();
+
+            AddAllItems(itemPool);
+            // 0 (default): test output
+            int puzzle_part = 2;
+            if(puzzle_part == 1)
+            {
+              // TODO
+            }
+            else if(puzzle_part == 2)
+            {
+              part_2_mapping();
+            }
+            else if(puzzle_part == 3)
+            {
+              part3_mapping();
+            }
+            // test mapping
+            else
+            {
+              test_mapping();
             }
             /*
             // Generate the random mapping

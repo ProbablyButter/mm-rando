@@ -565,8 +565,14 @@ namespace MMRando
                 ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-action-swap");
                 ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-0thday-erase");
                 ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-southern-swamp-owl");
+                // try to counter-act wrong warps from deku palace guards
                 ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-deku-guards-warps");
+                // might not be necessary? this fixes the deku princess entry in the original gi table
                 ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-deku-princess-gi-table");
+                // makes it so on death any worn mask will be taken off, regardless of if you have deku mask in inventory or not.
+                // Note that this does not change your transformation form!
+                // This is to prevent a potential file lock if you get stuck with a save with only one transformation mask and have a false mask
+                //ResourceUtils.ApplyHack(Values.ModsDirectory + "fix-death-worn-mask");
                 //ResourceUtils.ApplyHack(Values.ModsDirectory + "deadly-poe");
                 //ResourceUtils.ApplyHack(Values.ModsDirectory + "doggy-racetrack-all-blue-dogs");
                 //ResourceUtils.ApplyHack(Values.ModsDirectory + "doggy-racetrack-dog-text");
