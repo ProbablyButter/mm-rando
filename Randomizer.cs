@@ -1078,11 +1078,11 @@ ItemList[Items.ItemFireArrow].ReplacesItemId = Items.HeartPieceChoir;
 ItemList[Items.MaskGaro].ReplacesItemId = Items.HeartPiecePictobox;
 ItemList[Items.MaskGiant].ReplacesItemId = Items.HeartContainerStoneTower;
 ItemList[Items.MaskGibdo].ReplacesItemId = Items.HeartPieceSeaHorse;
-ItemList[Items.UpgradeGildedSword].ReplacesItemId = Items.ItemHookshot;
+ItemList[Items.ChestIkanaGrottoBombchu5].ReplacesItemId = Items.ItemHookshot;
 ItemList[Items.ItemGoldDust].ReplacesItemId = Items.MaskStone;
 ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.UpgradeMirrorShield;
 ItemList[Items.MaskFierceDeity].ReplacesItemId = Items.ItemIceArrow;
-ItemList[Items.ChestIkanaGrottoBombchu5].ReplacesItemId = Items.HeartPieceSwampArchery;
+ItemList[Items.UpgradeGildedSword].ReplacesItemId = Items.HeartPieceSwampArchery;
 ItemList[Items.ShopItemGoronRedPotion].ReplacesItemId = Items.MaskGiant;
 ItemList[Items.ChestGraveyardGrotto].ReplacesItemId = Items.HeartPieceNotebookGran1;
 ItemList[Items.ItemGreatBayBossKey].ReplacesItemId = Items.ItemStoneTowerBossKey;
@@ -1119,7 +1119,7 @@ ItemList[Items.TradeItemPendant].ReplacesItemId = Items.HeartPieceHoneyAndDarlin
 ItemList[Items.ItemPictobox].ReplacesItemId = Items.TwinmoldTrialBombchu10;
 ItemList[Items.MaskPostmanHat].ReplacesItemId = Items.HeartContainerGreatBay;
 ItemList[Items.ItemPowderKeg].ReplacesItemId = Items.ChestToGoronVillageRedRupee;
-ItemList[Items.UpgradeRazorSword].ReplacesItemId = Items.HeartPieceKeatonQuiz;
+ItemList[Items.ChestInvertedStoneTowerBombchu10].ReplacesItemId = Items.HeartPieceKeatonQuiz;
 ItemList[Items.MaskRomani].ReplacesItemId = Items.ChestInsidePiratesFortressHeartPieceRoomBlueRupee;
 ItemList[Items.TradeItemRoomKey].ReplacesItemId = Items.MaskBunnyHood;
 ItemList[Items.ItemSnowheadBossKey].ReplacesItemId = Items.ChestWellLeftPurpleRupee;
@@ -1130,7 +1130,7 @@ ItemList[Items.SongSonata].ReplacesItemId = Items.HeartPieceTwinIslandsChest;
 ItemList[Items.SongSoaring].ReplacesItemId = Items.HeartPieceDekuPlayground;
 ItemList[Items.SongStorms].ReplacesItemId = Items.ChestInvertedStoneTowerBombchu10;
 ItemList[Items.MaskStone].ReplacesItemId = Items.ItemBottleAliens;
-ItemList[Items.ChestInvertedStoneTowerBombchu10].ReplacesItemId = Items.MaskGoron;
+ItemList[Items.UpgradeRazorSword].ReplacesItemId = Items.MaskGoron;
 ItemList[Items.ItemStoneTowerBossKey].ReplacesItemId = Items.ItemWoodfallCompass;
 ItemList[Items.ItemStoneTowerKey1].ReplacesItemId = Items.ItemStoneTowerCompass;
 ItemList[Items.ItemStoneTowerKey2].ReplacesItemId = Items.ItemStoneTowerMap;
@@ -1792,7 +1792,7 @@ ItemList[Items.DekuPrincess].ReplacesItemId = Items.HeartPieceSouthClockTown;
 
             AddAllItems(itemPool);
             // 0 (default): test output
-            int puzzle_part = 4;
+            int puzzle_part = 2;
             if(puzzle_part == 1)
             {
               // TODO
