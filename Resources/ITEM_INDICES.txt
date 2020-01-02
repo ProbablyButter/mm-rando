@@ -1,6 +1,6 @@
--deku mask
+-deku mask -1
 78
--items
+-items -2
 22
 25
 26
@@ -14,13 +14,13 @@
 3b
 59
 60
--6a replace Gold Dust Bottle with regular Gold Dust
+-6a replace Gold Dust Bottle with regular Gold Dust -3
 93
 5a
 64
 6f
 50
--upgrades
+-upgrades -4
 38
 39
 33
@@ -30,7 +30,7 @@
 1d
 8
 9
--trade items
+-trade items -5
 96
 97
 98
@@ -40,14 +40,14 @@ a0
 aa
 ab
 a1
--notebook hps
+-notebook hps -6
 3
 ce
 2b
 2c
 2d
 2f
--other hp
+-other hp -7
 30
 31
 90
@@ -73,7 +73,7 @@ b2
 2e
 14
 44
--mask
+-mask -8
 84
 7e
 8d
@@ -96,7 +96,7 @@ b2
 7d
 79
 7a
--songs
+-songs -9
 70
 71
 72
@@ -105,25 +105,25 @@ b2
 75
 76
 77
--keysanity
--wft
+-keysanity -10
+-wft -11
 3e
 3f
 3d
 3c
--sht
+-sht -12
 54
 57
 4e
 46
 47
 48
--gbt
+-gbt -13
 55
 58
 4f
 40
--stt
+-stt -14
 56
 6c
 53
@@ -131,7 +131,7 @@ b2
 4a
 4b
 4d
--shops
+-shops -15
 cd
 bb
 bc
@@ -151,7 +151,7 @@ c9
 ca
 cb
 cc
--bottle
+-bottle -16
 bottle
 0,d
 8
@@ -164,7 +164,7 @@ c
 7
 a
 endbottle
--other chests and hps
+-other chests and hps -19
 dd
 f4
 de
@@ -223,7 +223,7 @@ d9
 f3
 fa
 108
--standing hps
+-standing hps -20
 10b
 10c
 10d
@@ -239,30 +239,30 @@ fa
 117
 118
 119
--hcs
+-hcs -21
 11a
 11b
 11c
 11d
--maps
+-maps -22
 b4
 b5
 b6
 b7
 b8
 b9
--missed
+-missed -23
 d6
--moon items
+-moon items -24
 11f
 120
 121
 122
 7b
--pre-clocktower
+-pre-clocktower -25
 124
--missing moon chests
+-missing moon chests -26
 125
 126
--deku-princess item
+-deku-princess item -27
 127

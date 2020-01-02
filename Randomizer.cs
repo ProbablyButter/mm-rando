@@ -1082,7 +1082,7 @@ ItemList[Items.UpgradeGildedSword].ReplacesItemId = Items.ItemHookshot;
 ItemList[Items.ItemGoldDust].ReplacesItemId = Items.MaskStone;
 ItemList[Items.ShopItemZoraShield].ReplacesItemId = Items.UpgradeMirrorShield;
 ItemList[Items.MaskFierceDeity].ReplacesItemId = Items.ItemIceArrow;
-ItemList[Items.ChestIkanaGrottoRecoveryHeart].ReplacesItemId = Items.HeartPieceSwampArchery;
+ItemList[Items.ChestIkanaGrottoBombchu5].ReplacesItemId = Items.HeartPieceSwampArchery;
 ItemList[Items.ShopItemGoronRedPotion].ReplacesItemId = Items.MaskGiant;
 ItemList[Items.ChestGraveyardGrotto].ReplacesItemId = Items.HeartPieceNotebookGran1;
 ItemList[Items.ItemGreatBayBossKey].ReplacesItemId = Items.ItemStoneTowerBossKey;
@@ -1113,7 +1113,7 @@ ItemList[Items.ChestMountainVillageGrottoBottle].ReplacesItemId = Items.SongLull
 ItemList[Items.SongNewWaveBossaNova].ReplacesItemId = Items.TradeItemMountainDeed;
 ItemList[Items.HeartPieceNotebookMayor].ReplacesItemId = Items.MaskDeku;
 ItemList[Items.SongOath].ReplacesItemId = Items.MaskCouple;
-ItemList[Items.TradeItemOceanDeed].ReplacesItemId = Items.ChestIkanaGrottoRecoveryHeart;
+ItemList[Items.TradeItemOceanDeed].ReplacesItemId = Items.ChestIkanaGrottoBombchu5;
 ItemList[Items.UpgradeGiantWallet].ReplacesItemId = Items.ItemGreatBayMap;
 ItemList[Items.TradeItemPendant].ReplacesItemId = Items.HeartPieceHoneyAndDarling;
 ItemList[Items.ItemPictobox].ReplacesItemId = Items.TwinmoldTrialBombchu10;
@@ -1377,7 +1377,7 @@ ItemList[Items.HeartPieceBeaverRace].ReplacesItemId = Items.ItemHookshot;
 ItemList[Items.HeartPieceZoraGrotto].ReplacesItemId = Items.ChestHotSpringGrottoRedRupee;
 ItemList[Items.ItemPowderKeg].ReplacesItemId = Items.ItemIceArrow;
 ItemList[Items.ItemStoneTowerKey1].ReplacesItemId = Items.HeartPieceCastle;
-ItemList[Items.ItemStoneTowerKey2].ReplacesItemId = Items.ChestIkanaGrottoRecoveryHeart;
+ItemList[Items.ItemStoneTowerKey2].ReplacesItemId = Items.ChestIkanaGrottoBombchu5;
 ItemList[Items.ItemStoneTowerKey3].ReplacesItemId = Items.HeartPieceIkana;
 ItemList[Items.ItemStoneTowerKey4].ReplacesItemId = Items.ChestInnGuestRoom;
 ItemList[Items.ItemSnowheadKey1].ReplacesItemId = Items.ChestInnStaffRoom;
@@ -1477,7 +1477,7 @@ ItemList[Items.ShopItemBombsBombchu10].ReplacesItemId = Items.ItemStoneTowerComp
 ItemList[Items.ChestToGoronRaceGrotto].ReplacesItemId = Items.ItemStoneTowerKey1;
 ItemList[Items.ChestGraveyardGrotto].ReplacesItemId = Items.ItemStoneTowerKey2;
 ItemList[Items.ChestGreatBayCapeGrotto].ReplacesItemId = Items.ItemStoneTowerKey3;
-ItemList[Items.ChestIkanaGrottoRecoveryHeart].ReplacesItemId = Items.ItemStoneTowerKey4;
+ItemList[Items.ChestIkanaGrottoBombchu5].ReplacesItemId = Items.ItemStoneTowerKey4;
 ItemList[Items.ShopItemTradingPostGreenPotion].ReplacesItemId = Items.ChestInvertedStoneTowerBean;
 ItemList[Items.ChestInvertedStoneTowerBombchu10].ReplacesItemId = Items.ItemStoneTowerMap;
 ItemList[Items.UpgradeBiggestQuiver].ReplacesItemId = Items.HeartPieceSwampArchery;
@@ -1618,7 +1618,7 @@ ItemList[Items.ChestTerminaGrottoBombchu].ReplacesItemId = Items.ItemHookshot;
 ItemList[Items.ChestHotSpringGrottoRedRupee].ReplacesItemId = Items.ChestHotSpringGrottoRedRupee;
 ItemList[Items.ChestTerminaGrottoRedRupee].ReplacesItemId = Items.ItemIceArrow;
 ItemList[Items.HeartPieceCastle].ReplacesItemId = Items.HeartPieceCastle;
-ItemList[Items.ChestIkanaGrottoRecoveryHeart].ReplacesItemId = Items.ChestIkanaGrottoRecoveryHeart;
+ItemList[Items.ChestIkanaGrottoBombchu5].ReplacesItemId = Items.ChestIkanaGrottoBombchu5;
 ItemList[Items.HeartPieceIkana].ReplacesItemId = Items.HeartPieceIkana;
 ItemList[Items.ChestInnGuestRoom].ReplacesItemId = Items.ChestInnGuestRoom;
 ItemList[Items.ChestInnStaffRoom].ReplacesItemId = Items.ChestInnStaffRoom;
@@ -1792,14 +1792,14 @@ ItemList[Items.DekuPrincess].ReplacesItemId = Items.HeartPieceSouthClockTown;
 
             AddAllItems(itemPool);
             // 0 (default): test output
-            int puzzle_part = 2;
+            int puzzle_part = 4;
             if(puzzle_part == 1)
             {
               // TODO
             }
             else if(puzzle_part == 2)
             {
-              part_2_mapping();
+              part2_mapping();
             }
             else if(puzzle_part == 3)
             {

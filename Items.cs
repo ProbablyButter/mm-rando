@@ -205,7 +205,7 @@ namespace MMRando
         public const int ChestBeanGrottoRedRupee = 173;
         public const int ChestHotSpringGrottoRedRupee = 174;
         public const int ChestBadBatsGrottoPurpleRupee = 175; 
-        public const int ChestIkanaGrottoRecoveryHeart = 176; 
+        public const int ChestIkanaGrottoBombchu5 = 176; 
         public const int ChestPiratesFortressRedRupee1 = 177;
         public const int ChestPiratesFortressRedRupee2 = 178;
         public const int ChestInsidePiratesFortressTankRedRupee = 179;
@@ -221,26 +221,26 @@ namespace MMRando
         public const int ChestTerminaUnderwaterRedRupee = 189;
         public const int ChestTerminaGrassRedRupee = 190;
         public const int ChestTerminaStumpRedRupee = 191;
-        public const int ChestGreatBayCoastGrotto = 192; //contents? 
-        public const int ChestGreatBayCapeLedge1 = 193; //contents? 
-        public const int ChestGreatBayCapeLedge2 = 194; //contents? 
-        public const int ChestGreatBayCapeGrotto = 195; //contents? 
-        public const int ChestGreatBayCapeUnderwater = 196; //contents? 
+        public const int ChestGreatBayCoastGrotto = 192; //correct
+        public const int ChestGreatBayCapeLedge1 = 193; //correct
+        public const int ChestGreatBayCapeLedge2 = 194; //correct
+        public const int ChestGreatBayCapeGrotto = 195; //correct
+        public const int ChestGreatBayCapeUnderwater = 196; //correct
         public const int ChestPiratesFortressEntranceRedRupee1 = 197;
         public const int ChestPiratesFortressEntranceRedRupee2 = 198;
         public const int ChestPiratesFortressEntranceRedRupee3 = 199;
-        public const int ChestToSwampGrotto = 200; //contents? 
+        public const int ChestToSwampGrotto = 200; //correct
         public const int ChestDogRacePurpleRupee = 201;
-        public const int ChestGraveyardGrotto = 202; //contents? 
-        public const int ChestSwampGrotto = 203;  //contents? 
+        public const int ChestGraveyardGrotto = 202; //correct
+        public const int ChestSwampGrotto = 203;  //correct
         public const int ChestWoodfallBlueRupee = 204;
         public const int ChestWoodfallRedRupee = 205;
         public const int ChestWellRightPurpleRupee = 206;
         public const int ChestWellLeftPurpleRupee = 207;
-        public const int ChestMountainVillage = 208; //contents? 
+        public const int ChestMountainVillage = 208; //correct
         public const int ChestMountainVillageGrottoBottle = 209; // originally RedRupee
         public const int ChestToIkanaRedRupee = 210;
-        public const int ChestToIkanaGrotto = 211; //contents? 
+        public const int ChestToIkanaGrotto = 211; //correct 
         public const int ChestInvertedStoneTowerSilverRupee = 212;
         public const int ChestInvertedStoneTowerBombchu10 = 213;
         public const int ChestInvertedStoneTowerBean = 214;
@@ -362,7 +362,7 @@ namespace MMRando
                 ChestBeanGrottoRedRupee,
                 ChestHotSpringGrottoRedRupee,
                 ChestBadBatsGrottoPurpleRupee,
-                ChestIkanaGrottoRecoveryHeart,
+                ChestIkanaGrottoBombchu5,
                 ChestPiratesFortressRedRupee1,
                 ChestPiratesFortressRedRupee2,
                 ChestInsidePiratesFortressTankRedRupee,
