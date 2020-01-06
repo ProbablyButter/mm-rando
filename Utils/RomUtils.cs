@@ -23,7 +23,7 @@ namespace MMRando.Utils
             int veraddr = 0xC44E30;
             int settingaddr = 0xC44E70;
             string verstring = $"Undermiser\x00";
-            string settingstring = $"Part 2\x00";
+            string settingstring = $"Part 1\x00";
 
             int f = GetFileIndexForWriting(veraddr);
             var file = RomData.MMFileList[f];
